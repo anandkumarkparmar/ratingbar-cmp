@@ -1,0 +1,124 @@
+name: Release Prep
+
+on:
+  push:
+    tags:
+      - '0.*'
+      - 'v0.*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to validate (e.g. 0.1.0 or v0.1.0)'
+        required: false
+
+jobs:
+  release-prep:
+    runs-on: ubuntu-latest
+    name: Validate Tag + Build + Draft Notes
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Resolve tag
+        id: tag
+        run: |
+          if [ "${GITHUB_EVENT_NAME}" = "workflow_dispatch" ] && [ -n "${{ github.event.inputs.tag }}" ]; then
+            TAG="${{ github.event.inputs.tag }}"
+          else
+            TAG="${GITHUB_REF#refs/tags/}"
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          echo "Using tag: $TAG"
+
+      - name: Validate release version format
+        run: |
+          TAG="${{ steps.tag.outputs.tag }}"
+          if [[ ! "$TAG" =~ ^v?0\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid tag format: $TAG"
+            echo "Use format 0.x.y or v0.x.y"
+            exit 1
+          fi
+
+      - name: Validate JitPack publication task
+        run: ./gradlew clean :ratingbar-cmp:publishToMavenLocal -x test --stacktrace
+
+      - name: Build Android release artifact
+        run: ./gradlew :ratingbar-cmp:assembleRelease -x test --stacktrace
+
+      - name: Generate artifact size matrix
+        env:
+          MAX_ANDROID_AAR_BYTES: 51200
+          MAX_TOTAL_PUBLISHED_BYTES: 5242880
+        run: |
+          chmod +x scripts/report-artifact-sizes.sh
+          ./scripts/report-artifact-sizes.sh --enforce
+
+      - name: Publish artifact size summary
+        run: |
+          cat .github/artifact-size-report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload artifact size report
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifact-size-report-${{ steps.tag.outputs.tag }}
+          path: |
+            .github/artifact-size-report.md
+            .github/artifact-size-summary.env
+            .github/badges/android-aar-size.json
+            .github/badges/desktop-published-size.json
+            .github/badges/ios-published-size.json
+            .github/badges/web-published-size.json
+            .github/badges/total-published-size.json
+
+      - name: Build all modules
+        run: ./gradlew build -x iosX64Test -x iosArm64Test -x iosSimulatorArm64Test --stacktrace
+
+      - name: Generate release notes artifact
+        run: |
+          TAG="${{ steps.tag.outputs.tag }}"
+          VERSION="${TAG#v}"
+          source .github/artifact-size-summary.env
+          {
+            echo "# ratingbar-cmp ${VERSION}"
+            echo
+            echo "Release prepared for JitPack."
+            echo
+            echo "## Lightweight Size Snapshot"
+            echo "- Android AAR: ${ANDROID_AAR_BYTES} bytes (${ANDROID_AAR_KB} KB)"
+            echo "- Desktop published: ${DESKTOP_PUBLISHED_BYTES} bytes (${DESKTOP_PUBLISHED_KB} KB)"
+            echo "- iOS published: ${IOS_PUBLISHED_BYTES} bytes (${IOS_PUBLISHED_KB} KB)"
+            echo "- Web published: ${WEB_PUBLISHED_BYTES} bytes (${WEB_PUBLISHED_KB} KB)"
+            echo "- Total published artifacts: ${TOTAL_PUBLISHED_BYTES} bytes (${TOTAL_PUBLISHED_KB} KB)"
+            echo
+            echo "## Dependency"
+            echo '```kotlin'
+            echo 'repositories {'
+            echo '    maven("https://jitpack.io")'
+            echo '}'
+            echo
+            echo 'dependencies {'
+            echo "    implementation(\"com.github.anandkumarkparmar:ratingbar-cmp:${VERSION}\")"
+            echo '}'
+            echo '```'
+            echo
+            echo "## Commit Range"
+            git log --oneline -n 20
+          } > release_notes.md
+
+      - name: Upload release notes
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-notes-${{ steps.tag.outputs.tag }}
+          path: release_notes.md

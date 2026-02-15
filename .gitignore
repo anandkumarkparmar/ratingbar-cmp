@@ -1,0 +1,61 @@
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+out/
+
+# Android
+.kotlin
+*.apk
+*.ap_
+*.aab
+*.dex
+local.properties
+captures/
+.externalNativeBuild
+.cxx
+
+# Kotlin
+*.kotlin_module
+
+# macOS
+.DS_Store
+
+# iOS/Xcode
+*.xcodeproj/*
+!*.xcodeproj/project.pbxproj
+!*.xcodeproj/xcshareddata/
+*.xcworkspace/*
+!*.xcworkspace/contents.xcworkspacedata
+*.xcuserstate
+DerivedData/
+build/
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+
+# Node/Web
+node_modules/
+dist/
+*.log
+
+# Temporary files
+*.swp
+*.swo
+*~
+.tmp/
+
+# Kotlin/JS local package manager state
+kotlin-js-store/

@@ -1,0 +1,40 @@
+<svg width="1400" height="420" viewBox="0 0 1400 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg3" x1="0" y1="0" x2="1400" y2="420" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B1224"/>
+      <stop offset="1" stop-color="#111827"/>
+    </linearGradient>
+    <radialGradient id="glow3" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(980 140) rotate(120) scale(280 380)">
+      <stop stop-color="#60A5FA" stop-opacity="0.42"/>
+      <stop offset="1" stop-color="#60A5FA" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1400" height="420" fill="url(#bg3)" rx="20"/>
+  <ellipse cx="980" cy="140" rx="320" ry="220" fill="url(#glow3)"/>
+
+  <g stroke="#334155" opacity="0.6">
+    <path d="M90 82H610"/>
+    <path d="M90 340H610"/>
+    <path d="M740 340H1310"/>
+  </g>
+
+  <g fill="#E5E7EB" font-family="Inter, Segoe UI, sans-serif">
+    <text x="96" y="130" font-size="58" font-weight="700">ratingbar-cmp</text>
+    <text x="96" y="176" font-size="24" fill="#9CA3AF">Composable rating input for Kotlin Multiplatform</text>
+  </g>
+
+  <g transform="translate(96,230)">
+    <rect x="0" y="0" width="560" height="92" rx="14" fill="#0F172A" stroke="#2D3B57"/>
+    <text x="28" y="56" fill="#A5B4FC" font-size="34" font-family="Inter, Segoe UI, sans-serif">★ ★ ★ ★ ★</text>
+    <text x="368" y="57" fill="#94A3B8" font-size="20" font-family="Menlo, Consolas, monospace">step=0.5</text>
+  </g>
+
+  <g transform="translate(760,210)">
+    <rect x="0" y="0" width="520" height="120" rx="16" fill="#0B1327" stroke="#2E4060"/>
+    <text x="26" y="42" fill="#7DD3FC" font-size="18" font-family="Menlo, Consolas, monospace">Android   ✅</text>
+    <text x="26" y="72" fill="#7DD3FC" font-size="18" font-family="Menlo, Consolas, monospace">Desktop   ✅</text>
+    <text x="200" y="42" fill="#7DD3FC" font-size="18" font-family="Menlo, Consolas, monospace">iOS   ✅</text>
+    <text x="200" y="72" fill="#7DD3FC" font-size="18" font-family="Menlo, Consolas, monospace">Web   ✅</text>
+  </g>
+</svg>
