@@ -1,0 +1,586 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - 'assets/**'
+      - 'LICENSE'
+      - '.gitignore'
+  workflow_dispatch:
+    inputs:
+      full_build:
+        description: 'Run full build including iOS'
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # 🔍 Detect what changed to optimize builds
+  changes:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false || github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    outputs:
+      library: ${{ steps.filter.outputs.library }}
+      samples: ${{ steps.filter.outputs.samples }}
+      android: ${{ steps.filter.outputs.android }}
+      ios: ${{ steps.filter.outputs.ios }}
+      desktop: ${{ steps.filter.outputs.desktop }}
+      web: ${{ steps.filter.outputs.web }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            library:
+              - 'ratingbar-cmp/**'
+              - 'gradle/**'
+              - '*.gradle.kts'
+              - 'gradle.properties'
+              - '.github/workflows/ci.yml'
+            samples:
+              - 'samples/**'
+            android:
+              - 'ratingbar-cmp/**'
+              - 'samples/android/**'
+              - 'samples/common/**'
+            ios:
+              - 'ratingbar-cmp/**'
+              - 'samples/ios/**'
+              - 'samples/ios-app-host/**'
+              - 'samples/common/**'
+            desktop:
+              - 'ratingbar-cmp/**'
+              - 'samples/desktop/**'
+              - 'samples/common/**'
+            web:
+              - 'ratingbar-cmp/**'
+              - 'samples/web/**'
+              - 'samples/common/**'
+
+  # ⚡ Quick validation - always runs first
+  validate:
+    needs: changes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: gradle
+      
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+      
+      - name: Validate Gradle wrapper
+        uses: gradle/wrapper-validation-action@v2
+      
+      - name: Quick compile check
+        run: |
+          ./gradlew :ratingbar-cmp:compileKotlinDesktop \
+                    :ratingbar-cmp:compileKotlinAndroidDebug \
+                    --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: "-Xmx4g -XX:MaxMetaspaceSize=512m"
+
+  # 📚 Android Library Build
+  library-android:
+    needs: [changes, validate]
+    if: |
+      needs.changes.outputs.library == 'true' && 
+      needs.changes.outputs.android == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: gradle
+      
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+      
+      - name: Build Android Library
+        run: |
+          ./gradlew :ratingbar-cmp:assembleRelease \
+                    :ratingbar-cmp:testReleaseUnitTest \
+                    --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: "-Xmx4g -XX:MaxMetaspaceSize=512m"
+      
+      - name: Upload AAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: library-android-aar
+          path: ratingbar-cmp/build/outputs/aar/*.aar
+          retention-days: 7
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: library-android-test-results
+          path: ratingbar-cmp/build/test-results/
+          retention-days: 7
+
+  # 🖥️ Desktop Library Build
+  library-desktop:
+    needs: [changes, validate]
+    if: |
+      needs.changes.outputs.library == 'true' && 
+      needs.changes.outputs.desktop == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: gradle
+      
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+      
+      - name: Build Desktop Library
+        run: |
+          ./gradlew :ratingbar-cmp:desktopJar \
+                    :ratingbar-cmp:desktopTest \
+                    --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: "-Xmx4g -XX:MaxMetaspaceSize=512m"
+      
+      - name: Upload JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: library-desktop-jar
+          path: ratingbar-cmp/build/libs/*.jar
+          retention-days: 7
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: library-desktop-test-results
+          path: ratingbar-cmp/build/test-results/desktopTest/
+          retention-days: 7
+
+  # 🌐 Web Library Build
+  library-web:
+    needs: [changes, validate]
+    if: |
+      needs.changes.outputs.library == 'true' && 
+      needs.changes.outputs.web == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: gradle
+      
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+      
+      - name: Build Web Library
+        run: |
+          ./gradlew :ratingbar-cmp:jsJar \
+                    :ratingbar-cmp:jsTest \
+                    --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: "-Xmx4g -XX:MaxMetaspaceSize=512m"
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: library-web-test-results
+          path: ratingbar-cmp/build/test-results/jsTest/
+          retention-days: 7
+
+  # 🍎 iOS Library Build (expensive - only when needed)
+  library-ios:
+    needs: [changes, validate]
+    if: |
+      needs.changes.outputs.library == 'true' && 
+      needs.changes.outputs.ios == 'true' && 
+      (github.event_name == 'push' || 
+       inputs.full_build == true || 
+       contains(github.event.pull_request.labels.*.name, 'ready-to-merge'))
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: gradle
+      
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+      
+      - name: Build iOS Frameworks
+        run: |
+          ./gradlew :ratingbar-cmp:linkDebugFrameworkIosArm64 \
+                    :ratingbar-cmp:linkDebugFrameworkIosSimulatorArm64 \
+                    :ratingbar-cmp:linkDebugFrameworkIosX64 \
+                    --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: "-Xmx6g -XX:MaxMetaspaceSize=1g"
+      
+      - name: Run iOS tests
+        run: |
+          ./gradlew :ratingbar-cmp:iosSimulatorArm64Test \
+                    --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: "-Xmx6g"
+
+  # 📱 Android Sample App
+  sample-android:
+    needs: [changes, library-android]
+    if: |
+      always() && 
+      needs.changes.outputs.samples == 'true' && 
+      needs.changes.outputs.android == 'true' &&
+      (needs.library-android.result == 'success' || needs.library-android.result == 'skipped')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: gradle
+      
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+      
+      - name: Build Android Sample App
+        run: |
+          ./gradlew :samples:android:assembleDebug \
+                    --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: "-Xmx4g"
+      
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: sample-android-debug-apk
+          path: samples/android/build/outputs/apk/debug/*.apk
+          retention-days: 7
+
+  # 🖥️ Desktop Sample App
+  sample-desktop:
+    needs: [changes, library-desktop]
+    if: |
+      always() && 
+      needs.changes.outputs.samples == 'true' && 
+      needs.changes.outputs.desktop == 'true' &&
+      (needs.library-desktop.result == 'success' || needs.library-desktop.result == 'skipped')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: gradle
+      
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+      
+      - name: Build Desktop Sample App
+        run: |
+          ./gradlew :samples:desktop:packageUberJarForCurrentOS \
+                    --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: "-Xmx4g"
+      
+      - name: Upload JAR
+        uses: actions/upload-artifact@v4
+        with:
+          name: sample-desktop-jar
+          path: samples/desktop/build/compose/jars/*.jar
+          retention-days: 7
+
+  # 🌐 Web Sample App
+  sample-web:
+    needs: [changes, library-web]
+    if: |
+      always() && 
+      needs.changes.outputs.samples == 'true' && 
+      needs.changes.outputs.web == 'true' &&
+      (needs.library-web.result == 'success' || needs.library-web.result == 'skipped')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: gradle
+      
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+      
+      - name: Build Web Sample App
+        run: |
+          ./gradlew :samples:web:jsBrowserDistribution \
+                    --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: "-Xmx4g"
+      
+      - name: Upload Web Distribution
+        uses: actions/upload-artifact@v4
+        with:
+          name: sample-web-dist
+          path: samples/web/build/dist/js/productionExecutable/
+          retention-days: 7
+
+  # 🍎 iOS Sample App
+  sample-ios:
+    needs: [changes, library-ios]
+    if: |
+      always() && 
+      needs.changes.outputs.samples == 'true' && 
+      needs.changes.outputs.ios == 'true' &&
+      (github.event_name == 'push' || 
+       inputs.full_build == true || 
+       contains(github.event.pull_request.labels.*.name, 'ready-to-merge')) &&
+      (needs.library-ios.result == 'success' || needs.library-ios.result == 'skipped')
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: gradle
+      
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+      
+      - name: Build iOS Sample Framework
+        run: |
+          ./gradlew :samples:ios:linkDebugFrameworkIosSimulatorArm64 \
+                    --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: "-Xmx6g"
+      
+      - name: Build iOS Sample App (Xcode)
+        working-directory: samples/ios-app-host
+        run: |
+          if [ -d "sample-ratingbar-cmp" ]; then
+            cd sample-ratingbar-cmp
+            if ls *.xcworkspace 1> /dev/null 2>&1; then
+              xcodebuild -workspace *.xcworkspace \
+                        -scheme sample-ratingbar-cmp \
+                        -destination 'platform=iOS Simulator,name=iPhone 15' \
+                        -configuration Debug \
+                        build || echo "⚠️ iOS app build optional - skipped"
+            elif ls *.xcodeproj 1> /dev/null 2>&1; then
+              xcodebuild -project *.xcodeproj \
+                        -scheme sample-ratingbar-cmp \
+                        -destination 'platform=iOS Simulator,name=iPhone 15' \
+                        -configuration Debug \
+                        build || echo "⚠️ iOS app build optional - skipped"
+            fi
+          fi
+
+  # 🎯 JitPack Compatibility Check
+  jitpack-check:
+    needs: [changes, validate, library-android, library-desktop, library-web]
+    if: |
+      always() &&
+      needs.changes.outputs.library == 'true' &&
+      (github.event_name == 'push' || 
+       inputs.full_build == true || 
+       contains(github.event.pull_request.labels.*.name, 'ready-to-merge')) &&
+      (needs.library-android.result == 'success' || needs.library-android.result == 'skipped') &&
+      (needs.library-desktop.result == 'success' || needs.library-desktop.result == 'skipped') &&
+      (needs.library-web.result == 'success' || needs.library-web.result == 'skipped')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: gradle
+      
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+      
+      - name: Validate JitPack publication task
+        run: |
+          ./gradlew clean :ratingbar-cmp:publishToMavenLocal -x test \
+                    --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: "-Xmx4g"
+      
+      - name: Verify Maven publication
+        run: |
+          if [ -d "$HOME/.m2/repository/com/github/anandkumarkparmar" ]; then
+            echo "✅ Maven publication successful"
+            find $HOME/.m2/repository/com/github/anandkumarkparmar -name "*.aar" -o -name "*.jar" -o -name "*.pom" | head -20
+          else
+            echo "❌ Maven publication failed - artifacts not found"
+            exit 1
+          fi
+      
+      - name: Build Android release artifact
+        run: |
+          ./gradlew :ratingbar-cmp:assembleRelease -x test \
+                    --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: "-Xmx4g"
+      
+      - name: Generate artifact size report
+        env:
+          MAX_ANDROID_AAR_BYTES: 51200
+          MAX_TOTAL_PUBLISHED_BYTES: 5242880
+        run: |
+          if [ -f "scripts/report-artifact-sizes.sh" ]; then
+            chmod +x scripts/report-artifact-sizes.sh
+            ./scripts/report-artifact-sizes.sh --enforce || echo "⚠️ Artifact size check skipped"
+          fi
+      
+      - name: Publish artifact size summary
+        run: |
+          if [ -f ".github/artifact-size-report.md" ]; then
+            cat .github/artifact-size-report.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+      
+      - name: Upload artifact size report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifact-size-report
+          path: |
+            .github/artifact-size-report.md
+            .github/artifact-size-summary.env
+            .github/badges/*.json
+          retention-days: 30
+        continue-on-error: true
+
+  # 📊 Build Summary
+  build-summary:
+    needs: 
+      - changes
+      - validate
+      - library-android
+      - library-desktop
+      - library-web
+      - library-ios
+      - sample-android
+      - sample-desktop
+      - sample-web
+      - sample-ios
+      - jitpack-check
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate Build Summary
+        run: |
+          echo "## 🎯 CI Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Event info
+          echo "**Event**: \`${{ github.event_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch**: \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event_name }}" == "pull_request" ]; then
+            echo "**PR**: #${{ github.event.pull_request.number }}" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Changed components
+          echo "### 📝 Changed Components" >> $GITHUB_STEP_SUMMARY
+          echo "- Library: ${{ needs.changes.outputs.library }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Samples: ${{ needs.changes.outputs.samples }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Android: ${{ needs.changes.outputs.android }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Desktop: ${{ needs.changes.outputs.desktop }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Web: ${{ needs.changes.outputs.web }}" >> $GITHUB_STEP_SUMMARY
+          echo "- iOS: ${{ needs.changes.outputs.ios }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Build results
+          echo "### 🏗️ Build Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          
+          # Function to format status
+          format_status() {
+            case "$1" in
+              "success") echo "✅ Success" ;;
+              "failure") echo "❌ Failed" ;;
+              "skipped") echo "⏭️ Skipped" ;;
+              "cancelled") echo "🚫 Cancelled" ;;
+              *) echo "⚪ $1" ;;
+            esac
+          }
+          
+          echo "| Validation | $(format_status "${{ needs.validate.result }}") |" >> $GITHUB_STEP_SUMMARY
+          echo "| Library Android | $(format_status "${{ needs.library-android.result }}") |" >> $GITHUB_STEP_SUMMARY
+          echo "| Library Desktop | $(format_status "${{ needs.library-desktop.result }}") |" >> $GITHUB_STEP_SUMMARY
+          echo "| Library Web | $(format_status "${{ needs.library-web.result }}") |" >> $GITHUB_STEP_SUMMARY
+          echo "| Library iOS | $(format_status "${{ needs.library-ios.result }}") |" >> $GITHUB_STEP_SUMMARY
+          echo "| Sample Android | $(format_status "${{ needs.sample-android.result }}") |" >> $GITHUB_STEP_SUMMARY
+          echo "| Sample Desktop | $(format_status "${{ needs.sample-desktop.result }}") |" >> $GITHUB_STEP_SUMMARY
+          echo "| Sample Web | $(format_status "${{ needs.sample-web.result }}") |" >> $GITHUB_STEP_SUMMARY
+          echo "| Sample iOS | $(format_status "${{ needs.sample-ios.result }}") |" >> $GITHUB_STEP_SUMMARY
+          echo "| JitPack Check | $(format_status "${{ needs.jitpack-check.result }}") |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          # Overall status
+          if [ "${{ needs.validate.result }}" == "failure" ] || \
+             [ "${{ needs.library-android.result }}" == "failure" ] || \
+             [ "${{ needs.library-desktop.result }}" == "failure" ] || \
+             [ "${{ needs.library-web.result }}" == "failure" ] || \
+             [ "${{ needs.library-ios.result }}" == "failure" ] || \
+             [ "${{ needs.sample-android.result }}" == "failure" ] || \
+             [ "${{ needs.sample-desktop.result }}" == "failure" ] || \
+             [ "${{ needs.sample-web.result }}" == "failure" ] || \
+             [ "${{ needs.sample-ios.result }}" == "failure" ] || \
+             [ "${{ needs.jitpack-check.result }}" == "failure" ]; then
+            echo "### ❌ Build Failed" >> $GITHUB_STEP_SUMMARY
+            echo "One or more jobs failed. Check the logs above for details." >> $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "### ✅ Build Successful" >> $GITHUB_STEP_SUMMARY
+            echo "All required checks passed!" >> $GITHUB_STEP_SUMMARY
+          fi

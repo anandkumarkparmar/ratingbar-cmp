@@ -74,8 +74,6 @@ jobs:
   build-and-verify:
     runs-on: ${{ matrix.os }}
     needs: quick-check
-    # Skip for draft PRs unless manually triggered with full build or push to main
-    if: (github.event.pull_request.draft == false || github.event_name == 'workflow_dispatch' || github.event_name == 'push')
     strategy:
       fail-fast: false
       matrix:
@@ -93,12 +91,13 @@ jobs:
             required: false
 
     name: Build - ${{ matrix.name }}
-    # Skip non-required builds unless full build requested, ready for merge, or push to main
+    # Skip draft PRs; macOS runs only for full builds, ready-to-merge, or push to main
     if: |
-      matrix.required == true || 
-      inputs.run-full-build == true ||
-      github.event_name == 'push' ||
-      (github.event.pull_request.draft == false && contains(github.event.pull_request.labels.*.name, 'ready-to-merge'))
+      (github.event.pull_request.draft == false || github.event_name == 'workflow_dispatch' || github.event_name == 'push') &&
+      (matrix.required == true || 
+       inputs.run-full-build == true ||
+       github.event_name == 'push' ||
+       (github.event.pull_request.draft == false && contains(github.event.pull_request.labels.*.name, 'ready-to-merge')))
     
     steps:
       - uses: actions/checkout@v4
