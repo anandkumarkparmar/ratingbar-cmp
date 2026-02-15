@@ -93,7 +93,7 @@ jobs:
       - name: Quick compile check
         run: |
           ./gradlew :ratingbar-cmp:compileKotlinDesktop \
-                    :ratingbar-cmp:compileKotlinAndroidDebug \
+                    :ratingbar-cmp:compileDebugKotlinAndroid \
                     --no-daemon --stacktrace
         env:
           GRADLE_OPTS: "-Xmx4g -XX:MaxMetaspaceSize=512m"
