@@ -11,7 +11,7 @@
 [![Web published size](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/anandkumarkparmar/ratingbar-cmp/main/.github/badges/web-published-size.json)](https://github.com/anandkumarkparmar/ratingbar-cmp/actions)
 [![Total published size](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/anandkumarkparmar/ratingbar-cmp/main/.github/badges/total-published-size.json)](https://github.com/anandkumarkparmar/ratingbar-cmp/actions)
 
-A lightweight, accessible, Compose Multiplatform rating component for Android, Desktop, iOS, and Web.
+A lightweight, accessible, Compose Multiplatform RatingBar component for Android, Desktop, iOS, and Web.
 
 ---
 
@@ -130,8 +130,10 @@ Add your GIF files at these paths and they can be embedded here when ready.
 # iOS framework (for Compose shared module)
 ./gradlew :samples:ios:linkDebugFrameworkIosSimulatorArm64
 
-# iOS app host placeholder (create your Xcode app here)
-# See: samples/ios-app-host/README.md
+# iOS app (See: samples/ios-app-host/README.md)
+1. Open `samples/ios-app-host/sample-ratingbar-cmp/sample-ratingbar-cmp.xcodeproj`.
+2. Select an iOS Simulator
+3. Build & Run.
 
 # Web
 ./gradlew :samples:web:jsBrowserDevelopmentRun
