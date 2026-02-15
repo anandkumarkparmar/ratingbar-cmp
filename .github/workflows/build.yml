@@ -1,29 +1,51 @@
 name: CI
 
 on:
+  # Run on push to main to verify main branch health
   push:
     branches: [ main ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/**'
+      - '!.github/workflows/**'
+      - 'assets/**'
+      - 'LICENSE'
+      - '.gitignore'
+  
+  # Run on pull requests
   pull_request:
     branches: [ main ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/**'
+      - '!.github/workflows/**'
+      - 'assets/**'
+      - 'LICENSE'
+      - '.gitignore'
+  
+  # Manual trigger for on-demand builds
+  workflow_dispatch:
+    inputs:
+      run-full-build:
+        description: 'Run full build including all platforms'
+        required: false
+        type: boolean
+        default: false
+
+# Cancel in-progress runs for the same PR/branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
-  build-and-verify:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          # Linux: JVM & JS
-          - os: ubuntu-latest
-            name: "Linux (JVM/JS)"
-            gradle-args: "build -x iosX64Test -x iosArm64Test -x iosSimulatorArm64Test"
-          
-          # macOS: All targets
-          - os: macos-latest
-            name: "macOS (JVM/JS/iOS)"
-            gradle-args: "build"
-
-    name: Build - ${{ matrix.name }}
+  # Quick validation job - runs first to fail fast
+  quick-check:
+    runs-on: ubuntu-latest
+    name: Quick Validation
+    # Skip for draft PRs unless manually triggered or push to main
+    if: github.event.pull_request.draft == false || github.event_name == 'workflow_dispatch' || github.event_name == 'push'
     
     steps:
       - uses: actions/checkout@v4
@@ -37,9 +59,71 @@ jobs:
       
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
+      
+      - name: Configure Gradle Memory
+        run: |
+          mkdir -p ~/.gradle
+          echo "org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m" >> ~/.gradle/gradle.properties
+          echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties
+      
+      - name: Quick compile check (library only)
+        run: ./gradlew :ratingbar-cmp:compileKotlinDesktop :ratingbar-cmp:compileKotlinAndroidDebug --no-daemon --stacktrace
+
+  build-and-verify:
+    runs-on: ${{ matrix.os }}
+    needs: quick-check
+    # Skip for draft PRs unless manually triggered with full build or push to main
+    if: (github.event.pull_request.draft == false || github.event_name == 'workflow_dispatch' || github.event_name == 'push')
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux: JVM & JS only (fastest, covers most issues)
+          - os: ubuntu-latest
+            name: "Linux (JVM/JS)"
+            gradle-args: ":ratingbar-cmp:desktopTest :ratingbar-cmp:jsTest"
+            required: true
+          
+          # macOS: Only run for full builds or manual trigger
+          - os: macos-latest
+            name: "macOS (All Targets)"
+            gradle-args: "build"
+            required: false
+
+    name: Build - ${{ matrix.name }}
+    # Skip non-required builds unless full build requested, ready for merge, or push to main
+    if: |
+      matrix.required == true || 
+      inputs.run-full-build == true ||
+      github.event_name == 'push' ||
+      (github.event.pull_request.draft == false && contains(github.event.pull_request.labels.*.name, 'ready-to-merge'))
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+      
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
+      
+      - name: Configure Gradle Memory
+        run: |
+          mkdir -p ~/.gradle
+          echo "org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError" >> ~/.gradle/gradle.properties
+          echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties
+          echo "org.gradle.parallel=true" >> ~/.gradle/gradle.properties
       
       - name: Build all modules
-        run: ./gradlew ${{ matrix.gradle-args }} --stacktrace
+        run: ./gradlew ${{ matrix.gradle-args }} --no-daemon --stacktrace
       
       - name: Upload test results
         if: always()
@@ -53,6 +137,12 @@ jobs:
   jitpack-check:
     runs-on: ubuntu-latest
     name: JitPack Compatibility
+    needs: quick-check, manual trigger, or push to main
+    if: |
+      inputs.run-full-build == true ||
+      github.event_name == 'push'
+      inputs.run-full-build == true ||
+      (github.event.pull_request.draft == false && contains(github.event.pull_request.labels.*.name, 'ready-to-merge'))
     
     steps:
       - uses: actions/checkout@v4
@@ -66,12 +156,21 @@ jobs:
       
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
+      
+      - name: Configure Gradle Memory
+        run: |
+          mkdir -p ~/.gradle
+          echo "org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError" >> ~/.gradle/gradle.properties
+          echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties
+          echo "org.gradle.parallel=true" >> ~/.gradle/gradle.properties
       
       - name: Validate JitPack publication task
-        run: ./gradlew clean :ratingbar-cmp:publishToMavenLocal -x test --stacktrace
+        run: ./gradlew clean :ratingbar-cmp:publishToMavenLocal -x test --no-daemon --stacktrace
 
       - name: Build Android release artifact
-        run: ./gradlew :ratingbar-cmp:assembleRelease -x test --stacktrace
+        run: ./gradlew :ratingbar-cmp:assembleRelease -x test --no-daemon --stacktrace
 
       - name: Generate artifact size matrix
         env:
@@ -102,7 +201,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Test Summary
     if: always()
-    needs: [ build-and-verify, jitpack-check ]
+    needs: [ quick-check, build-and-verify ]
     
     steps:
       - name: Download all test results
@@ -114,9 +213,13 @@ jobs:
       - name: Publish test results summary
         run: |
           echo "## Build & Test Results"
-          echo "✅ CI completed"
-          if [ "${{ needs.build-and-verify.result }}" == 'failure' ] || [ "${{ needs.jitpack-check.result }}" == 'failure' ]; then
-            echo "❌ Build or JitPack compatibility checks failed"
+          if [ "${{ needs.quick-check.result }}" == 'failure' ]; then
+            echo "❌ Quick validation failed"
             exit 1
+          elif [ "${{ needs.build-and-verify.result }}" == 'failure' ]; then
+            echo "❌ Build or tests failed"
+            exit 1
+          else
+            echo "✅ All checks passed"
           fi
         continue-on-error: true

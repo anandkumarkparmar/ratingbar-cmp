@@ -59,3 +59,7 @@ dist/
 
 # Kotlin/JS local package manager state
 kotlin-js-store/
+
+# Heap dumps
+*.hprof
+java_*.hprof
