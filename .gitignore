@@ -63,3 +63,5 @@ kotlin-js-store/
 # Heap dumps
 *.hprof
 java_*.hprof
+
+.vscode
