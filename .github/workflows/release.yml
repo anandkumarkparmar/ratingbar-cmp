@@ -83,7 +83,18 @@ jobs:
             .github/badges/total-published-size.json
 
       - name: Build all modules
-        run: ./gradlew build -x iosX64Test -x iosArm64Test -x iosSimulatorArm64Test --stacktrace
+        run: |
+          ./gradlew build \
+            -x :ratingbar-cmp:iosX64TestBinaries \
+            -x :ratingbar-cmp:iosX64TestKlibrary \
+            -x :ratingbar-cmp:iosX64TestProcessResources \
+            -x :ratingbar-cmp:iosArm64TestBinaries \
+            -x :ratingbar-cmp:iosArm64TestKlibrary \
+            -x :ratingbar-cmp:iosArm64TestProcessResources \
+            -x :ratingbar-cmp:iosSimulatorArm64TestBinaries \
+            -x :ratingbar-cmp:iosSimulatorArm64TestKlibrary \
+            -x :ratingbar-cmp:iosSimulatorArm64TestProcessResources \
+            --stacktrace
 
       - name: Generate release notes artifact
         run: |
