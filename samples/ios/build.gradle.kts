@@ -18,6 +18,7 @@ kotlin {
     
     sourceSets {
         val iosMain by creating {
+            dependsOn(commonMain.get())
             dependencies {
                 implementation(project(":ratingbar-cmp"))
                 implementation(project(":samples:common"))

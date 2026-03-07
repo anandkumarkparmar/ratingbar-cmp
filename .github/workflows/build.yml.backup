@@ -1,0 +1,224 @@
+name: CI
+
+on:
+  # Run on push to main to verify main branch health
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/**'
+      - '!.github/workflows/**'
+      - 'assets/**'
+      - 'LICENSE'
+      - '.gitignore'
+  
+  # Run on pull requests
+  pull_request:
+    branches: [ main ]
+    paths-ignore:
+      - '**.md'
+      - 'docs/**'
+      - '.github/**'
+      - '!.github/workflows/**'
+      - 'assets/**'
+      - 'LICENSE'
+      - '.gitignore'
+  
+  # Manual trigger for on-demand builds
+  workflow_dispatch:
+    inputs:
+      run-full-build:
+        description: 'Run full build including all platforms'
+        required: false
+        type: boolean
+        default: false
+
+# Cancel in-progress runs for the same PR/branch
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Quick validation job - runs first to fail fast
+  quick-check:
+    runs-on: ubuntu-latest
+    name: Quick Validation
+    # Skip for draft PRs unless manually triggered or push to main
+    if: github.event.pull_request.draft == false || github.event_name == 'workflow_dispatch' || github.event_name == 'push'
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+      
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
+      
+      - name: Configure Gradle Memory
+        run: |
+          mkdir -p ~/.gradle
+          echo "org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m" >> ~/.gradle/gradle.properties
+          echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties
+      
+      - name: Quick compile check (library only)
+        run: ./gradlew :ratingbar-cmp:compileKotlinDesktop :ratingbar-cmp:compileKotlinAndroidDebug --no-daemon --stacktrace
+
+  build-and-verify:
+    runs-on: ${{ matrix.os }}
+    needs: quick-check
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Linux: JVM & JS only (fastest, covers most issues)
+          - os: ubuntu-latest
+            name: "Linux (JVM/JS)"
+            gradle-args: ":ratingbar-cmp:desktopTest :ratingbar-cmp:jsTest"
+            required: true
+          
+          # macOS: Only run for full builds or manual trigger
+          - os: macos-latest
+            name: "macOS (All Targets)"
+            gradle-args: "build"
+            required: false
+
+    name: Build - ${{ matrix.name }}
+    # Skip draft PRs; macOS runs only for full builds, ready-to-merge, or push to main
+    if: |
+      (github.event.pull_request.draft == false || github.event_name == 'workflow_dispatch' || github.event_name == 'push') &&
+      (matrix.required == true || 
+       inputs.run-full-build == true ||
+       github.event_name == 'push' ||
+       (github.event.pull_request.draft == false && contains(github.event.pull_request.labels.*.name, 'ready-to-merge')))
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+      
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
+      
+      - name: Configure Gradle Memory
+        run: |
+          mkdir -p ~/.gradle
+          echo "org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError" >> ~/.gradle/gradle.properties
+          echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties
+          echo "org.gradle.parallel=true" >> ~/.gradle/gradle.properties
+      
+      - name: Build all modules
+        run: ./gradlew ${{ matrix.gradle-args }} --no-daemon --stacktrace
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.os }}
+          path: |
+            **/build/reports/tests/
+            **/build/test-results/
+
+  jitpack-check:
+    runs-on: ubuntu-latest
+    name: JitPack Compatibility
+    needs: quick-check, manual trigger, or push to main
+    if: |
+      inputs.run-full-build == true ||
+      github.event_name == 'push'
+      inputs.run-full-build == true ||
+      (github.event.pull_request.draft == false && contains(github.event.pull_request.labels.*.name, 'ready-to-merge'))
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+      
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          cache-read-only: false
+      
+      - name: Configure Gradle Memory
+        run: |
+          mkdir -p ~/.gradle
+          echo "org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=512m -XX:+HeapDumpOnOutOfMemoryError" >> ~/.gradle/gradle.properties
+          echo "org.gradle.daemon=false" >> ~/.gradle/gradle.properties
+          echo "org.gradle.parallel=true" >> ~/.gradle/gradle.properties
+      
+      - name: Validate JitPack publication task
+        run: ./gradlew clean :ratingbar-cmp:publishToMavenLocal -x test --no-daemon --stacktrace
+
+      - name: Build Android release artifact
+        run: ./gradlew :ratingbar-cmp:assembleRelease -x test --no-daemon --stacktrace
+
+      - name: Generate artifact size matrix
+        env:
+          MAX_ANDROID_AAR_BYTES: 51200
+          MAX_TOTAL_PUBLISHED_BYTES: 5242880
+        run: |
+          chmod +x scripts/report-artifact-sizes.sh
+          ./scripts/report-artifact-sizes.sh --enforce
+
+      - name: Publish artifact size summary
+        run: |
+          cat .github/artifact-size-report.md >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload artifact size report
+        uses: actions/upload-artifact@v4
+        with:
+          name: artifact-size-report
+          path: |
+            .github/artifact-size-report.md
+            .github/artifact-size-summary.env
+            .github/badges/android-aar-size.json
+            .github/badges/desktop-published-size.json
+            .github/badges/ios-published-size.json
+            .github/badges/web-published-size.json
+            .github/badges/total-published-size.json
+
+  test-summary:
+    runs-on: ubuntu-latest
+    name: Test Summary
+    if: always()
+    needs: [ quick-check, build-and-verify ]
+    
+    steps:
+      - name: Download all test results
+        uses: actions/download-artifact@v4
+        with:
+          path: test-results
+        continue-on-error: true
+      
+      - name: Publish test results summary
+        run: |
+          echo "## Build & Test Results"
+          if [ "${{ needs.quick-check.result }}" == 'failure' ]; then
+            echo "❌ Quick validation failed"
+            exit 1
+          elif [ "${{ needs.build-and-verify.result }}" == 'failure' ]; then
+            echo "❌ Build or tests failed"
+            exit 1
+          else
+            echo "✅ All checks passed"
+          fi
+        continue-on-error: true

@@ -6,7 +6,15 @@ plugins {
 }
 
 kotlin {
-    androidTarget()
+    android {
+        namespace = "com.github.anandkumarkparmar.ratingbar.sample.common"
+        compileSdk = libs.versions.compileSdk.get().toInt()
+        minSdk = libs.versions.minSdk.get().toInt()
+
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        }
+    }
     jvm("desktop")
     
     listOf(
@@ -35,23 +43,5 @@ kotlin {
                 implementation(libs.compose.mpp.material3)
             }
         }
-    }
-}
-
-android {
-    namespace = "com.github.anandkumarkparmar.ratingbar.sample.common"
-    compileSdk = libs.versions.compileSdk.get().toInt()
-    
-    defaultConfig {
-        minSdk = libs.versions.minSdk.get().toInt()
-    }
-    
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    
-    kotlin {
-        jvmToolchain(17)
     }
 }

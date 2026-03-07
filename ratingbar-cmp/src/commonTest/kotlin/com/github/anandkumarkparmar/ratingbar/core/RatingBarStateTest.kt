@@ -80,4 +80,60 @@ class RatingBarStateTest {
         assertEquals(4.0f, RatingBarState.roundToStep(4.1f, 1f))
         assertEquals(2.5f, RatingBarState.roundToStep(2.6f, 0.5f))
     }
+    
+    @Test
+    fun testSteppedValueNeverExceedsMax() {
+        val config = RatingBarConfig(max = 5, step = 2f)
+        val state = RatingBarState(value = 5f, config = config)
+        assertTrue(
+            state.steppedValue <= config.max,
+            "steppedValue (${state.steppedValue}) must not exceed max (${config.max})"
+        )
+        
+        val state2 = RatingBarState(value = 4.5f, config = RatingBarConfig(max = 5, step = 3f))
+        assertTrue(
+            state2.steppedValue <= 5f,
+            "steppedValue (${state2.steppedValue}) must not exceed max (5)"
+        )
+    }
+    
+    @Test
+    fun testStepGreaterThanMaxValidation() {
+        assertFailsWith<IllegalArgumentException>("step > max should be rejected") {
+            RatingBarConfig(max = 3, step = 5f)
+        }
+        
+        assertFailsWith<IllegalArgumentException>("step > max should be rejected") {
+            RatingBarConfig(max = 1, step = 1.5f)
+        }
+    }
+    
+    @Test
+    fun testStepEqualToMaxIsValid() {
+        val config = RatingBarConfig(max = 5, step = 5f)
+        val state = RatingBarState(value = 3f, config = config)
+        assertTrue(state.steppedValue <= config.max)
+    }
+    
+    @Test
+    fun testFillFractionEdgeCases() {
+        assertEquals(0f, RatingBarState.fillFraction(0, 0f), "Zero value should give empty fill")
+        assertEquals(1f, RatingBarState.fillFraction(0, 1f), "Exact item boundary should be full")
+        assertEquals(0f, RatingBarState.fillFraction(0, -1f), "Negative value should give empty fill")
+        assertEquals(0.1f, RatingBarState.fillFraction(0, 0.1f), "Small fractional value")
+        assertEquals(0.9f, RatingBarState.fillFraction(0, 0.9f), "Large fractional value below 1")
+    }
+    
+    @Test
+    fun testRoundToStepWithZeroStep() {
+        assertEquals(3.7f, RatingBarState.roundToStep(3.7f, 0f), "Zero step should return value as-is")
+    }
+    
+    @Test
+    fun testRoundToStepBoundaryValues() {
+        assertEquals(0f, RatingBarState.roundToStep(0f, 0.5f), "Zero value rounds to zero")
+        assertEquals(0.5f, RatingBarState.roundToStep(0.25f, 0.5f), "0.25 rounds to 0.5 with step 0.5")
+        assertEquals(0f, RatingBarState.roundToStep(0.2f, 0.5f), "0.2 rounds to 0.0 with step 0.5")
+        assertEquals(1.0f, RatingBarState.roundToStep(1.0f, 0.5f), "Exact step boundary stays")
+    }
 }
