@@ -93,7 +93,7 @@ jobs:
       - name: Quick compile check
         run: |
           ./gradlew :ratingbar-cmp:compileKotlinDesktop \
-                    :ratingbar-cmp:compileDebugKotlinAndroid \
+                    :ratingbar-cmp:compileAndroidMain \
                     --no-daemon --stacktrace
         env:
           GRADLE_OPTS: "-Xmx4g -XX:MaxMetaspaceSize=512m"
@@ -120,8 +120,8 @@ jobs:
       
       - name: Build Android Library
         run: |
-          ./gradlew :ratingbar-cmp:assembleRelease \
-                    :ratingbar-cmp:testReleaseUnitTest \
+          ./gradlew :ratingbar-cmp:bundleAndroidMainAar \
+                    :ratingbar-cmp:assembleUnitTest \
                     --no-daemon --stacktrace
         env:
           GRADLE_OPTS: "-Xmx4g -XX:MaxMetaspaceSize=512m"
@@ -464,7 +464,7 @@ jobs:
       
       - name: Build Android release artifact
         run: |
-          ./gradlew :ratingbar-cmp:assembleRelease -x test \
+          ./gradlew :ratingbar-cmp:bundleAndroidMainAar -x test \
                     --no-daemon --stacktrace
         env:
           GRADLE_OPTS: "-Xmx4g"

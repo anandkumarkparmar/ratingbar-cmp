@@ -55,7 +55,7 @@ jobs:
         run: ./gradlew clean :ratingbar-cmp:publishToMavenLocal -x test --stacktrace
 
       - name: Build Android release artifact
-        run: ./gradlew :ratingbar-cmp:assembleRelease -x test --stacktrace
+        run: ./gradlew :ratingbar-cmp:bundleAndroidMainAar -x test --stacktrace
 
       - name: Generate artifact size matrix
         env:

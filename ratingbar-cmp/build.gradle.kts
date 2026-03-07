@@ -7,8 +7,14 @@ plugins {
 }
 
 kotlin {
-    androidTarget {
-        publishLibraryVariants("release", "debug")
+    android {
+        namespace = "com.github.anandkumarkparmar.ratingbar"
+        compileSdk = libs.versions.compileSdk.get().toInt()
+        minSdk = libs.versions.minSdk.get().toInt()
+
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+        }
     }
     
     jvm("desktop")
@@ -69,24 +75,6 @@ kotlin {
         val iosSimulatorArm64Main by getting {
             dependsOn(iosMain)
         }
-    }
-}
-
-android {
-    namespace = "com.github.anandkumarkparmar.ratingbar"
-    compileSdk = libs.versions.compileSdk.get().toInt()
-    
-    defaultConfig {
-        minSdk = libs.versions.minSdk.get().toInt()
-    }
-    
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    
-    kotlin {
-        jvmToolchain(17)
     }
 }
 

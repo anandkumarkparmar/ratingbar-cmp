@@ -13,6 +13,7 @@ data class RatingBarConfig(
     init {
         require(max > 0) { "max must be greater than 0" }
         require(step > 0) { "step must be greater than 0" }
+        require(step <= max) { "step must be less than or equal to max" }
     }
 }
 
@@ -32,9 +33,10 @@ data class RatingBarState(
     val clampedValue: Float = value.coerceIn(0f, config.max.toFloat())
     
     /**
-     * The value rounded to the nearest step
+     * The value rounded to the nearest step, clamped to [0, config.max].
      */
     val steppedValue: Float = roundToStep(clampedValue, config.step)
+        .coerceIn(0f, config.max.toFloat())
     
     /**
      * Returns a new state with the given value, applying clamping and stepping.
@@ -69,25 +71,4 @@ data class RatingBarState(
             }
         }
     }
-}
-
-/**
- * Event representing a rating bar interaction.
- *
- * @property value The new rating value
- * @property source The source of the interaction
- */
-data class RatingBarEvent(
-    val value: Float,
-    val source: InteractionSource
-)
-
-/**
- * The source of a rating bar interaction.
- */
-enum class InteractionSource {
-    MOUSE,
-    TOUCH,
-    KEYBOARD,
-    PROGRAMMATIC
 }
