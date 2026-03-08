@@ -81,7 +81,14 @@ run_step "Library: compile JS" \
 run_step "Library: JS JAR" \
   $GW :ratingbar-cmp:jsJar --stacktrace
 
-# ── 6. Library — iOS frameworks ───────────────────────────────────────────────
+# ── 6. Quality gates ──────────────────────────────────────────────────────────
+run_step "Library: API compatibility check" \
+  $GW :ratingbar-cmp:apiCheck --stacktrace
+
+run_step "Library: Detekt static analysis" \
+  $GW :ratingbar-cmp:detekt --stacktrace
+
+# ── 7. Library — iOS frameworks ───────────────────────────────────────────────
 if $SKIP_IOS; then
   skip_step "Library: iOS frameworks (--skip-ios)"
 else
@@ -92,18 +99,18 @@ else
         --stacktrace
 fi
 
-# ── 7. Common metadata ─────────────────────────────────────────────────────────
+# ── 8. Common metadata ─────────────────────────────────────────────────────────
 run_step "Library: all-metadata JAR" \
   $GW :ratingbar-cmp:allMetadataJar --stacktrace
 
-# ── 8. Maven local publication ────────────────────────────────────────────────
+# ── 9. Maven local publication ────────────────────────────────────────────────
 run_step "Library: publishToMavenLocal (no tests)" \
   $GW :ratingbar-cmp:publishToMavenLocal -x test --stacktrace
 
 run_step "Maven local: verify artifacts exist" \
   bash -c "ls ~/.m2/repository/com/github/anandkumarkparmar/ratingbar-cmp/ 2>/dev/null | grep -q . && echo 'artifacts found'"
 
-# ── 9. Sample apps ────────────────────────────────────────────────────────────
+# ── 10. Sample apps ────────────────────────────────────────────────────────────
 if $SKIP_SAMPLES; then
   skip_step "Sample: Android debug APK (--skip-samples)"
   skip_step "Sample: Desktop JAR (--skip-samples)"
@@ -126,7 +133,7 @@ else
   fi
 fi
 
-# ── 10. Artifact size check ───────────────────────────────────────────────────
+# ── 11. Artifact size check ───────────────────────────────────────────────────
 if [[ -f "scripts/report-artifact-sizes.sh" ]]; then
   run_step "Artifact size report" \
     bash -c "chmod +x scripts/report-artifact-sizes.sh && ./scripts/report-artifact-sizes.sh"

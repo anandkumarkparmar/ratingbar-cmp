@@ -4,10 +4,11 @@
 
 ---
 
-## Current State (v0.1.0)
+## Current State (v0.2.0)
 
 ### Delivered
 
+#### v0.1.0
 - State-hoisted `RatingBar` API (`value` / `onValueChange`)
 - Fractional values and item fill fractions
 - Touch, tap, drag, and keyboard interactions
@@ -18,6 +19,21 @@
 - Shared multiplatform sample app with Standard + Customization pages
 - JitPack-ready publishing and CI validation pipeline
 - Artifact size budgets and badge generation
+
+#### v0.2.0
+- Fill animation (`animateRating`, `ratingAnimationSpec`)
+- Scale-on-select animation (`animateScale`)
+- `rememberRatingBarState()` convenience helper
+- Minimum value constraints (`allowZero`, `minValue`)
+- Hover fill preview on Desktop/Web (`showHoverPreview`, `hoverColor`)
+- Mouse wheel input on Desktop (`enableScrollInput`)
+- Haptic feedback on Android (`hapticFeedback`)
+- `explicitApi()` mode — accidental API leakage is a compile error
+- Detekt static analysis in CI
+- Dokka HTML API documentation
+- Binary Compatibility Validator with `.api` baseline
+- `FractionalClipShape` geometry unit tests
+- `roundToStep` floating-point precision fix + tests
 
 ### Platform Matrix
 
@@ -30,8 +46,15 @@
 | RTL support | Yes | Yes | Yes | Yes |
 | Read-only mode | Yes | Yes | Yes | Yes |
 | Slot API | Yes | Yes | Yes | Yes |
+| Fill animation | Yes | Yes | Yes | Yes |
+| Scale-on-select animation | Yes | Yes | Yes | Yes |
+| Minimum value constraint | Yes | Yes | Yes | Yes |
+| Hover preview | No† | Yes | No† | Yes |
+| Mouse wheel scroll | No† | Yes | No† | No† |
+| Haptic feedback | Yes | No† | No† | No† |
 
 \* Keyboard behavior on iOS depends on the runtime input context.
+† Feature is a graceful no-op on this platform — no crash, no error.
 
 ---
 
@@ -45,13 +68,13 @@ This is a comprehensive list of features, use cases, and improvements the librar
 
 | Feature | Description |
 |---|---|
-| Hover / focus visual states | Visual feedback on hover (Desktop/Web) and focus ring customization |
+| ~~Hover / focus visual states~~ | ✅ Delivered in v0.2.0 |
 | Long-press to reset | Reset rating to 0 on long-press gesture |
 | Gesture sensitivity configuration | Tune drag sensitivity threshold for fine-grained control |
-| Minimum value constraint | Enforce a minimum selectable value (e.g., must rate at least 1) |
+| ~~Minimum value constraint~~ | ✅ Delivered in v0.2.0 (`minValue`) |
 | Clear / reset button support | Optional built-in clear button to zero out the rating |
 | Double-tap to toggle | Double-tap to toggle between 0 and max |
-| Allow-zero configuration | Explicit opt-in/out for allowing 0 as a valid value |
+| ~~Allow-zero configuration~~ | ✅ Delivered in v0.2.0 (`allowZero`) |
 
 ---
 
@@ -59,8 +82,8 @@ This is a comprehensive list of features, use cases, and improvements the librar
 
 | Feature | Description |
 |---|---|
-| Fill animation | Animate fill transitions when value changes |
-| Scale-on-select animation | Scale up the selected item momentarily |
+| ~~Fill animation~~ | ✅ Delivered in v0.2.0 |
+| ~~Scale-on-select animation~~ | ✅ Delivered in v0.2.0 |
 | Shimmer / loading state | Display a shimmer placeholder while rating data loads |
 | Color gradient fills | Apply gradient colors across the fill (e.g., red-to-green) |
 | Shape presets | Built-in shapes: heart, circle, thumb-up, emoji, diamond |
@@ -104,7 +127,7 @@ This is a comprehensive list of features, use cases, and improvements the librar
 
 | Feature | Description |
 |---|---|
-| `rememberRatingBarState()` | Convenience function with built-in `remember` |
+| ~~`rememberRatingBarState()`~~ | ✅ Delivered in v0.2.0 |
 | Controlled vs uncontrolled mode | Support for uncontrolled usage with internal state |
 | Form integration helpers | Helpers for common form libraries and patterns |
 | Validation support | Required-field validation, min-value rules |
@@ -118,8 +141,8 @@ This is a comprehensive list of features, use cases, and improvements the librar
 | Feature | Description |
 |---|---|
 | Tooltip on hover | Show the current value as a tooltip on hover |
-| Animated value transitions | Smooth animated transitions between rating values |
-| Haptic feedback | Vibration feedback on value change (Android/iOS) |
+| ~~Animated value transitions~~ | ✅ Delivered in v0.2.0 (fill + scale animations) |
+| ~~Haptic feedback~~ | ✅ Delivered in v0.2.0 (Android) |
 | Sound feedback | Optional sound effect on interaction |
 | Lottie / animated icon support | Use Lottie animations as rating items |
 | Interaction source callback | Report whether the change came from touch, drag, keyboard, or programmatic API |
@@ -135,7 +158,7 @@ This is a comprehensive list of features, use cases, and improvements the librar
 | Preview annotations | Android | `@Preview` support for Android Studio |
 | UIKit interop wrapper | iOS | Wrapper for use in UIKit-based projects |
 | ARIA attributes | Web | Enhanced ARIA roles and properties for web accessibility |
-| Mouse wheel support | Desktop | Adjust rating with mouse scroll wheel |
+| ~~Mouse wheel support~~ | Desktop | ✅ Delivered in v0.2.0 |
 | Stylus / S-Pen support | Android | Handle stylus input for precise control |
 | Watch support | Android | Wear OS compatible variant |
 
@@ -150,8 +173,8 @@ This is a comprehensive list of features, use cases, and improvements the librar
 | KMP module dependency docs | Document per-platform dependency setup |
 | Kotlin/Wasm target | Add WebAssembly target support |
 | BOM (Bill of Materials) | Provide a BOM for coordinated version management |
-| API binary compatibility validation | Use `kotlinx.binary-compatibility-validator` |
-| Dokka API docs | Auto-generated HTML documentation from KDoc |
+| ~~API binary compatibility validation~~ | ✅ Delivered in v0.2.0 |
+| ~~Dokka API docs~~ | ✅ Delivered in v0.2.0 |
 
 ---
 
@@ -159,9 +182,9 @@ This is a comprehensive list of features, use cases, and improvements the librar
 
 | Feature | Description |
 |---|---|
-| Compose UI tests | Automated Compose test rules for interaction scenarios |
+| ~~Compose UI tests~~ | ✅ Delivered in v0.2.0 (state/logic tests; rendering tests in sample app) |
 | Screenshot tests | Visual regression tests for each platform |
-| Fractional clipping tests | Deterministic tests for `FractionalClipShape` behavior |
+| ~~Fractional clipping tests~~ | ✅ Delivered in v0.2.0 |
 | RTL interaction tests | Tests for RTL drag, tap, and keyboard behavior |
 | Performance benchmarks | Measure and track recomposition performance |
 | Accessibility audits | Automated accessibility checks in CI |
@@ -171,6 +194,6 @@ This is a comprehensive list of features, use cases, and improvements the librar
 ## Versioning Policy
 
 - Semantic Versioning (`MAJOR.MINOR.PATCH`)
-- `0.1.0` is the current baseline
+- `0.2.0` is the current release
 - Breaking API changes bump the minor version during `0.x` development
 - New features and improvements target the next minor release

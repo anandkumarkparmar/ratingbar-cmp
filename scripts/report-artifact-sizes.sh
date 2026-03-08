@@ -23,6 +23,15 @@ to_kb() {
   awk "BEGIN {printf \"%.2f\", $1/1024}"
 }
 
+smart_size() {
+  local bytes=$1
+  if (( bytes >= 1048576 )); then
+    awk "BEGIN {printf \"%.2f MB\", $bytes/1048576}"
+  else
+    awk "BEGIN {printf \"%.2f KB\", $bytes/1024}"
+  fi
+}
+
 infer_platform() {
   local artifact_name="$1"
   local file_name="$2"
@@ -139,7 +148,7 @@ cat > "${BADGE_DIR}/android-aar-size.json" <<EOF
 {
   "schemaVersion": 1,
   "label": "android aar",
-  "message": "${android_kb} KB",
+  "message": "$(smart_size "$android_aar_bytes")",
   "color": "brightgreen"
 }
 EOF
@@ -148,7 +157,7 @@ cat > "${BADGE_DIR}/total-published-size.json" <<EOF
 {
   "schemaVersion": 1,
   "label": "total published",
-  "message": "${total_kb} KB",
+  "message": "$(smart_size "$total_bytes")",
   "color": "blue"
 }
 EOF
@@ -157,7 +166,7 @@ cat > "${BADGE_DIR}/desktop-published-size.json" <<EOF
 {
   "schemaVersion": 1,
   "label": "desktop",
-  "message": "${desktop_kb} KB",
+  "message": "$(smart_size "$desktop_published_bytes")",
   "color": "informational"
 }
 EOF
@@ -166,7 +175,7 @@ cat > "${BADGE_DIR}/ios-published-size.json" <<EOF
 {
   "schemaVersion": 1,
   "label": "ios",
-  "message": "${ios_kb} KB",
+  "message": "$(smart_size "$ios_published_bytes")",
   "color": "informational"
 }
 EOF
@@ -175,7 +184,7 @@ cat > "${BADGE_DIR}/web-published-size.json" <<EOF
 {
   "schemaVersion": 1,
   "label": "web",
-  "message": "${web_kb} KB",
+  "message": "$(smart_size "$web_published_bytes")",
   "color": "informational"
 }
 EOF

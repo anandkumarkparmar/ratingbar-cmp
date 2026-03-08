@@ -136,4 +136,21 @@ class RatingBarStateTest {
         assertEquals(0f, RatingBarState.roundToStep(0.2f, 0.5f), "0.2 rounds to 0.0 with step 0.5")
         assertEquals(1.0f, RatingBarState.roundToStep(1.0f, 0.5f), "Exact step boundary stays")
     }
+
+    @Test
+    fun testRoundToStepFloatingPointPrecision() {
+        // These cases stress the old truncation+modulo approach; the roundToInt fix handles them correctly.
+        fun assertNear(expected: Float, actual: Float, msg: String) {
+            assertTrue(kotlin.math.abs(actual - expected) < 0.001f, "$msg — expected $expected, got $actual")
+        }
+
+        assertNear(2.5f, RatingBarState.roundToStep(2.5f, 0.5f),    "exact half-step value")
+        assertNear(2.5f, RatingBarState.roundToStep(2.50001f, 0.5f), "just above half-step")
+        assertNear(2.5f, RatingBarState.roundToStep(2.49999f, 0.5f), "just below half-step")
+        assertNear(0.0f, RatingBarState.roundToStep(0.0f, 0.5f),    "zero")
+        assertNear(5.0f, RatingBarState.roundToStep(5.0f, 0.5f),    "exact max")
+        assertNear(1.0f, RatingBarState.roundToStep(1.0f, 1.0f),    "whole step exact")
+        assertNear(1.0f, RatingBarState.roundToStep(0.999f, 1.0f),  "just below whole step rounds up")
+        assertNear(0.0f, RatingBarState.roundToStep(0.499f, 1.0f),  "just below midpoint rounds down")
+    }
 }

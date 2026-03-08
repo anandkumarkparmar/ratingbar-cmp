@@ -47,6 +47,7 @@ jobs:
               - 'gradle/**'
               - '*.gradle.kts'
               - 'gradle.properties'
+              - 'detekt.yml'
               - '.github/workflows/ci.yml'
             samples:
               - 'samples/**'
@@ -94,6 +95,20 @@ jobs:
         run: |
           ./gradlew :ratingbar-cmp:compileKotlinDesktop \
                     :ratingbar-cmp:compileAndroidMain \
+                    --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: "-Xmx4g -XX:MaxMetaspaceSize=512m"
+
+      - name: API compatibility check
+        run: |
+          ./gradlew :ratingbar-cmp:apiCheck \
+                    --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: "-Xmx4g -XX:MaxMetaspaceSize=512m"
+
+      - name: Detekt static analysis
+        run: |
+          ./gradlew :ratingbar-cmp:detekt \
                     --no-daemon --stacktrace
         env:
           GRADLE_OPTS: "-Xmx4g -XX:MaxMetaspaceSize=512m"

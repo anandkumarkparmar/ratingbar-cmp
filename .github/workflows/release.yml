@@ -15,6 +15,9 @@ jobs:
   release-prep:
     runs-on: ubuntu-latest
     name: Validate Tag + Build + Draft Notes
+    # publish-docs job reads outputs.tag to label the summary
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
 
     steps:
       - uses: actions/checkout@v4
@@ -53,6 +56,12 @@ jobs:
 
       - name: Validate JitPack publication task
         run: ./gradlew clean :ratingbar-cmp:publishToMavenLocal -x test --stacktrace
+
+      - name: API compatibility check
+        run: ./gradlew :ratingbar-cmp:apiCheck --stacktrace
+
+      - name: Detekt static analysis
+        run: ./gradlew :ratingbar-cmp:detekt --stacktrace
 
       - name: Build Android release artifact
         run: ./gradlew :ratingbar-cmp:bundleAndroidMainAar -x test --stacktrace
@@ -133,3 +142,60 @@ jobs:
         with:
           name: release-notes-${{ steps.tag.outputs.tag }}
           path: release_notes.md
+
+  # 📖 Publish API docs to GitHub Pages — runs only after release-prep succeeds.
+  # Docs are tied to the release tag so they always match the published version.
+  # Prerequisite (one-time): enable GitHub Pages in repo Settings → Pages → Source: GitHub Actions.
+  publish-docs:
+    needs: release-prep
+    runs-on: ubuntu-latest
+    name: Publish Dokka API Docs
+
+    permissions:
+      pages: write      # required to deploy to GitHub Pages
+      id-token: write   # required for OIDC authentication with Pages
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Generate Dokka HTML
+        run: ./gradlew :ratingbar-cmp:dokkaHtml --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: "-Xmx4g -XX:MaxMetaspaceSize=512m"
+
+      - name: Add version banner to docs index
+        run: |
+          TAG="${{ needs.release-prep.outputs.tag }}"
+          VERSION="${TAG#v}"
+          # Prepend a small version notice above the generated index so visitors
+          # know which release the docs correspond to.
+          sed -i "s|<body|<body data-version=\"${VERSION}\"|" \
+            ratingbar-cmp/build/dokka/html/index.html || true
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ratingbar-cmp/build/dokka/html
+
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v4
+
+      - name: Print docs URL
+        run: |
+          echo "📖 API docs published to: ${{ steps.deploy.outputs.page_url }}" \
+            >> "$GITHUB_STEP_SUMMARY"
