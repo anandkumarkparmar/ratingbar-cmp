@@ -16,11 +16,18 @@ kotlin {
         }
     }
     
+    val useLocalLibrary = (project.findProperty("useLocalLibrary") as? String)?.toBoolean() ?: true
+    val ratingbarVersion = project.findProperty("ratingbarVersion") as? String ?: "0.2.0"
+
     sourceSets {
         val iosMain by creating {
             dependsOn(commonMain.get())
             dependencies {
-                implementation(project(":ratingbar-cmp"))
+                if (useLocalLibrary) {
+                    implementation(project(":ratingbar-cmp"))
+                } else {
+                    implementation("com.github.anandkumarkparmar:ratingbar-cmp:$ratingbarVersion")
+                }
                 implementation(project(":samples:common"))
                 implementation(libs.compose.mpp.runtime)
                 implementation(libs.compose.mpp.foundation)

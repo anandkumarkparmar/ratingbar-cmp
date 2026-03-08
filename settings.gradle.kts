@@ -16,10 +16,15 @@ pluginManagement {
     }
 }
 
+val useLocalLibrary = providers.gradleProperty("useLocalLibrary").orElse("true").get().toBoolean()
+
 dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+        if (!useLocalLibrary) {
+            maven("https://jitpack.io")
+        }
     }
 }
