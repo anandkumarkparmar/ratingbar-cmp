@@ -81,6 +81,9 @@ run_step "Library: compile JS" \
 run_step "Library: JS JAR" \
   $GW :ratingbar-cmp:jsJar --stacktrace
 
+run_step "Library: JS tests" \
+  $GW :ratingbar-cmp:jsTest --stacktrace
+
 # ── 6. Quality gates ──────────────────────────────────────────────────────────
 run_step "Library: API compatibility check" \
   $GW :ratingbar-cmp:apiCheck --stacktrace

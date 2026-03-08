@@ -4,6 +4,7 @@ import com.github.anandkumarkparmar.ratingbar.core.RatingBarConfig
 import com.github.anandkumarkparmar.ratingbar.core.RatingBarState
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 /**
  * Interaction-level tests for RatingBar state transitions and fill-fraction logic.
@@ -74,9 +75,10 @@ class RatingBarInteractionTest {
     fun steppedValueNeverExceedsMaxForLargeStep() {
         val config = RatingBarConfig(max = 5, step = 3f)
         val state = RatingBarState(value = 4.9f, config = config)
-        assert(state.steppedValue <= config.max.toFloat()) {
+        assertTrue(
+            state.steppedValue <= config.max.toFloat(),
             "steppedValue ${state.steppedValue} exceeds max ${config.max}"
-        }
+        )
     }
 
     @Test
