@@ -6,6 +6,62 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ---
 
+## [0.2.0] - 2026-03-08
+
+### Added
+
+#### Features
+- **F1 Fill animation** — Fill fractions now animate smoothly when the rating value changes.
+  New `animateRating: Boolean = true` and `ratingAnimationSpec: AnimationSpec<Float>` parameters
+  on both `RatingBar` overloads. Set `animateRating = false` for instant (snap) transitions.
+- **F2 Scale-on-select animation** — The newly selected star briefly scales up with a spring
+  bounce when a value is committed via tap or drag. Controlled by `animateScale: Boolean = true`
+  on the default star overload. Disabled automatically in `readOnly` mode.
+- **F3 `rememberRatingBarState()`** — New convenience composable function:
+  `fun rememberRatingBarState(initialValue: Float = 0f): MutableState<Float>`. Replaces the
+  boilerplate `remember { mutableStateOf(x) }` pattern at the call site.
+- **F4 Minimum value constraints** — New `allowZero: Boolean = true` and `minValue: Float = 0f`
+  parameters on both overloads. `allowZero = false` prevents the rating being cleared to zero
+  (minimum becomes one step). `minValue` enforces an explicit lower bound. Both apply to tap,
+  drag, scroll, and keyboard input.
+- **F5 Hover preview** — On Desktop/Web, hovering the cursor over the bar shows a live fill
+  preview at the cursor position. New `showHoverPreview: Boolean = true` parameter on both
+  overloads. New `hoverColor: Color` parameter on the star overload (defaults to `filledColor`
+  at 60% alpha) to visually distinguish preview fill from committed fill. New `onHoverValueChange`
+  callback on the slot overload for custom slot callers that need to react to hover state.
+- **F6 Mouse wheel input** — On Desktop, scrolling the mouse wheel up/down increments/decrements
+  the rating by one step. New `enableScrollInput: Boolean = true` parameter on both overloads.
+  Respects `allowZero` and `minValue` constraints.
+- **F7 Haptic feedback** — On Android, a short haptic pulse fires each time the stepped value
+  changes during interaction. New `hapticFeedback: Boolean = true` parameter on both overloads.
+  No-op on other platforms. Does not fire for redundant same-value events.
+- **`RatingBarDefaults.RatingAnimationSpec`** — New `TweenSpec<Float>` constant (200ms,
+  `FastOutSlowInEasing`) exposed as the default fill animation spec.
+
+#### Tooling and Quality
+- **`explicitApi()` mode** — All public declarations now carry an explicit `public` modifier.
+  Accidental API surface expansion is a compile error.
+- **Detekt static analysis** — Detekt runs on every build (`./gradlew :ratingbar-cmp:detekt`).
+  Wired into the CI `validate` job. Configuration at `detekt.yml` in the project root.
+- **Dokka API documentation** — `./gradlew :ratingbar-cmp:dokkaHtml` generates full HTML
+  API docs from KDoc. Output at `ratingbar-cmp/build/dokka/html/`.
+- **Binary Compatibility Validator** — API surface is tracked in `ratingbar-cmp/api/`.
+  `./gradlew :ratingbar-cmp:apiCheck` validates the surface matches the committed baseline.
+  Wired into CI. Run `apiDump` when intentionally adding public API.
+- **`FractionalClipShape` unit tests** — 9 tests covering LTR/RTL geometry at 0%, 25%, 50%,
+  and 100% fill fractions, plus height preservation.
+- **`RatingBarInteractionTest`** — 11 state and boundary tests covering clamping, stepping,
+  fill fractions, `withValue`, `effectiveMin`, and edge cases.
+- **`roundToStep` precision fix** — Replaced integer truncation with `kotlin.math.roundToInt`
+  to avoid floating-point boundary errors (e.g., `2.5f % 0.5f ≠ 0f` on some platforms).
+  8 new boundary-value tests added to `RatingBarStateTest`.
+
+### Changed
+- KDoc updated across all public classes and functions to document all new parameters,
+  behavior details, and platform-specific notes.
+
+---
+
 ## [0.1.0] - 2026-03-06
 
 ### Added

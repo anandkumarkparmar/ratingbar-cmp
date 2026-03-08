@@ -1,12 +1,18 @@
 package com.github.anandkumarkparmar.ratingbar.core
 
+import kotlin.math.roundToInt
+
 /**
- * Configuration for a rating bar.
+ * Configuration for a rating bar's constraints.
  *
- * @property max The maximum rating value (e.g., 5 for 5 stars)
- * @property step The step increment for rating values (e.g., 0.5 for half-star increments)
+ * Pass a [RatingBarConfig] to [RatingBarState] when you need to validate and store rating
+ * constraints outside of a Composable context (e.g., in a ViewModel).
+ *
+ * @property max The maximum rating value (e.g., `5` for a 5-star bar). Must be > 0.
+ * @property step The step increment for rating values (e.g., `0.5f` for half-star). Must be > 0 and ≤ max.
+ * @throws IllegalArgumentException if `max ≤ 0`, `step ≤ 0`, or `step > max`.
  */
-data class RatingBarConfig(
+public data class RatingBarConfig(
     val max: Int = 5,
     val step: Float = 1f
 ) {
@@ -18,51 +24,74 @@ data class RatingBarConfig(
 }
 
 /**
- * State holder for rating bar value with clamping and step logic.
+ * Immutable state holder for a rating bar value with clamping and step-rounding logic.
  *
- * @property value The current rating value
- * @property config Configuration for the rating bar
+ * [RatingBarState] is a pure value type — it does not hold any Compose state. It is used
+ * internally by [RatingBar] to compute [clampedValue] and [steppedValue] from a raw [value].
+ * You can also use it directly to validate or round rating values outside of composition.
+ *
+ * @property value The raw rating value as provided by the caller.
+ * @property config Configuration constraints for the rating bar.
  */
-data class RatingBarState(
+public data class RatingBarState(
     val value: Float,
     val config: RatingBarConfig = RatingBarConfig()
 ) {
     /**
-     * The clamped value within [0, config.max]
+     * [value] clamped to the range `[0, config.max]`.
      */
     val clampedValue: Float = value.coerceIn(0f, config.max.toFloat())
-    
+
     /**
-     * The value rounded to the nearest step, clamped to [0, config.max].
+     * [clampedValue] rounded to the nearest multiple of [RatingBarConfig.step] and then
+     * re-clamped to `[0, config.max]`.
+     *
+     * This is the value that [RatingBar] uses for rendering and exposes via `onValueChange`.
      */
     val steppedValue: Float = roundToStep(clampedValue, config.step)
         .coerceIn(0f, config.max.toFloat())
-    
+
     /**
-     * Returns a new state with the given value, applying clamping and stepping.
+     * Returns a new [RatingBarState] with [value] replaced by [newValue], keeping the
+     * same [config]. Clamping and stepping are applied automatically via [steppedValue].
+     *
+     * @param newValue The new raw rating value.
      */
-    fun withValue(newValue: Float): RatingBarState {
+    public fun withValue(newValue: Float): RatingBarState {
         return copy(value = newValue)
     }
-    
-    companion object {
+
+    public companion object {
         /**
-         * Round a value to the nearest step.
-         */
-        fun roundToStep(value: Float, step: Float): Float {
-            if (step == 0f) return value
-            return (value / step).toInt() * step + 
-                   if ((value % step) >= step / 2) step else 0f
-        }
-        
-        /**
-         * Calculate the fractional fill for a given item index.
+         * Rounds [value] to the nearest multiple of [step].
          *
-         * @param itemIndex The zero-based index of the item
-         * @param value The current rating value
-         * @return A value between 0f and 1f representing how full the item should be
+         * Uses [kotlin.math.roundToInt] to avoid the floating-point precision errors that arise
+         * from integer truncation (`(value / step).toInt() * step`) or the modulo approach
+         * (`value % step`), both of which can produce incorrect results at exact boundaries
+         * (e.g., `2.5f % 0.5f` is not exactly `0f` on some platforms).
+         *
+         * Returns [value] unchanged when [step] is `0f`.
+         *
+         * @param value The value to round.
+         * @param step The step size. Must be ≥ 0.
+         * @return The nearest multiple of [step], or [value] if [step] is zero.
          */
-        fun fillFraction(itemIndex: Int, value: Float): Float {
+        public fun roundToStep(value: Float, step: Float): Float {
+            if (step == 0f) return value
+            return (value / step).roundToInt() * step
+        }
+
+        /**
+         * Computes the fractional fill amount for a single rating item at [itemIndex].
+         *
+         * @param itemIndex Zero-based index of the item (e.g., `0` for the first star).
+         * @param value The current rating value (stepped, not raw).
+         * @return A value in `[0f, 1f]`:
+         *   - `1f` when the item is fully filled (`value >= itemIndex + 1`)
+         *   - `0f` when the item is empty (`value <= itemIndex`)
+         *   - A partial fraction (`value - itemIndex`) for the partially filled item
+         */
+        public fun fillFraction(itemIndex: Int, value: Float): Float {
             val itemValue = itemIndex + 1
             return when {
                 value >= itemValue -> 1f

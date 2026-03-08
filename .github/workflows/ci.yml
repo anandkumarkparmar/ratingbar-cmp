@@ -47,6 +47,7 @@ jobs:
               - 'gradle/**'
               - '*.gradle.kts'
               - 'gradle.properties'
+              - 'detekt.yml'
               - '.github/workflows/ci.yml'
             samples:
               - 'samples/**'
@@ -94,6 +95,20 @@ jobs:
         run: |
           ./gradlew :ratingbar-cmp:compileKotlinDesktop \
                     :ratingbar-cmp:compileAndroidMain \
+                    --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: "-Xmx4g -XX:MaxMetaspaceSize=512m"
+
+      - name: API compatibility check
+        run: |
+          ./gradlew :ratingbar-cmp:apiCheck \
+                    --no-daemon --stacktrace
+        env:
+          GRADLE_OPTS: "-Xmx4g -XX:MaxMetaspaceSize=512m"
+
+      - name: Detekt static analysis
+        run: |
+          ./gradlew :ratingbar-cmp:detekt \
                     --no-daemon --stacktrace
         env:
           GRADLE_OPTS: "-Xmx4g -XX:MaxMetaspaceSize=512m"
@@ -471,7 +486,7 @@ jobs:
       
       - name: Generate artifact size report
         env:
-          MAX_ANDROID_AAR_BYTES: 51200
+          MAX_ANDROID_AAR_BYTES: 65536
           MAX_TOTAL_PUBLISHED_BYTES: 5242880
         run: |
           if [ -f "scripts/report-artifact-sizes.sh" ]; then

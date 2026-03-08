@@ -7,11 +7,21 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.unit.dp
 
 /**
- * Default vector icons for RatingBar to avoid dependency on unlimited material-icons-extended.
+ * Built-in vector icons for [RatingBar] items.
+ *
+ * These icons are bundled directly in the library so you do not need to add a dependency on
+ * `material-icons-extended`. Both icons are 24×24dp and match Material Design's Star iconography.
+ *
+ * You can replace them by passing a custom [androidx.compose.ui.graphics.painter.Painter] to the
+ * `filledPainter` or `unfilledPainter` parameters of [RatingBar].
  */
-object RatingBarIcons {
-    // Copied from Material Icons (Star) to keep bundle small
-    val StarFilled: ImageVector = ImageVector.Builder(
+public object RatingBarIcons {
+    /**
+     * Filled star icon (Material Icons: Star).
+     *
+     * Used as the default `filledPainter` in [RatingBar].
+     */
+    public val StarFilled: ImageVector = ImageVector.Builder(
         name = "StarFilled",
         defaultWidth = 24.dp,
         defaultHeight = 24.dp,
@@ -36,7 +46,12 @@ object RatingBarIcons {
         close()
     }.build()
 
-    val StarOutline: ImageVector = ImageVector.Builder(
+    /**
+     * Outlined star icon (Material Icons: StarBorder).
+     *
+     * Used as the default `unfilledPainter` in [RatingBar].
+     */
+    public val StarOutline: ImageVector = ImageVector.Builder(
         name = "StarOutline",
         defaultWidth = 24.dp,
         defaultHeight = 24.dp,

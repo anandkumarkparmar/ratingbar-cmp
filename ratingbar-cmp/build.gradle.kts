@@ -3,10 +3,26 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.compose)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.dokka)
     id("maven-publish")
 }
 
+detekt {
+    config.setFrom(rootProject.file("detekt.yml"))
+    buildUponDefaultConfig = true
+    source.setFrom(
+        "src/commonMain/kotlin",
+        "src/androidMain/kotlin",
+        "src/desktopMain/kotlin",
+        "src/iosMain/kotlin",
+        "src/jsMain/kotlin"
+    )
+}
+
 kotlin {
+    explicitApi()
+
     android {
         namespace = "com.github.anandkumarkparmar.ratingbar"
         compileSdk = libs.versions.compileSdk.get().toInt()
