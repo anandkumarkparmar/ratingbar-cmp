@@ -33,7 +33,7 @@ kotlin {
         binaries.executable()
     }
     
-    val ratingbarVersion = project.findProperty("ratingbarVersion") as? String ?: "0.2.0"
+    val ratingbarVersion = project.findProperty("ratingbarVersion") as? String ?: "0.3.0"
 
     sourceSets {
         val commonMain by getting {

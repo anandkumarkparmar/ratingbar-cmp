@@ -6,6 +6,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ---
 
+## [0.3.0] - 2026-03-19
+
+### Changed
+
+#### Build & Infrastructure (no API changes)
+- Library source moved to root project for cleaner JitPack coordinates (from `ratingbar-cmp/src/` to `src/`)
+- Samples converted to standalone Gradle composite build — `samples/` now uses `includeBuild("..")` with automatic dependency substitution, replacing the `useLocalLibrary` Gradle property
+- API baseline files moved to root `api/` directory
+- CI/CD change detection rules updated to match new `src/**` path structure
+- Build task paths simplified: `:ratingbar-cmp:` prefix removed from all root-level tasks
+- CLAUDE.md project guidance document added
+
+#### Sample Updates
+- Sample app now features three screens: Standard, Playground, and Behaviors (was: Standard and Customization)
+- Playground screen: live interactive customization panel with real-time sliders and toggles
+- Behaviors screen: individual feature toggle demos with explanatory notes
+
+---
+
 ## [0.2.0] - 2026-03-08
 
 ### Added

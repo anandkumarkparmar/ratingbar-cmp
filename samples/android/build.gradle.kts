@@ -32,7 +32,7 @@ android {
     }
 }
 
-val ratingbarVersion = project.findProperty("ratingbarVersion") as? String ?: "0.2.0"
+val ratingbarVersion = project.findProperty("ratingbarVersion") as? String ?: "0.3.0"
 
 dependencies {
     implementation("com.github.anandkumarkparmar:ratingbar-cmp:$ratingbarVersion")

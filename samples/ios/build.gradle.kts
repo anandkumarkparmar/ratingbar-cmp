@@ -16,7 +16,7 @@ kotlin {
         }
     }
     
-    val ratingbarVersion = project.findProperty("ratingbarVersion") as? String ?: "0.2.0"
+    val ratingbarVersion = project.findProperty("ratingbarVersion") as? String ?: "0.3.0"
 
     sourceSets {
         val iosMain by creating {
