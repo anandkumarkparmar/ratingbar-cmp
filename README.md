@@ -1,4 +1,4 @@
-# ratingbar-cmp
+<div align="center">
 
 ![HeroImage](assets/readme-hero-image.svg)
 
@@ -17,11 +17,13 @@
 
 A lightweight, accessible, Compose Multiplatform RatingBar component for Android, Desktop, iOS, and Web.
 
+</div>
+
 ---
 
 ## See It in Action
 
-<table>
+<table align="center">
   <tr>
     <td align="center" width="100"><b>Android</b></td>
     <td align="center" style="background-color: #5b59a1;"><img src="assets/demos/android-demo.gif" width="200"/></td>
