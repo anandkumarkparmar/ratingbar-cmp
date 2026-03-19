@@ -276,10 +276,11 @@ jobs:
 
   # 📱 Android Sample App
   sample-android:
-    needs: [changes, library-android]
+    needs: [changes, validate, library-android]
     if: |
-      always() && 
-      needs.changes.outputs.samples == 'true' && 
+      always() &&
+      needs.validate.result == 'success' &&
+      needs.changes.outputs.samples == 'true' &&
       needs.changes.outputs.android == 'true' &&
       (needs.library-android.result == 'success' || needs.library-android.result == 'skipped')
     runs-on: ubuntu-latest
@@ -312,10 +313,11 @@ jobs:
 
   # 🖥️ Desktop Sample App
   sample-desktop:
-    needs: [changes, library-desktop]
+    needs: [changes, validate, library-desktop]
     if: |
-      always() && 
-      needs.changes.outputs.samples == 'true' && 
+      always() &&
+      needs.validate.result == 'success' &&
+      needs.changes.outputs.samples == 'true' &&
       needs.changes.outputs.desktop == 'true' &&
       (needs.library-desktop.result == 'success' || needs.library-desktop.result == 'skipped')
     runs-on: ubuntu-latest
@@ -348,10 +350,11 @@ jobs:
 
   # 🌐 Web Sample App
   sample-web:
-    needs: [changes, library-web]
+    needs: [changes, validate, library-web]
     if: |
-      always() && 
-      needs.changes.outputs.samples == 'true' && 
+      always() &&
+      needs.validate.result == 'success' &&
+      needs.changes.outputs.samples == 'true' &&
       needs.changes.outputs.web == 'true' &&
       (needs.library-web.result == 'success' || needs.library-web.result == 'skipped')
     runs-on: ubuntu-latest
@@ -384,13 +387,14 @@ jobs:
 
   # 🍎 iOS Sample App
   sample-ios:
-    needs: [changes, library-ios]
+    needs: [changes, validate, library-ios]
     if: |
-      always() && 
-      needs.changes.outputs.samples == 'true' && 
+      always() &&
+      needs.validate.result == 'success' &&
+      needs.changes.outputs.samples == 'true' &&
       needs.changes.outputs.ios == 'true' &&
-      (github.event_name == 'push' || 
-       inputs.full_build == true || 
+      (github.event_name == 'push' ||
+       inputs.full_build == true ||
        contains(github.event.pull_request.labels.*.name, 'ready-to-merge')) &&
       (needs.library-ios.result == 'success' || needs.library-ios.result == 'skipped')
     runs-on: macos-latest
