@@ -3,12 +3,8 @@
 Full API reference for **ratingbar-cmp** v0.3.0.
 
 > **Note:** This document is maintained alongside the source code. For the most precise and
-> up-to-date reference (including parameter types, defaults, and KDoc), generate the Dokka HTML
-> docs locally:
-> ```
-> ./gradlew dokkaHtml
-> open build/dokka/html/index.html
-> ```
+> up-to-date reference (including parameter types, defaults, and KDoc), see the
+> [hosted API documentation](https://anandkumarkparmar.github.io/ratingbar-cmp/).
 
 ---
 
