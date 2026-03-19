@@ -55,60 +55,60 @@ run_step "Gradle configuration" \
 
 # ── 3. Library — Android ───────────────────────────────────────────────────────
 run_step "Library: compile Android" \
-  $GW :ratingbar-cmp:compileAndroidMain --stacktrace
+  $GW compileAndroidMain --stacktrace
 
 run_step "Library: assemble Android AAR (release)" \
-  $GW :ratingbar-cmp:bundleAndroidMainAar --stacktrace
+  $GW bundleAndroidMainAar --stacktrace
 
 # KMP library: commonTest runs on Desktop/JS/iOS - no separate Android unit test task
 run_step "Library: compile Android test sources" \
-  $GW :ratingbar-cmp:assembleUnitTest --stacktrace
+  $GW assembleUnitTest --stacktrace
 
 # ── 4. Library — Desktop ───────────────────────────────────────────────────────
 run_step "Library: compile Desktop" \
-  $GW :ratingbar-cmp:compileKotlinDesktop --stacktrace
+  $GW compileKotlinDesktop --stacktrace
 
 run_step "Library: Desktop JAR" \
-  $GW :ratingbar-cmp:desktopJar --stacktrace
+  $GW desktopJar --stacktrace
 
 run_step "Library: Desktop tests" \
-  $GW :ratingbar-cmp:desktopTest --stacktrace --continue || true
+  $GW desktopTest --stacktrace --continue || true
 
 # ── 5. Library — JS/Web ────────────────────────────────────────────────────────
 run_step "Library: compile JS" \
-  $GW :ratingbar-cmp:compileKotlinJs --stacktrace
+  $GW compileKotlinJs --stacktrace
 
 run_step "Library: JS JAR" \
-  $GW :ratingbar-cmp:jsJar --stacktrace
+  $GW jsJar --stacktrace
 
 run_step "Library: JS tests" \
-  $GW :ratingbar-cmp:jsTest --stacktrace
+  $GW jsTest --stacktrace
 
 # ── 6. Quality gates ──────────────────────────────────────────────────────────
 run_step "Library: API compatibility check" \
-  $GW :ratingbar-cmp:apiCheck --stacktrace
+  $GW apiCheck --stacktrace
 
 run_step "Library: Detekt static analysis" \
-  $GW :ratingbar-cmp:detekt --stacktrace
+  $GW detekt --stacktrace
 
 # ── 7. Library — iOS frameworks ───────────────────────────────────────────────
 if $SKIP_IOS; then
   skip_step "Library: iOS frameworks (--skip-ios)"
 else
   run_step "Library: iOS debug frameworks (all archs)" \
-    $GW :ratingbar-cmp:linkDebugFrameworkIosArm64 \
-        :ratingbar-cmp:linkDebugFrameworkIosSimulatorArm64 \
-        :ratingbar-cmp:linkDebugFrameworkIosX64 \
+    $GW linkDebugFrameworkIosArm64 \
+        linkDebugFrameworkIosSimulatorArm64 \
+        linkDebugFrameworkIosX64 \
         --stacktrace
 fi
 
 # ── 8. Common metadata ─────────────────────────────────────────────────────────
 run_step "Library: all-metadata JAR" \
-  $GW :ratingbar-cmp:allMetadataJar --stacktrace
+  $GW allMetadataJar --stacktrace
 
 # ── 9. Maven local publication ────────────────────────────────────────────────
 run_step "Library: publishToMavenLocal (no tests)" \
-  $GW :ratingbar-cmp:publishToMavenLocal -x test --stacktrace
+  $GW publishToMavenLocal -x desktopTest -x jsTest --stacktrace
 
 run_step "Maven local: verify artifacts exist" \
   bash -c "ls ~/.m2/repository/com/github/anandkumarkparmar/ratingbar-cmp/ 2>/dev/null | grep -q . && echo 'artifacts found'"
@@ -120,17 +120,17 @@ if $SKIP_SAMPLES; then
   skip_step "Sample: Web distribution (--skip-samples)"
 else
   run_step "Sample: Android debug APK" \
-    $GW :samples:android:assembleDebug --stacktrace
+    $GW -p samples :android:assembleDebug --stacktrace
 
   run_step "Sample: Desktop JAR" \
-    $GW :samples:desktop:desktopJar --stacktrace
+    $GW -p samples :desktop:desktopJar --stacktrace
 
   run_step "Sample: Web browser distribution" \
-    $GW :samples:web:jsBrowserDistribution --stacktrace
+    $GW -p samples :web:jsBrowserDistribution --stacktrace
 
   if ! $SKIP_IOS; then
     run_step "Sample: iOS debug framework" \
-      $GW :samples:ios:linkDebugFrameworkIosSimulatorArm64 --stacktrace
+      $GW -p samples :ios:linkDebugFrameworkIosSimulatorArm64 --stacktrace
   else
     skip_step "Sample: iOS debug framework (--skip-ios)"
   fi
