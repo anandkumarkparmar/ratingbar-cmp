@@ -3,10 +3,10 @@
 ![HeroImage](assets/readme-hero-image.svg)
 
 [![JitPack](https://jitpack.io/v/anandkumarkparmar/ratingbar-cmp.svg)](https://jitpack.io/#anandkumarkparmar/ratingbar-cmp)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
-[![Kotlin](https://img.shields.io/badge/kotlin-2.3.10-blue.svg?logo=kotlin)](https://kotlinlang.org)
-[![Compose Multiplatform](https://img.shields.io/badge/Compose%20Multiplatform-1.10.1-blue)](https://github.com/JetBrains/compose-multiplatform)
-[![Website](https://img.shields.io/badge/API%20Docs-Website-blueviolet)](https://anandkumarkparmar.github.io/ratingbar-cmp/)
+[![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.3.10-7F52FF.svg?logo=kotlin)](https://kotlinlang.org)
+[![Compose Multiplatform](https://img.shields.io/badge/Compose%20Multiplatform-1.10.1-FF6D00)](https://github.com/JetBrains/compose-multiplatform)
+[![API Docs](https://img.shields.io/badge/API%20Docs-Website-0075CA)](https://anandkumarkparmar.github.io/ratingbar-cmp/)
 [![Try It Live](https://img.shields.io/badge/Try%20It%20Live-Demo-blueviolet)](https://anandkumarkparmar.github.io/ratingbar-cmp/demo/)
 
 [![Android AAR size](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/anandkumarkparmar/ratingbar-cmp/main/.github/badges/android-aar-size.json)](https://github.com/anandkumarkparmar/ratingbar-cmp/actions)
