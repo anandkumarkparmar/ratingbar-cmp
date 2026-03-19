@@ -89,9 +89,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
         with:
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
-      
-      - name: Validate Gradle wrapper
-        uses: gradle/wrapper-validation-action@v2
+          validate-wrappers: true
       
       - name: Quick compile check
         run: |
