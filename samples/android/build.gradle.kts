@@ -32,16 +32,11 @@ android {
     }
 }
 
-val useLocalLibrary = (project.findProperty("useLocalLibrary") as? String)?.toBoolean() ?: true
-val ratingbarVersion = project.findProperty("ratingbarVersion") as? String ?: "0.2.0"
+val ratingbarVersion = project.findProperty("ratingbarVersion") as? String ?: "0.3.0"
 
 dependencies {
-    if (useLocalLibrary) {
-        implementation(project(":ratingbar-cmp"))
-    } else {
-        implementation("com.github.anandkumarkparmar:ratingbar-cmp:$ratingbarVersion")
-    }
-    implementation(project(":samples:common"))
+    implementation("com.github.anandkumarkparmar:ratingbar-cmp:$ratingbarVersion")
+    implementation(project(":common"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

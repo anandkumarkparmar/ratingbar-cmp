@@ -4,7 +4,7 @@
 
 ---
 
-## Current State (v0.2.0)
+## Current State (v0.3.0)
 
 ### Delivered
 
@@ -34,6 +34,14 @@
 - Binary Compatibility Validator with `.api` baseline
 - `FractionalClipShape` geometry unit tests
 - `roundToStep` floating-point precision fix + tests
+
+#### v0.3.0
+- Library source moved to root project for cleaner JitPack coordinates
+- Samples converted to standalone Gradle composite build with `includeBuild("..")` and automatic dependency substitution
+- API baseline files moved to root `api/` directory
+- Build task paths simplified: `:ratingbar-cmp:` prefix removed from all root-level tasks
+- CI/CD change detection rules updated to `src/**` path structure
+- Sample app updated with three screens: Standard, Playground, and Behaviors
 
 ### Platform Matrix
 
@@ -194,6 +202,6 @@ This is a comprehensive list of features, use cases, and improvements the librar
 ## Versioning Policy
 
 - Semantic Versioning (`MAJOR.MINOR.PATCH`)
-- `0.2.0` is the current release
+- `0.3.0` is the current release
 - Breaking API changes bump the minor version during `0.x` development
 - New features and improvements target the next minor release

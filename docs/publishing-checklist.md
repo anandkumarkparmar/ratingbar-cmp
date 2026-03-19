@@ -11,7 +11,7 @@ Use this checklist whenever you cut a new public release from `main`. Each step 
 
 ## 2. Update versioning and docs
 
-- Bump the library version in [build.gradle.kts](../build.gradle.kts) (`allprojects { version = "..." }`). Keep the `0.x.y` semantic pattern.
+- Bump the library version in [build.gradle.kts](../build.gradle.kts) (`version = "..."`). Keep the `0.x.y` semantic pattern.
 - Audit README and docs for accuracy. Update badges, feature lists, or usage snippets if the API changed.
 - Update [changelog.md](changelog.md) with the new version's changes.
 - If the roadmap needs updating, refresh [roadmap.md](roadmap.md).
@@ -36,13 +36,13 @@ Exercise the samples if your change affects a specific platform:
 Run the JitPack publication dry-run:
 
 ```bash
-./gradlew :ratingbar-cmp:publishToMavenLocal -x test --stacktrace
+./gradlew publishToMavenLocal --stacktrace
 ```
 
 Build the Android release artifact:
 
 ```bash
-./gradlew :ratingbar-cmp:assembleRelease -x test --stacktrace
+./gradlew bundleAndroidMainAar --stacktrace
 ```
 
 Alternatively, use the release-check script for a comprehensive pre-release validation:

@@ -147,19 +147,19 @@ gh workflow run ci.yml -f full_build=true
 ## Change Detection Rules
 
 ```yaml
-library:   ratingbar-cmp/**, gradle/**, *.gradle.kts, gradle.properties
+library:   src/**, gradle/**, *.gradle.kts, gradle.properties
 samples:   samples/**
-android:   ratingbar-cmp/**, samples/android/**, samples/common/**
-ios:       ratingbar-cmp/**, samples/ios/**, samples/ios-app-host/**, samples/common/**
-desktop:   ratingbar-cmp/**, samples/desktop/**, samples/common/**
-web:       ratingbar-cmp/**, samples/web/**, samples/common/**
+android:   src/**, samples/android/**, samples/common/**
+ios:       src/**, samples/ios/**, samples/ios-app-host/**, samples/common/**
+desktop:   src/**, samples/desktop/**, samples/common/**
+web:       src/**, samples/web/**, samples/common/**
 ```
 
 ### Examples
 
 | Files Changed | Jobs That Run |
 |---|---|
-| `ratingbar-cmp/src/commonMain/` | All library jobs |
+| `src/commonMain/` | All library jobs |
 | `samples/android/` | Android sample (waits for library) |
 | `samples/web/` | Web sample (waits for library) |
 | `README.md` | None (skipped via `paths-ignore`) |

@@ -76,10 +76,11 @@ Starts a local development server. Open the printed URL in your browser (typical
 
 ## Sample App Content
 
-The sample app contains two tabs:
+The sample app contains three tabs:
 
-- **Standard** — Default star rating bar with half-step increments, read-only display, and value feedback
-- **Customization** — Custom item slot API demonstrating icon substitution and color customization
+- **Standard** — Default star rating patterns including half-step increments, a read-only display, RTL layout, and a custom slot example with dot items
+- **Playground** — Live interactive customization panel with real-time sliders and toggles for all key parameters
+- **Behaviors** — Individual feature toggle demos (hover preview, scroll input, haptic feedback, animations, constraints) with explanatory notes
 
 ---
 

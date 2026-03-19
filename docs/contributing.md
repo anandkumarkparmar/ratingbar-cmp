@@ -30,11 +30,11 @@ cd ratingbar-cmp
 
 ```
 ratingbar-cmp/
-├── ratingbar-cmp/          # Library module
-│   └── src/
-│       ├── commonMain/     # Shared Kotlin/Compose code (all platforms)
-│       └── commonTest/     # Shared unit tests
-├── samples/
+├── src/
+│   ├── commonMain/         # Shared Kotlin/Compose code (all platforms) — library source
+│   └── commonTest/         # Shared unit tests
+├── api/                    # Binary compatibility baseline
+├── samples/                # Standalone Gradle composite build (includeBuild(".."))
 │   ├── common/             # Shared sample UI (SampleApp)
 │   ├── android/            # Android launcher
 │   ├── desktop/            # Desktop launcher
@@ -113,16 +113,16 @@ Using this library in your app? Open an issue titled **"Shoutout: \<Your App Nam
 
 ```bash
 # Desktop (includes commonTest)
-./gradlew :ratingbar-cmp:desktopTest
+./gradlew desktopTest
 
 # Android unit tests
-./gradlew :ratingbar-cmp:assembleUnitTest
+./gradlew assembleUnitTest
 
 # Web/JS
-./gradlew :ratingbar-cmp:jsTest
+./gradlew jsTest
 
 # iOS (requires macOS + Xcode)
-./gradlew :ratingbar-cmp:iosSimulatorArm64Test
+./gradlew iosSimulatorArm64Test
 ```
 
 ---

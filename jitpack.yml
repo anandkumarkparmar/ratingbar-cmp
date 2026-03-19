@@ -2,4 +2,4 @@ jdk:
   - openjdk17
 
 install:
-  - ./gradlew clean :ratingbar-cmp:publishToMavenLocal -x test
+  - ./gradlew clean publishToMavenLocal -x test

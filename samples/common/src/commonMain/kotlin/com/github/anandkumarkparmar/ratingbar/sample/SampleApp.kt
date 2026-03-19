@@ -107,7 +107,7 @@ private fun StandardScreen() {
     var basicRating by rememberRatingBarState(3f)
     var halfRating by rememberRatingBarState(3.5f)
     var preciseRating by rememberRatingBarState(2.7f)
-    val readOnlyRating = 4.5f
+    val readOnlyRating = 3.6f
     var rtlRating by rememberRatingBarState(2f)
 
     Column(
@@ -160,6 +160,7 @@ private fun StandardScreen() {
         SampleCard(title = "Read-Only") {
             RatingBar(
                 value = readOnlyRating,
+                step = 0.1f,
                 onValueChange = {},
                 readOnly = true
             )
@@ -423,7 +424,8 @@ private fun BehaviorsScreen() {
                 value = hoverRating,
                 onValueChange = { hoverRating = it },
                 showHoverPreview = hoverEnabled,
-                hoverColor = MaterialTheme.colorScheme.tertiary
+                step = 0.1f,
+                hoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
             )
             ValueText(hoverRating)
             LabeledSwitch("Show hover preview", hoverEnabled) { hoverEnabled = it }
