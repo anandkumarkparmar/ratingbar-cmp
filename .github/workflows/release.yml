@@ -64,7 +64,7 @@ jobs:
         run: ./gradlew detekt --stacktrace
 
       - name: Build Android release artifact
-        run: ./gradlew bundleAndroidMainAar -x test --stacktrace
+        run: ./gradlew bundleAndroidMainAar --stacktrace
 
       - name: Generate artifact size matrix
         env:

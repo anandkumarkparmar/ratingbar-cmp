@@ -36,13 +36,13 @@ Exercise the samples if your change affects a specific platform:
 Run the JitPack publication dry-run:
 
 ```bash
-./gradlew publishToMavenLocal -x test --stacktrace
+./gradlew publishToMavenLocal --stacktrace
 ```
 
 Build the Android release artifact:
 
 ```bash
-./gradlew bundleAndroidMainAar -x test --stacktrace
+./gradlew bundleAndroidMainAar --stacktrace
 ```
 
 Alternatively, use the release-check script for a comprehensive pre-release validation:
