@@ -55,7 +55,7 @@ jobs:
           fi
 
       - name: Validate JitPack publication task
-        run: ./gradlew clean publishToMavenLocal -x test --stacktrace
+        run: ./gradlew clean publishToMavenLocal --stacktrace
 
       - name: API compatibility check
         run: ./gradlew apiCheck --stacktrace
