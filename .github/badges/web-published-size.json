@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "label": "web",
+  "label": "Web",
   "message": "3.33 MB",
-  "color": "informational"
+  "color": "orange"
 }

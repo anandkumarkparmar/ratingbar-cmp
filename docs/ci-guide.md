@@ -31,9 +31,9 @@ Uses `dorny/paths-filter` to detect what changed and only run affected jobs:
 ```
 Changed files --> Affected components --> Jobs to run
 
-ratingbar-cmp/android/    --> Android library --> library-android job
-samples/web/              --> Web sample      --> sample-web job
-README.md                 --> Nothing         --> Skip all builds
+src/commonMain/           --> All libraries  --> library-android/desktop/web/ios jobs
+samples/web/              --> Web sample     --> sample-web job
+README.md                 --> Nothing        --> Skip all builds
 ```
 
 ### Build Dependencies
@@ -174,11 +174,16 @@ Triggered by tags matching `0.*` or `v0.*`, or manual dispatch.
 Steps:
 1. Resolve and validate tag format (`0.x.y` or `v0.x.y`)
 2. `publishToMavenLocal`
-3. Build Android release artifact
-4. Run `report-artifact-sizes.sh --enforce`
-5. Build all modules (excluding iOS tests)
-6. Generate `release_notes.md` with size snapshot and dependency snippet
-7. Upload artifact-size report and release notes
+3. API compatibility check (`apiCheck`)
+4. Detekt static analysis
+5. Build Android release artifact
+6. Run `report-artifact-sizes.sh --enforce` (enforces size budgets, generates badge JSONs)
+7. Build all modules (excluding iOS tests)
+8. Generate `release_notes.md` with size snapshot and dependency snippet
+9. Upload artifact-size report and release notes
+10. Build web sample (`jsBrowserDistribution`)
+11. Stage combined GitHub Pages artifact: Dokka HTML at `/`, web demo at `/demo/`
+12. Deploy to GitHub Pages — Dokka at `https://anandkumarkparmar.github.io/ratingbar-cmp/`, live demo at `.../demo/`
 
 ---
 

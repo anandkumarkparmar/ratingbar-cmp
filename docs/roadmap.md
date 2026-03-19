@@ -177,6 +177,7 @@ This is a comprehensive list of features, use cases, and improvements the librar
 | Feature | Description |
 |---|---|
 | Maven Central publishing | Publish to Maven Central in addition to JitPack |
+| Custom documentation site | MkDocs Material theme over `/docs/` markdown — searchable, themed developer portal hosted on GitHub Pages |
 | Version catalog snippet | Provide ready-to-use Gradle version catalog entries |
 | KMP module dependency docs | Document per-platform dependency setup |
 | Kotlin/Wasm target | Add WebAssembly target support |

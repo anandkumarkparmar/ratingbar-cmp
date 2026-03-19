@@ -147,7 +147,7 @@ total_kb="$(to_kb "$total_bytes")"
 cat > "${BADGE_DIR}/android-aar-size.json" <<EOF
 {
   "schemaVersion": 1,
-  "label": "android aar",
+  "label": "Android AAR",
   "message": "$(smart_size "$android_aar_bytes")",
   "color": "brightgreen"
 }
@@ -156,7 +156,7 @@ EOF
 cat > "${BADGE_DIR}/total-published-size.json" <<EOF
 {
   "schemaVersion": 1,
-  "label": "total published",
+  "label": "Total Published",
   "message": "$(smart_size "$total_bytes")",
   "color": "blue"
 }
@@ -165,27 +165,27 @@ EOF
 cat > "${BADGE_DIR}/desktop-published-size.json" <<EOF
 {
   "schemaVersion": 1,
-  "label": "desktop",
+  "label": "Desktop",
   "message": "$(smart_size "$desktop_published_bytes")",
-  "color": "informational"
+  "color": "blue"
 }
 EOF
 
 cat > "${BADGE_DIR}/ios-published-size.json" <<EOF
 {
   "schemaVersion": 1,
-  "label": "ios",
+  "label": "iOS",
   "message": "$(smart_size "$ios_published_bytes")",
-  "color": "informational"
+  "color": "lightgrey"
 }
 EOF
 
 cat > "${BADGE_DIR}/web-published-size.json" <<EOF
 {
   "schemaVersion": 1,
-  "label": "web",
+  "label": "Web",
   "message": "$(smart_size "$web_published_bytes")",
-  "color": "informational"
+  "color": "orange"
 }
 EOF
 

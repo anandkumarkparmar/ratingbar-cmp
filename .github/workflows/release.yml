@@ -186,10 +186,22 @@ jobs:
           sed -i "s|<body|<body data-version=\"${VERSION}\"|" \
             build/dokka/html/index.html || true
 
+      - name: Build web sample (production)
+        run: ./gradlew -p samples :web:jsBrowserDistribution --no-daemon
+        env:
+          GRADLE_OPTS: "-Xmx4g -XX:MaxMetaspaceSize=512m"
+
+      - name: Stage Pages artifact
+        run: |
+          mkdir -p build/pages
+          cp -r build/dokka/html/. build/pages/
+          mkdir -p build/pages/demo
+          cp -r samples/web/build/dist/js/productionExecutable/. build/pages/demo/
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: build/dokka/html
+          path: build/pages
 
       - name: Deploy to GitHub Pages
         id: deploy
