@@ -35,7 +35,7 @@ android {
 val ratingbarVersion = project.findProperty("ratingbarVersion") as? String ?: "0.3.0"
 
 dependencies {
-    implementation("com.github.anandkumarkparmar:ratingbar-cmp:$ratingbarVersion")
+    implementation("com.github.anandkumarkparmar.ratingbar-cmp:ratingbar-cmp:$ratingbarVersion")
     implementation(project(":common"))
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

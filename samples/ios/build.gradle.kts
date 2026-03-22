@@ -22,7 +22,7 @@ kotlin {
         val iosMain by creating {
             dependsOn(commonMain.get())
             dependencies {
-                implementation("com.github.anandkumarkparmar:ratingbar-cmp:$ratingbarVersion")
+                implementation("com.github.anandkumarkparmar.ratingbar-cmp:ratingbar-cmp:$ratingbarVersion")
                 implementation(project(":common"))
                 implementation(libs.compose.mpp.runtime)
                 implementation(libs.compose.mpp.foundation)

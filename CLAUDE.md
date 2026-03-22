@@ -51,7 +51,7 @@ iOS sample requires Xcode — open `samples/ios-app-host/sample-ratingbar-cmp/sa
 
 ### Module Layout
 - **Root project** — Library module (KMP, all logic in `commonMain`, published from root for clean JitPack coordinate)
-- **`samples/`** — Standalone Gradle composite build; `includeBuild("..")` substitutes the local library automatically
+- **`samples/`** — Standalone Gradle composite build; `includeBuild("..")` substitutes the local library when `useLocalLibrary=true` (the default). Pass `-PuseLocalLibrary=false` to resolve from JitPack instead.
 - **`samples/common/`** — Shared sample UI composable used by all platform launchers
 - **`samples/{android,desktop,ios,web}/`** — Thin platform launchers
 - **`samples/ios-app-host/`** — Xcode project wrapping the iOS Kotlin/Native framework
@@ -81,7 +81,7 @@ iOS sample requires Xcode — open `samples/ios-app-host/sample-ratingbar-cmp/sa
 - `gradle/libs.versions.toml` — All dependency versions
 - `gradle.properties` — `org.gradle.jvmargs=-Xmx8192m` and `workers.max=2` are required to prevent OOM during iOS Kotlin/Native linking
 - `detekt.yml` — Zero-tolerance linting (`maxIssues: 0`); Compose wildcard imports are excluded
-- `useLocalLibrary=false` in `gradle.properties` — samples use published JitPack artifact; set to `true` to use local build
+- `useLocalLibrary` Gradle property — controls whether `samples/` resolve from local source (`true`, default) or JitPack (`false`). Pass via `-PuseLocalLibrary=false` to the samples build, or set in `samples/gradle.properties`. Run samples with `-p samples` flag from the repo root.
 - Binary Compatibility Validator is applied; run `apiDump` to update `.api` files after public API changes
 
 ## Platform-Specific Behavior (all implemented in `commonMain`)
