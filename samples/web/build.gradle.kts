@@ -14,12 +14,12 @@ kotlin {
         binaries.executable()
     }
     
-    val ratingbarVersion = project.findProperty("ratingbarVersion") as? String ?: "0.2.0"
+    val ratingbarVersion = project.findProperty("ratingbarVersion") as? String ?: "0.3.0"
 
     sourceSets {
         val jsMain by getting {
             dependencies {
-                implementation("com.github.anandkumarkparmar:ratingbar-cmp:$ratingbarVersion")
+                implementation("com.github.anandkumarkparmar.ratingbar-cmp:ratingbar-cmp:$ratingbarVersion")
                 implementation(project(":common"))
                 implementation(libs.compose.mpp.html.core)
                 implementation(libs.compose.mpp.runtime)

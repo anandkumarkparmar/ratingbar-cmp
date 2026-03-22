@@ -38,7 +38,7 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("com.github.anandkumarkparmar:ratingbar-cmp:$ratingbarVersion")
+                implementation("com.github.anandkumarkparmar.ratingbar-cmp:ratingbar-cmp:$ratingbarVersion")
                 implementation(libs.compose.mpp.runtime)
                 implementation(libs.compose.mpp.foundation)
                 implementation(libs.compose.mpp.ui)

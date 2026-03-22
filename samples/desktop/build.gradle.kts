@@ -12,7 +12,7 @@ kotlin {
     sourceSets {
         val desktopMain by getting {
             dependencies {
-                implementation("com.github.anandkumarkparmar:ratingbar-cmp:$ratingbarVersion")
+                implementation("com.github.anandkumarkparmar.ratingbar-cmp:ratingbar-cmp:$ratingbarVersion")
                 implementation(project(":common"))
                 implementation(compose.desktop.currentOs)
                 implementation(libs.compose.mpp.material3)

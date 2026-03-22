@@ -132,11 +132,8 @@ Using this library in your app? Open an issue titled **"Shoutout: \<Your App Nam
 Before opening a PR, run the full compile check:
 
 ```bash
-./gradlew :samples:common:compileKotlinMetadata \
-  :samples:android:compileDebugKotlinAndroid \
-  :samples:desktop:compileKotlinDesktop \
-  :samples:web:compileKotlinJs \
-  :samples:ios:compileKotlinIosSimulatorArm64
+./gradlew build
+./gradlew -p samples :desktop:compileKotlinDesktop :android:assembleDebug :web:compileKotlinJs
 ```
 
 ### PR Checklist

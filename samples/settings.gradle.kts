@@ -1,10 +1,14 @@
 rootProject.name = "ratingbar-cmp-samples"
 
 // Composite build: substitute the published library coordinate with the local library project.
-// Gradle will use the local library automatically during development/CI.
-includeBuild("..") {
-    dependencySubstitution {
-        substitute(module("com.github.anandkumarkparmar:ratingbar-cmp")).using(project(":"))
+// Set useLocalLibrary=false (via -P flag or gradle.properties) to resolve from JitPack instead.
+val useLocalLibrary = providers.gradleProperty("useLocalLibrary").orNull?.toBoolean() ?: true
+
+if (useLocalLibrary) {
+    includeBuild("..") {
+        dependencySubstitution {
+            substitute(module("com.github.anandkumarkparmar.ratingbar-cmp:ratingbar-cmp")).using(project(":"))
+        }
     }
 }
 

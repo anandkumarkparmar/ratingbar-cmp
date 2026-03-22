@@ -27,10 +27,10 @@ Run the full build to catch regressions:
 Exercise the samples if your change affects a specific platform:
 
 ```bash
-./gradlew :samples:android:installDebug
-./gradlew :samples:desktop:run
-./gradlew :samples:ios:linkDebugFrameworkIosSimulatorArm64
-./gradlew :samples:web:jsBrowserDevelopmentRun
+./gradlew -p samples :android:installDebug
+./gradlew -p samples :desktop:run
+./gradlew -p samples :ios:linkDebugFrameworkIosSimulatorArm64
+./gradlew -p samples :web:jsBrowserDevelopmentRun
 ```
 
 Run the JitPack publication dry-run:
@@ -101,10 +101,31 @@ When **Release Prep** finishes:
 ## 9. Verify JitPack availability
 
 - Visit `https://jitpack.io/#anandkumarkparmar/ratingbar-cmp/<version>` and confirm the build succeeds.
-- Test the dependency from a sample project:
+- Verify the Gradle metadata file is served (required for KMP variant selection):
+
+```bash
+curl -I "https://jitpack.io/com/github/anandkumarkparmar/ratingbar-cmp/ratingbar-cmp/<version>/ratingbar-cmp-<version>.module"
+# Expect: HTTP 200
+```
+
+- Test end-to-end resolution from the samples themselves:
+
+```bash
+./gradlew -p samples :desktop:compileKotlinDesktop -PuseLocalLibrary=false --refresh-dependencies
+./gradlew -p samples :android:assembleDebug -PuseLocalLibrary=false --refresh-dependencies
+```
+
+The correct consumer coordinate is:
 
 ```kotlin
-implementation("com.github.anandkumarkparmar:ratingbar-cmp:<version>")
+repositories {
+    mavenCentral()
+    maven("https://jitpack.io")
+}
+
+dependencies {
+    implementation("com.github.anandkumarkparmar.ratingbar-cmp:ratingbar-cmp:<version>")
+}
 ```
 
 ## 10. Post-release tidy-up
