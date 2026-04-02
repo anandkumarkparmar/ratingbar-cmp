@@ -45,8 +45,13 @@ public object RatingBarDefaults {
     /**
      * Default animation spec for fill fraction transitions: 200ms ease-out tween.
      *
-     * Applied when `animateRating = true` (the default) on [RatingBar]. Pass a custom
-     * [AnimationSpec] via the `ratingAnimationSpec` parameter to override.
+     * Used as the default [RatingBarAnimations.spec]. Pass a custom [AnimationSpec] via
+     * [animations] to override.
      */
     public val RatingAnimationSpec: TweenSpec<Float> = tween(durationMillis = 200, easing = FastOutSlowInEasing)
+
+    /**
+     * Default shimmer animation duration for [RatingBarPlaceholder]: 1000ms.
+     */
+    public const val ShimmerDurationMillis: Int = 1000
 }

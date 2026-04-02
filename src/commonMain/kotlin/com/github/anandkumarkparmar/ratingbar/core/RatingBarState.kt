@@ -5,22 +5,37 @@ import kotlin.math.roundToInt
 /**
  * Configuration for a rating bar's constraints.
  *
- * Pass a [RatingBarConfig] to [RatingBarState] when you need to validate and store rating
- * constraints outside of a Composable context (e.g., in a ViewModel).
+ * Pass a [RatingBarConfig] to [RatingBar] or [RatingBarState] to control the rating range,
+ * step granularity, and minimum value behaviour.
  *
  * @property max The maximum rating value (e.g., `5` for a 5-star bar). Must be > 0.
  * @property step The step increment for rating values (e.g., `0.5f` for half-star). Must be > 0 and ≤ max.
- * @throws IllegalArgumentException if `max ≤ 0`, `step ≤ 0`, or `step > max`.
+ * @property allowZero If `false`, the minimum selectable value is at least one [step]. Prevents
+ *   the rating from being cleared to zero via tap, drag, scroll, or keyboard.
+ * @property minValue Explicit minimum selectable value. When [allowZero] is `false` and [step]
+ *   is larger than [minValue], the effective minimum is [step].
+ * @throws IllegalArgumentException if `max ≤ 0`, `step ≤ 0`, `step > max`, or `minValue < 0`.
  */
 public data class RatingBarConfig(
     val max: Int = 5,
-    val step: Float = 1f
+    val step: Float = 1f,
+    val allowZero: Boolean = true,
+    val minValue: Float = 0f,
 ) {
     init {
         require(max > 0) { "max must be greater than 0" }
         require(step > 0) { "step must be greater than 0" }
         require(step <= max) { "step must be less than or equal to max" }
+        require(minValue >= 0f) { "minValue must be >= 0" }
     }
+
+    /**
+     * The effective minimum selectable value, derived from [allowZero] and [minValue].
+     *
+     * - When [allowZero] is `true`: equals [minValue].
+     * - When [allowZero] is `false`: `maxOf(step, minValue)`.
+     */
+    val effectiveMin: Float = if (!allowZero) maxOf(step, minValue) else minValue
 }
 
 /**

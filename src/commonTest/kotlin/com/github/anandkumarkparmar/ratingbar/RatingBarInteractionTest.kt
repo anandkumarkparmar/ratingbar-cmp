@@ -2,8 +2,10 @@ package com.github.anandkumarkparmar.ratingbar
 
 import com.github.anandkumarkparmar.ratingbar.core.RatingBarConfig
 import com.github.anandkumarkparmar.ratingbar.core.RatingBarState
+import com.github.anandkumarkparmar.ratingbar.core.RatingInteractionSource
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 /**
@@ -87,5 +89,135 @@ class RatingBarInteractionTest {
         assertEquals(1f, RatingBarState.fillFraction(4, 5f))
         // value == 0 should give 0f for all items
         assertEquals(0f, RatingBarState.fillFraction(0, 0f))
+    }
+
+    // ── F1 — progressBarRangeInfo step count formula ────────────────────────
+
+    @Test
+    fun progressBarStepCountForDefaultConfig() {
+        val config = RatingBarConfig(max = 5, step = 1f)
+        val steps = ((config.max.toFloat() / config.step).toInt() - 1).coerceAtLeast(0)
+        assertEquals(4, steps) // 5 whole-star positions → 4 intervals
+    }
+
+    @Test
+    fun progressBarStepCountForHalfStep() {
+        val config = RatingBarConfig(max = 5, step = 0.5f)
+        val steps = ((config.max.toFloat() / config.step).toInt() - 1).coerceAtLeast(0)
+        assertEquals(9, steps) // 10 half-star positions → 9 intervals
+    }
+
+    @Test
+    fun progressBarStepCountNeverNegative() {
+        val config = RatingBarConfig(max = 1, step = 1f)
+        val steps = ((config.max.toFloat() / config.step).toInt() - 1).coerceAtLeast(0)
+        assertEquals(0, steps) // 1 position → 0 intervals, never negative
+    }
+
+    // ── F2 — itemLabels stateDescription logic ──────────────────────────────
+
+    @Test
+    fun itemLabelsStateDescriptionUsesActiveLabel() {
+        val labels = listOf("Terrible", "Bad", "Okay", "Good", "Excellent")
+        val stateDesc = computeStateDesc(labels, max = 5, displayValue = 4f)
+        // Use contains to avoid JVM ("4.0") vs JS ("4") float-toString differences
+        assertTrue(stateDesc.startsWith("Good ("), "Expected label prefix, got: $stateDesc")
+        assertTrue(stateDesc.contains("out of 5"), "Expected 'out of 5', got: $stateDesc")
+    }
+
+    @Test
+    fun itemLabelsStateDescriptionFallsBackWhenNull() {
+        val stateDesc = computeStateDesc(null, max = 5, displayValue = 3f)
+        assertTrue(stateDesc.contains("out of 5"), "Expected fallback with max, got: $stateDesc")
+        assertFalse(stateDesc.contains("("), "Fallback should not contain a label prefix")
+    }
+
+    @Test
+    fun itemLabelsStateDescriptionFallsBackWhenDisplayValueIsZero() {
+        val labels = listOf("Terrible", "Bad", "Okay", "Good", "Excellent")
+        val stateDesc = computeStateDesc(labels, max = 5, displayValue = 0f)
+        // displayValue == 0 → falls back to plain format (no label)
+        assertTrue(stateDesc.contains("out of 5"), "Expected fallback format, got: $stateDesc")
+        assertFalse(stateDesc.contains("Terrible"), "Zero value must not use a label")
+    }
+
+    @Test
+    fun itemLabelsShortListIsIgnored() {
+        // Lists shorter than max are ignored to prevent index-out-of-bounds
+        val labels = listOf("Okay", "Good") // only 2 entries for max=5
+        val stateDesc = computeStateDesc(labels, max = 5, displayValue = 2f)
+        assertTrue(stateDesc.contains("out of 5"), "Short list should fall back to plain format")
+        assertFalse(stateDesc.contains("Okay"), "Short list label should not appear in stateDesc")
+    }
+
+    // ── F4 — animations.reducedMotion / enabled spec selection logic ────────
+
+    @Test
+    fun reducedMotionSuppressesAnimation() {
+        val animations = RatingBarAnimations(enabled = true, reducedMotion = true)
+        assertFalse(animations.enabled && !animations.reducedMotion)
+    }
+
+    @Test
+    fun animationsEnabledWithoutReducedMotion() {
+        val animations = RatingBarAnimations(enabled = true, reducedMotion = false)
+        assertTrue(animations.enabled && !animations.reducedMotion)
+    }
+
+    @Test
+    fun animationsDisabledByDefault() {
+        val animations = RatingBarAnimations()
+        assertFalse(animations.enabled)
+        assertFalse(animations.animateScale)
+        assertFalse(animations.reducedMotion)
+    }
+
+    // ── F7 — long-press reset target (effectiveMin) ─────────────────────────
+
+    @Test
+    fun longPressResetTargetWithAllowZeroTrue() {
+        val config = RatingBarConfig(max = 5, allowZero = true)
+        assertEquals(0f, config.effectiveMin)
+    }
+
+    @Test
+    fun longPressResetTargetWithAllowZeroFalse() {
+        val config = RatingBarConfig(max = 5, step = 1f, allowZero = false)
+        assertEquals(1f, config.effectiveMin)
+    }
+
+    @Test
+    fun longPressResetRespectsMinValueWhenLargerThanStep() {
+        val config = RatingBarConfig(max = 5, step = 0.5f, allowZero = false, minValue = 2f)
+        assertEquals(2f, config.effectiveMin)
+    }
+
+    // ── F10 — RatingInteractionSource enum values ───────────────────────────
+
+    @Test
+    fun ratingInteractionSourceHasFourValues() {
+        assertEquals(4, RatingInteractionSource.entries.size)
+    }
+
+    @Test
+    fun ratingInteractionSourceAllVariantsExist() {
+        val entries = RatingInteractionSource.entries
+        assertTrue(entries.contains(RatingInteractionSource.Tap))
+        assertTrue(entries.contains(RatingInteractionSource.Drag))
+        assertTrue(entries.contains(RatingInteractionSource.Keyboard))
+        assertTrue(entries.contains(RatingInteractionSource.Scroll))
+    }
+
+    // ── Helpers ─────────────────────────────────────────────────────────────
+
+    private fun computeStateDesc(
+        itemLabels: List<String>?,
+        max: Int,
+        displayValue: Float,
+    ): String = if (itemLabels != null && itemLabels.size >= max && displayValue > 0f) {
+        val idx = (displayValue.toInt() - 1).coerceIn(0, itemLabels.size - 1)
+        "${itemLabels[idx]} ($displayValue out of $max)"
+    } else {
+        "$displayValue out of $max"
     }
 }

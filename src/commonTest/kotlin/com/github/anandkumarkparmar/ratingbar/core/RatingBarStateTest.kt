@@ -114,6 +114,59 @@ class RatingBarStateTest {
         val state = RatingBarState(value = 3f, config = config)
         assertTrue(state.steppedValue <= config.max)
     }
+
+    // ── Group 1 — RatingBarConfig.allowZero / minValue / effectiveMin ──────
+
+    @Test
+    fun testEffectiveMinDefaultIsZero() {
+        val config = RatingBarConfig(max = 5)
+        assertEquals(0f, config.effectiveMin)
+    }
+
+    @Test
+    fun testEffectiveMinAllowZeroFalseEqualsStep() {
+        val config = RatingBarConfig(max = 5, step = 1f, allowZero = false)
+        assertEquals(1f, config.effectiveMin)
+    }
+
+    @Test
+    fun testEffectiveMinAllowZeroFalseWithLargerStep() {
+        val config = RatingBarConfig(max = 5, step = 2f, allowZero = false)
+        assertEquals(2f, config.effectiveMin)
+    }
+
+    @Test
+    fun testEffectiveMinAllowZeroFalseMinValueWinsWhenLarger() {
+        // minValue=1f > step=0.5f → effectiveMin should be 1f
+        val config = RatingBarConfig(max = 5, step = 0.5f, allowZero = false, minValue = 1f)
+        assertEquals(1f, config.effectiveMin)
+    }
+
+    @Test
+    fun testEffectiveMinAllowZeroFalseStepWinsWhenLarger() {
+        // step=2f > minValue=0.5f → effectiveMin should be 2f
+        val config = RatingBarConfig(max = 5, step = 2f, allowZero = false, minValue = 0.5f)
+        assertEquals(2f, config.effectiveMin)
+    }
+
+    @Test
+    fun testEffectiveMinAllowZeroTrueWithMinValue() {
+        val config = RatingBarConfig(max = 5, allowZero = true, minValue = 0.5f)
+        assertEquals(0.5f, config.effectiveMin)
+    }
+
+    @Test
+    fun testConfigMinValueNegativeThrows() {
+        assertFailsWith<IllegalArgumentException> {
+            RatingBarConfig(max = 5, minValue = -0.5f)
+        }
+    }
+
+    @Test
+    fun testConfigAllowZeroDefaultIsTrue() {
+        val config = RatingBarConfig()
+        assertTrue(config.allowZero)
+    }
     
     @Test
     fun testFillFractionEdgeCases() {

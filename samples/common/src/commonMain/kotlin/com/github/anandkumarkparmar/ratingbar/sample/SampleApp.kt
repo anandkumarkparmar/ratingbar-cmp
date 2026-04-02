@@ -38,18 +38,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import com.github.anandkumarkparmar.ratingbar.RatingBar
-import com.github.anandkumarkparmar.ratingbar.RatingBarDefaults
-import com.github.anandkumarkparmar.ratingbar.rememberRatingBarState
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import com.github.anandkumarkparmar.ratingbar.*
+import com.github.anandkumarkparmar.ratingbar.core.RatingBarConfig
+import com.github.anandkumarkparmar.ratingbar.core.RatingInteractionSource
 
 private enum class SampleScreen {
     Standard,
     Playground,
-    Behaviors
+    Behaviors,
+    New,
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -88,12 +92,18 @@ fun SampleApp() {
                         onClick = { currentScreen = SampleScreen.Behaviors },
                         text = { Text("Behaviors") }
                     )
+                    Tab(
+                        selected = currentScreen == SampleScreen.New,
+                        onClick = { currentScreen = SampleScreen.New },
+                        text = { Text("v0.4.0") }
+                    )
                 }
 
                 when (currentScreen) {
                     SampleScreen.Standard -> StandardScreen()
                     SampleScreen.Playground -> PlaygroundScreen()
                     SampleScreen.Behaviors -> BehaviorsScreen()
+                    SampleScreen.New -> NewFeaturesScreen()
                 }
             }
         }
@@ -140,8 +150,8 @@ private fun StandardScreen() {
             RatingBar(
                 value = halfRating,
                 onValueChange = { halfRating = it },
-                step = 0.5f,
-                itemSize = RatingBarDefaults.SizeLarge
+                config = RatingBarConfig(step = 0.5f),
+                style = RatingBarDefaults.style(itemSize = RatingBarDefaults.SizeLarge),
             )
             ValueText(halfRating)
         }
@@ -150,9 +160,8 @@ private fun StandardScreen() {
             RatingBar(
                 value = preciseRating,
                 onValueChange = { preciseRating = it },
-                max = 10,
-                step = 0.1f,
-                itemSize = RatingBarDefaults.SizeSmall
+                config = RatingBarConfig(max = 10, step = 0.1f),
+                style = RatingBarDefaults.style(itemSize = RatingBarDefaults.SizeSmall),
             )
             ValueText(preciseRating)
         }
@@ -160,9 +169,9 @@ private fun StandardScreen() {
         SampleCard(title = "Read-Only") {
             RatingBar(
                 value = readOnlyRating,
-                step = 0.1f,
                 onValueChange = {},
-                readOnly = true
+                config = RatingBarConfig(step = 0.1f),
+                readOnly = true,
             )
             ValueText(readOnlyRating)
         }
@@ -172,7 +181,7 @@ private fun StandardScreen() {
                 RatingBar(
                     value = rtlRating,
                     onValueChange = { rtlRating = it },
-                    step = 0.5f
+                    config = RatingBarConfig(step = 0.5f),
                 )
             }
             ValueText(rtlRating)
@@ -183,8 +192,7 @@ private fun StandardScreen() {
             RatingBar(
                 value = dotRating,
                 onValueChange = { dotRating = it },
-                max = 5,
-                step = 1f,
+                config = RatingBarConfig(max = 5, step = 1f),
                 itemSpacing = 8.dp,
                 itemContent = { _, fillFraction ->
                     Box(
@@ -196,7 +204,7 @@ private fun StandardScreen() {
                                 } else {
                                     MaterialTheme.colorScheme.onPrimary
                                 },
-                                shape = CircleShape
+                                shape = CircleShape,
                             )
                     )
                 }
@@ -250,19 +258,25 @@ private fun PlaygroundScreen() {
                     RatingBar(
                         value = rating,
                         onValueChange = { rating = it },
-                        max = max,
-                        step = step,
-                        itemSize = itemSize,
-                        itemSpacing = itemSpacing,
                         readOnly = readOnly,
-                        animateRating = animateRating,
-                        animateScale = animateScale,
-                        allowZero = allowZero,
-                        showHoverPreview = showHoverPreview,
-                        enableScrollInput = enableScrollInput,
-                        hapticFeedback = hapticFeedback,
-                        filledColor = MaterialTheme.colorScheme.primary,
-                        unfilledColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f)
+                        config = RatingBarConfig(max = max, step = step, allowZero = allowZero),
+                        style = RatingBarDefaults.style(
+                            itemSize = itemSize,
+                            itemSpacing = itemSpacing,
+                            colors = RatingBarDefaults.colors(
+                                filled = MaterialTheme.colorScheme.primary,
+                                unfilled = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.25f),
+                            ),
+                        ),
+                        animations = RatingBarDefaults.animations(
+                            enabled = animateRating,
+                            animateScale = animateScale,
+                        ),
+                        behavior = RatingBarDefaults.behavior(
+                            showHoverPreview = showHoverPreview,
+                            enableScrollInput = enableScrollInput,
+                            hapticFeedback = hapticFeedback,
+                        ),
                     )
                     ValueText(rating)
                 }
@@ -345,7 +359,6 @@ private fun PlaygroundScreen() {
 
 @Composable
 private fun BehaviorsScreen() {
-    // State hoisted to function level — predictable lifecycle, no composition-position ambiguity
     var fillAnimRating by rememberRatingBarState(3f)
     var fillAnimEnabled by remember { mutableStateOf(false) }
 
@@ -386,7 +399,7 @@ private fun BehaviorsScreen() {
             RatingBar(
                 value = fillAnimRating,
                 onValueChange = { fillAnimRating = it },
-                animateRating = fillAnimEnabled
+                animations = RatingBarDefaults.animations(enabled = fillAnimEnabled),
             )
             ValueText(fillAnimRating)
             LabeledSwitch("Animate fill", fillAnimEnabled) { fillAnimEnabled = it }
@@ -397,7 +410,7 @@ private fun BehaviorsScreen() {
             RatingBar(
                 value = scaleRating,
                 onValueChange = { scaleRating = it },
-                animateScale = scaleEnabled
+                animations = RatingBarDefaults.animations(animateScale = scaleEnabled),
             )
             ValueText(scaleRating)
             LabeledSwitch("Scale on select", scaleEnabled) { scaleEnabled = it }
@@ -408,8 +421,10 @@ private fun BehaviorsScreen() {
             RatingBar(
                 value = minRating,
                 onValueChange = { minRating = it },
-                allowZero = allowZero,
-                minValue = if (allowZero) 0f else 1f
+                config = RatingBarConfig(
+                    allowZero = allowZero,
+                    minValue = if (allowZero) 0f else 1f,
+                ),
             )
             ValueText(minRating)
             LabeledSwitch("Allow zero", allowZero) { allowZero = it }
@@ -423,9 +438,13 @@ private fun BehaviorsScreen() {
             RatingBar(
                 value = hoverRating,
                 onValueChange = { hoverRating = it },
-                showHoverPreview = hoverEnabled,
-                step = 0.1f,
-                hoverColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
+                config = RatingBarConfig(step = 0.1f),
+                style = RatingBarDefaults.style(
+                    colors = RatingBarDefaults.colors(
+                        hover = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
+                    ),
+                ),
+                behavior = RatingBarDefaults.behavior(showHoverPreview = hoverEnabled),
             )
             ValueText(hoverRating)
             LabeledSwitch("Show hover preview", hoverEnabled) { hoverEnabled = it }
@@ -439,8 +458,8 @@ private fun BehaviorsScreen() {
             RatingBar(
                 value = scrollRating,
                 onValueChange = { scrollRating = it },
-                step = 0.5f,
-                enableScrollInput = scrollEnabled
+                config = RatingBarConfig(step = 0.5f),
+                behavior = RatingBarDefaults.behavior(enableScrollInput = scrollEnabled),
             )
             ValueText(scrollRating)
             LabeledSwitch("Enable scroll input", scrollEnabled) { scrollEnabled = it }
@@ -454,7 +473,7 @@ private fun BehaviorsScreen() {
             RatingBar(
                 value = hapticRating,
                 onValueChange = { hapticRating = it },
-                hapticFeedback = hapticEnabled
+                behavior = RatingBarDefaults.behavior(hapticFeedback = hapticEnabled),
             )
             ValueText(hapticRating)
             LabeledSwitch("Haptic feedback", hapticEnabled) { hapticEnabled = it }
@@ -462,6 +481,236 @@ private fun BehaviorsScreen() {
                 "Tap a different star to change the rating — a haptic tick fires on Android " +
                     "each time the value changes. Requires 'Vibration & haptics' to be enabled " +
                     "in device Settings. No-op on other platforms."
+            )
+        }
+    }
+}
+
+// ── New in v0.4.0 ─────────────────────────────────────────────────────────────
+
+@Composable
+private fun NewFeaturesScreen() {
+    var labelRating by rememberSaveableRatingBarState(3f)
+    var saveableRating by rememberSaveableRatingBarState(2f)
+    var heartRating by rememberRatingBarState(2f)
+    var thumbRating by rememberRatingBarState(1f)
+    var circleRating by rememberRatingBarState(4f)
+    var placeholderRating by rememberRatingBarState(3f)
+    var gradientRating by rememberRatingBarState(3f)
+    var slotRating by rememberRatingBarState(4f)
+    var sourceRating by rememberRatingBarState(3f)
+    var lastSource by remember { mutableStateOf<RatingInteractionSource?>(null) }
+    var longPressRating by rememberRatingBarState(4f)
+    var isLoading by remember { mutableStateOf(true) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        Text(
+            text = "New in v0.4.0",
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.SemiBold
+        )
+        Text(
+            text = "Demos for all 10 features delivered in this sprint.",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+
+        // F5 — Shimmer placeholder
+        SampleCard(title = "F5 — Shimmer Placeholder") {
+            LabeledSwitch("Show placeholder", isLoading) { isLoading = it }
+            if (isLoading) {
+                RatingBarPlaceholder(
+                    max = 5,
+                    itemSize = RatingBarDefaults.SizeMedium,
+                )
+            } else {
+                RatingBar(value = placeholderRating, onValueChange = { placeholderRating = it })
+                ValueText(placeholderRating)
+            }
+            NoteText("Toggle to switch between shimmer skeleton and the live bar.")
+        }
+
+        // F1+F2 — Accessibility + per-item labels
+        SampleCard(title = "F1+F2 — Accessibility & Item Labels") {
+            RatingBar(
+                value = labelRating,
+                onValueChange = { labelRating = it },
+                itemLabels = listOf("Terrible", "Bad", "Okay", "Good", "Excellent"),
+            )
+            ValueText(labelRating)
+            NoteText(
+                "TalkBack/VoiceOver: swipe up/down to change value. " +
+                    "stateDescription includes the active label (e.g. \"Good (4.0 out of 5)\"). " +
+                    "State survives rotation via rememberSaveableRatingBarState."
+            )
+        }
+
+        // F3 — Saveable state
+        SampleCard(title = "F3 — Saveable Rating State") {
+            RatingBar(
+                value = saveableRating,
+                onValueChange = { saveableRating = it },
+            )
+            ValueText(saveableRating)
+            NoteText(
+                "Uses rememberSaveableRatingBarState — value survives Android rotation " +
+                "and Compose Navigation back-stack restoration."
+            )
+        }
+
+        // F6 — Shape presets: Heart
+        SampleCard(title = "F6 — Heart Icons") {
+            RatingBar(
+                value = heartRating,
+                onValueChange = { heartRating = it },
+                style = RatingBarDefaults.style(
+                    filledPainter = rememberVectorPainter(RatingBarIcons.Heart),
+                    unfilledPainter = rememberVectorPainter(RatingBarIcons.HeartOutline),
+                    colors = RatingBarDefaults.colors(
+                        filled = Color(0xFFE91E63),
+                        unfilled = Color(0xFFE91E63).copy(alpha = 0.3f),
+                        hover = Color(0xFFE91E63).copy(alpha = 0.6f),
+                    ),
+                ),
+            )
+            ValueText(heartRating)
+        }
+
+        // F6 — Shape presets: ThumbUp
+        SampleCard(title = "F6 — Thumb-Up Icons") {
+            RatingBar(
+                value = thumbRating,
+                onValueChange = { thumbRating = it },
+                config = RatingBarConfig(max = 3, step = 1f),
+                style = RatingBarDefaults.style(
+                    filledPainter = rememberVectorPainter(RatingBarIcons.ThumbUp),
+                    unfilledPainter = rememberVectorPainter(RatingBarIcons.ThumbUpOutline),
+                    colors = RatingBarDefaults.colors(
+                        filled = Color(0xFF4CAF50),
+                        unfilled = Color(0xFF4CAF50).copy(alpha = 0.3f),
+                        hover = Color(0xFF4CAF50).copy(alpha = 0.6f),
+                    ),
+                ),
+            )
+            ValueText(thumbRating)
+        }
+
+        // F6 — Shape presets: Circle
+        SampleCard(title = "F6 — Circle / Dot Icons") {
+            RatingBar(
+                value = circleRating,
+                onValueChange = { circleRating = it },
+                style = RatingBarDefaults.style(
+                    filledPainter = rememberVectorPainter(RatingBarIcons.Circle),
+                    unfilledPainter = rememberVectorPainter(RatingBarIcons.CircleOutline),
+                    itemSize = RatingBarDefaults.SizeSmall,
+                ),
+            )
+            ValueText(circleRating)
+        }
+
+        // F8 — Gradient fill
+        SampleCard(title = "F8 — Gradient Fill") {
+            RatingBar(
+                value = gradientRating,
+                onValueChange = { gradientRating = it },
+                style = RatingBarDefaults.style(
+                    itemSize = RatingBarDefaults.SizeLarge,
+                    colors = RatingBarDefaults.colors(
+                        fillBrush = Brush.linearGradient(
+                            colors = listOf(
+                                Color(0xFFF44336),
+                                Color(0xFFFFEB3B),
+                                Color(0xFF4CAF50),
+                            )
+                        ),
+                        unfilled = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.15f),
+                    ),
+                ),
+            )
+            ValueText(gradientRating)
+            NoteText("Red → yellow → green gradient clipped to the exact star silhouette.")
+        }
+
+        // F9 — Leading / trailing content slots
+        SampleCard(title = "F9 — Label Slots") {
+            RatingBar(
+                value = slotRating,
+                onValueChange = { slotRating = it },
+                leadingContent = {
+                    Text(
+                        "Rate:",
+                        style = MaterialTheme.typography.labelLarge,
+                        modifier = Modifier.padding(end = 8.dp),
+                    )
+                },
+                trailingContent = {
+                    Text(
+                        " ${(slotRating * 10).toInt() / 10f}/5",
+                        style = MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(start = 8.dp),
+                    )
+                },
+            )
+            NoteText("leadingContent and trailingContent slots wrap the bar in a Row.")
+        }
+
+        // F10 — Interaction source callback
+        SampleCard(title = "F10 — Interaction Source") {
+            RatingBar(
+                value = sourceRating,
+                onValueChange = { sourceRating = it },
+                config = RatingBarConfig(step = 0.5f),
+                behavior = RatingBarDefaults.behavior(
+                    showHoverPreview = true,
+                    enableScrollInput = true,
+                ),
+                onInteraction = { source -> lastSource = source },
+            )
+            ValueText(sourceRating)
+            Text(
+                text = "Last source: ${lastSource?.name ?: "—"}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            NoteText("Try tap, drag, keyboard arrows, and mouse wheel. Each fires onInteraction.")
+        }
+
+        // F7 — Long-press to reset
+        SampleCard(title = "F7 — Long-Press to Reset") {
+            RatingBar(
+                value = longPressRating,
+                onValueChange = { longPressRating = it },
+                behavior = RatingBarDefaults.behavior(enableLongPressReset = true),
+            )
+            ValueText(longPressRating)
+            NoteText("Long-press anywhere on the bar to reset the rating to 0.")
+        }
+
+        // F4 — Reduced motion
+        SampleCard(title = "F4 — Reduced Motion") {
+            var reducedMotion by remember { mutableStateOf(false) }
+            var rmRating by rememberRatingBarState(2f)
+            RatingBar(
+                value = rmRating,
+                onValueChange = { rmRating = it },
+                animations = RatingBarDefaults.animations(
+                    enabled = true,
+                    animateScale = true,
+                    reducedMotion = reducedMotion,
+                ),
+            )
+            ValueText(rmRating)
+            LabeledSwitch("Reduced motion", reducedMotion) { reducedMotion = it }
+            NoteText(
+                "When reduced motion is on, fill animations snap instantly and scale is suppressed."
             )
         }
     }

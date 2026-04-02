@@ -59,13 +59,19 @@ iOS sample requires Xcode — open `samples/ios-app-host/sample-ratingbar-cmp/sa
 ### Library Source Structure (`src/commonMain/`)
 - `RatingBar.kt` — Public composables and gesture/interaction logic
 - `core/RatingBarState.kt` — `RatingBarConfig` and `RatingBarState` (immutable value type, ViewModel-friendly)
-- `RatingBarDefaults.kt` — Size/spacing/animation presets
-- `RatingBarIcons.kt` — Built-in star vector painters
+- `core/RatingInteractionSource.kt` — `RatingInteractionSource` enum (Tap, Drag, Keyboard, Scroll)
+- `RatingBarDefaults.kt` — Size/spacing/animation/shimmer presets
+- `RatingBarColors.kt` — `RatingBarColors` + `RatingBarDefaults.colors()` factory
+- `RatingBarStyle.kt` — `RatingBarStyle` + `RatingBarDefaults.style()` factory
+- `RatingBarAnimations.kt` — `RatingBarAnimations` + `RatingBarDefaults.animations()` factory
+- `RatingBarBehavior.kt` — `RatingBarBehavior` + `RatingBarDefaults.behavior()` factory
+- `RatingBarIcons.kt` — Built-in vector painters: Star, Heart, ThumbUp, Circle (filled + outline)
+- `RatingBarPlaceholder.kt` — Shimmer loading skeleton composable
 - `FractionalClipShape.kt` — Clip shape for partial star fills
-- `RatingBarStateHelpers.kt` — State computation helpers
+- `RatingBarStateHelpers.kt` — `rememberRatingBarState()` and `rememberSaveableRatingBarState()`
 
 ### Tests (`src/commonTest/`)
-- `RatingBarStateTest.kt`, `RatingBarInteractionTest.kt`, `FractionalClipShapeTest.kt`
+- `RatingBarStateTest.kt`, `RatingBarInteractionTest.kt`, `FractionalClipShapeTest.kt`, `RatingBarPlaceholderTest.kt`
 - Run on desktop JVM via `desktopTest`; no Compose UI tests (pure logic)
 
 ## AGP 9.x / Build System Notes
@@ -81,7 +87,7 @@ iOS sample requires Xcode — open `samples/ios-app-host/sample-ratingbar-cmp/sa
 - `gradle/libs.versions.toml` — All dependency versions
 - `gradle.properties` — `org.gradle.jvmargs=-Xmx8192m` and `workers.max=2` are required to prevent OOM during iOS Kotlin/Native linking
 - `detekt.yml` — Zero-tolerance linting (`maxIssues: 0`); Compose wildcard imports are excluded
-- `useLocalLibrary` Gradle property — controls whether `samples/` resolve from local source (`true`, default) or JitPack (`false`). Pass via `-PuseLocalLibrary=false` to the samples build, or set in `samples/gradle.properties`. Run samples with `-p samples` flag from the repo root.
+- `useLocalLibrary` Gradle property — controls whether `samples/` resolve from the local composite build (`true`, default when absent) or from JitPack (`false`). Pass via `-PuseLocalLibrary=false` on the command line for one-off JitPack testing. Do **not** persist it in `samples/gradle.properties` — that permanently disables local library substitution.
 - Binary Compatibility Validator is applied; run `apiDump` to update `.api` files after public API changes
 
 ## Platform-Specific Behavior (all implemented in `commonMain`)

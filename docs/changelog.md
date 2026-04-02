@@ -6,6 +6,96 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ---
 
+## [0.4.0] - 2026-04-02
+
+### Added
+
+#### Accessibility (F1, F2)
+- **TalkBack / VoiceOver slider semantics** — `role = Role.ValuePicker`, `progressBarRangeInfo`,
+  and `setProgress` added to the semantics block on the slot overload. TalkBack announces the bar
+  as a seekbar; VoiceOver marks it as adjustable. Swipe-up/down value changes work without any
+  code change from callers.
+- **`itemLabels: List<String>?`** — Optional per-item semantic labels (e.g., `listOf("Terrible",
+  "Bad", "Okay", "Good", "Excellent")`). When provided, the bar's `stateDescription` reflects the
+  active label: `"Good (4.0 out of 5)"`. Available on both overloads.
+
+#### State (F3)
+- **`rememberSaveableRatingBarState()`** — New helper that survives Android configuration changes
+  and Compose Navigation back-stack restoration. Uses `rememberSaveable` under the hood — `Float`
+  is natively saveable so no custom `Saver` is required.
+
+#### Animations (F4)
+- **Reduced-motion support** — `RatingBarAnimations(reducedMotion = true)` forces `snap()` for
+  fill transitions and suppresses scale animation regardless of `enabled`. Callers read the OS
+  preference and pass it in.
+
+#### Loading State (F5)
+- **`RatingBarPlaceholder`** — New shimmer composable for skeleton screens. Displays a row of
+  rounded rectangles with an animated sweep. Configurable via `max`, `itemSize`, `itemSpacing`,
+  `shimmerBaseColor`, `shimmerHighlightColor`, `animationDurationMillis`, `reducedMotion`.
+
+#### Shape Presets (F6)
+- **`RatingBarIcons`** — Six new built-in `ImageVector` entries: `Heart`, `HeartOutline`,
+  `ThumbUp`, `ThumbUpOutline`, `Circle`, `CircleOutline`. All 24×24dp Material-style; no external
+  dependency required.
+
+#### Interactions (F7, F10)
+- **Long-press to reset** — `RatingBarBehavior(enableLongPressReset = true)` resets the rating
+  to `config.effectiveMin` on a long-press anywhere on the bar. Fires `onValueChangeFinished`.
+  No-op when `readOnly = true`.
+- **Interaction source callback** — `onInteraction: ((RatingInteractionSource) -> Unit)?` fires
+  on each value-changing interaction with the source: `Tap`, `Drag`, `Keyboard`, or `Scroll`.
+
+#### Visual (F8, F9)
+- **Gradient fill** — `RatingBarDefaults.colors(fillBrush = Brush.linearGradient(...))` applies
+  a gradient to the filled layer via `BlendMode.SrcIn`, clipped to the exact star silhouette
+  including fractional fills.
+- **Leading / trailing content slots** — `leadingContent` and `trailingContent` composable slots
+  on both overloads. Wrap the bar in an outer `Row` with the provided composables on either side.
+  Useful for numeric labels, icons, or badges.
+
+### Changed
+
+#### API — Parameter Grouping (breaking, minor version)
+The `RatingBar` star overload shrinks from 22 to 13 parameters; the slot overload from 16 to 15.
+Four semantic groups replace individual flags:
+
+| Old flat params | New group |
+|---|---|
+| `max`, `step`, `allowZero`, `minValue` | `config: RatingBarConfig` |
+| `itemSize`, `itemSpacing`, painters, colors | `style: RatingBarStyle` (star only) |
+| `animateRating`, `ratingAnimationSpec`, `animateScale` | `animations: RatingBarAnimations` |
+| `showHoverPreview`, `enableScrollInput`, `hapticFeedback` | `behavior: RatingBarBehavior` |
+
+All groups ship with sensible defaults — existing call sites that rely on defaults require no changes.
+Call sites that passed individual params must migrate to the group objects.
+
+**Migration example:**
+```kotlin
+// Before (v0.3.0)
+RatingBar(value, onValueChange, max = 5, step = 0.5f, filledColor = Color.Yellow,
+    animateRating = true, showHoverPreview = true)
+
+// After (v0.4.0)
+RatingBar(value, onValueChange,
+    config = RatingBarConfig(step = 0.5f),
+    style = RatingBarDefaults.style(colors = RatingBarDefaults.colors(filled = Color.Yellow)),
+    animations = RatingBarDefaults.animations(enabled = true),
+    behavior = RatingBarDefaults.behavior(showHoverPreview = true))
+```
+
+#### New value types
+- `RatingBarColors` — `filled`, `unfilled`, `hover`, `fillBrush?`
+- `RatingBarStyle` — `itemSize`, `itemSpacing`, `filledPainter`, `unfilledPainter`, `colors`
+- `RatingBarAnimations` — `enabled`, `spec`, `animateScale`, `reducedMotion`
+- `RatingBarBehavior` — `showHoverPreview`, `enableScrollInput`, `hapticFeedback`, `enableLongPressReset`
+- `RatingInteractionSource` — enum: `Tap`, `Drag`, `Keyboard`, `Scroll`
+
+`RatingBarConfig` gains two optional fields: `allowZero: Boolean = true`, `minValue: Float = 0f`
+(moved from top-level params).
+
+---
+
 ## [0.3.0] - 2026-03-19
 
 ### Changed
