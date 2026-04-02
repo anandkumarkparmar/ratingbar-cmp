@@ -1,5 +1,6 @@
 package com.github.anandkumarkparmar.ratingbar
 
+import kotlin.math.ceil
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
@@ -167,7 +168,11 @@ public fun RatingBar(
                             onTap = { offset ->
                                 if (widthPx > 0) {
                                     val x = adjustForRtl(offset.x, widthPx, layoutDirection)
-                                    val newValue = (x / widthPx * config.max)
+                                    // ceil maps the tap to the star bin that was clicked:
+                                    // tapping anywhere inside star N selects value N*step,
+                                    // regardless of which side of the star was touched.
+                                    val raw = x / widthPx * config.max
+                                    val newValue = (ceil(raw / config.step) * config.step)
                                         .coerceIn(0f, config.max.toFloat())
                                     latestHandleValueChange.value(newValue, RatingInteractionSource.Tap)
                                     latestOnValueChangeFinished.value?.invoke()

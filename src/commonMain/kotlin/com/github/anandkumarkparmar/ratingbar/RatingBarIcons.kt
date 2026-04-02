@@ -184,7 +184,7 @@ public object RatingBarIcons {
         strokeAlpha = 1f,
         pathFillType = PathFillType.EvenOdd
     ) {
-        // Outer thumb shape
+        // Outer thumb contour — identical silhouette to ThumbUp (filled)
         moveTo(9f, 21f)
         lineTo(18f, 21f)
         curveTo(18.83f, 21f, 19.54f, 20.5f, 19.84f, 19.78f)
@@ -202,28 +202,20 @@ public object RatingBarIcons {
         lineTo(7f, 19f)
         curveTo(7f, 20.1f, 7.9f, 21f, 9f, 21f)
         close()
-        // Inner cutout — thumb interior (EvenOdd creates the outline ring)
+        // Inner cutout — carves the hollow via EvenOdd (winding toggles to transparent)
         moveTo(9f, 9f)
         lineTo(13.34f, 4.66f)
         lineTo(12.23f, 10f)
         lineTo(21f, 10f)
         lineTo(21f, 12f)
-        lineTo(18f, 17f) // this vertex completes the inner thumb area
-        lineTo(9f, 17f)
-        lineTo(9f, 9f)
+        lineTo(18f, 19f)
+        lineTo(9f, 19f)
         close()
-        // Left bar (outer)
-        moveTo(5f, 5f)
-        lineTo(1f, 5f)
-        lineTo(1f, 17f)
-        lineTo(5f, 17f)
-        lineTo(5f, 5f)
-        close()
-        // Left bar (inner cutout)
-        moveTo(3f, 7f)
-        lineTo(3f, 15f)
-        lineTo(3f, 15f)
-        lineTo(3f, 7f)
+        // Left bar — matches filled icon: x=1..5, y=9..21
+        moveTo(1f, 9f)
+        lineTo(5f, 9f)
+        lineTo(5f, 21f)
+        lineTo(1f, 21f)
         close()
     }.build()
 

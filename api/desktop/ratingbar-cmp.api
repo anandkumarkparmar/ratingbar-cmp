@@ -107,7 +107,7 @@ public final class com/github/anandkumarkparmar/ratingbar/RatingBarKt {
 }
 
 public final class com/github/anandkumarkparmar/ratingbar/RatingBarPlaceholderKt {
-	public static final fun RatingBarPlaceholder-UM1ue3A (Landroidx/compose/ui/Modifier;IFFJJIZLandroidx/compose/runtime/Composer;II)V
+	public static final fun RatingBarPlaceholder-dYCTqSE (Landroidx/compose/ui/Modifier;IFFJJIZLandroidx/compose/ui/graphics/painter/Painter;Landroidx/compose/runtime/Composer;II)V
 }
 
 public final class com/github/anandkumarkparmar/ratingbar/RatingBarStateHelpersKt {

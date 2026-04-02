@@ -10,27 +10,40 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.TileMode
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.unit.Dp
 
 /**
  * A placeholder composable that mimics the layout of a [RatingBar] while content is loading.
  *
- * Displays a row of rounded rectangles with an animated shimmer sweep. Useful for skeleton
- * screens when the rating value hasn't been fetched yet.
+ * Displays a row of items with an animated shimmer sweep. Useful for skeleton screens when the
+ * rating value hasn't been fetched yet.
+ *
+ * When [itemPainter] is provided, each item is rendered as an icon-shaped shimmer — the gradient
+ * sweeps across the actual icon silhouette rather than a rounded rectangle. Pass the same painter
+ * you use in [RatingBar] to keep the skeleton visually consistent with the live bar.
  *
  * ```kotlin
  * if (isLoading) {
- *     RatingBarPlaceholder()
+ *     RatingBarPlaceholder(
+ *         itemPainter = rememberVectorPainter(RatingBarIcons.StarFilled),
+ *     )
  * } else {
  *     RatingBar(value = rating, onValueChange = { rating = it })
  * }
@@ -49,6 +62,9 @@ import androidx.compose.ui.unit.Dp
  * @param reducedMotion If `true`, the shimmer animation is suppressed and items are rendered
  *   in a static [shimmerBaseColor]. Pass `true` when the user has enabled the OS reduced-motion
  *   accessibility setting.
+ * @param itemPainter Optional painter used to shape each skeleton item. When provided, the shimmer
+ *   gradient is clipped to the painter's icon silhouette. When `null` (default), items are
+ *   rendered as rounded rectangles.
  */
 @Composable
 public fun RatingBarPlaceholder(
@@ -60,6 +76,7 @@ public fun RatingBarPlaceholder(
     shimmerHighlightColor: Color = MaterialTheme.colorScheme.surface,
     animationDurationMillis: Int = RatingBarDefaults.ShimmerDurationMillis,
     reducedMotion: Boolean = false,
+    itemPainter: Painter? = null,
 ) {
     require(max > 0) { "max must be greater than 0, but was $max" }
     require(animationDurationMillis > 0) {
@@ -93,18 +110,41 @@ public fun RatingBarPlaceholder(
         )
     }
 
-    val cornerRadius = itemSize / 4
     Row(
         modifier = modifier,
         horizontalArrangement = Arrangement.spacedBy(itemSpacing),
     ) {
         repeat(max) {
-            Box(
-                modifier = Modifier
-                    .size(itemSize)
-                    .clip(RoundedCornerShape(cornerRadius))
-                    .background(brush),
-            )
+            if (itemPainter != null) {
+                // Icon-shaped shimmer: draw the painter with CompositingStrategy.Offscreen,
+                // then overlay the shimmer brush using BlendMode.SrcIn so it's clipped to
+                // the icon's alpha silhouette (same technique as gradient fill in RatingBarItem).
+                Box(
+                    modifier = Modifier
+                        .size(itemSize)
+                        .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+                        .drawWithContent {
+                            drawContent()
+                            drawRect(brush = brush, blendMode = BlendMode.SrcIn)
+                        },
+                ) {
+                    Icon(
+                        painter = itemPainter,
+                        contentDescription = null,
+                        tint = shimmerBaseColor,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+            } else {
+                // Rounded-rectangle fallback (original behaviour)
+                val cornerRadius = itemSize / 4
+                Box(
+                    modifier = Modifier
+                        .size(itemSize)
+                        .clip(RoundedCornerShape(cornerRadius))
+                        .background(brush),
+                )
+            }
         }
     }
 }
