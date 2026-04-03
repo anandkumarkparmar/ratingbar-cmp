@@ -1,11 +1,11 @@
 <svg width="1400" height="420" viewBox="0 0 1400 420" fill="none" xmlns="http://www.w3.org/2000/svg">
   <defs>
     <radialGradient id="v7_bg" cx="0.5" cy="0.5" r="0.75" gradientUnits="userSpaceOnUse" gradientTransform="translate(700, 210) scale(700, 210)">
-      <stop stop-color="#6260A8"/>
-      <stop offset="1" stop-color="#242142"/>
+      <stop stop-color="#4A2F00"/>
+      <stop offset="1" stop-color="#1E1B10"/>
     </radialGradient>
     <filter id="shadowV7" x="-10%" y="-10%" width="120%" height="140%">
-      <feDropShadow dx="0" dy="10" stdDeviation="15" flood-color="#000000" flood-opacity="0.2"/>
+      <feDropShadow dx="0" dy="10" stdDeviation="15" flood-color="#000000" flood-opacity="0.4"/>
     </filter>
   </defs>
 
@@ -14,28 +14,27 @@
   <!-- Centered Title and Subtitle -->
   <g fill="#FFFFFF" font-family="Inter, Segoe UI, sans-serif" text-anchor="middle">
     <text x="700" y="110" font-size="64" font-weight="900" letter-spacing="-2">ratingbar-cmp</text>
-    <text x="700" y="160" font-size="24" fill="#D2CFF4" font-weight="400" letter-spacing="-0.5">A lightweight, accessible, Compose Multiplatform RatingBar Component</text>
+    <text x="700" y="160" font-size="24" fill="#FFDEA0" font-weight="400" letter-spacing="-0.5">A lightweight, accessible, Compose Multiplatform RatingBar Component</text>
   </g>
 
   <!-- Centered Floating Rating Pill -->
-  <!-- Width 500, perfectly centered at x=450 (since 450 + 250 = 700) -->
   <g transform="translate(450, 210)">
     <rect x="0" y="0" width="500" height="80" rx="40" fill="#FFFFFF" filter="url(#shadowV7)"/>
-    <text x="250" y="55" fill="#5B59A1" font-size="44" font-family="Inter, Segoe UI, sans-serif" font-weight="bold" text-anchor="middle" letter-spacing="8">★ ★ ★ ★ ★</text>
+    <text x="250" y="55" fill="#E8A100" font-size="44" font-family="Inter, Segoe UI, sans-serif" font-weight="bold" text-anchor="middle" letter-spacing="8">★ ★ ★ ★ ★</text>
   </g>
 
   <!-- Bottom Platform Row -->
   <g transform="translate(240, 330)" font-family="Inter, Segoe UI, sans-serif" font-weight="600" font-size="16" text-anchor="middle">
-    <rect x="0" y="0" width="200" height="46" rx="23" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.2)"/>
+    <rect x="0" y="0" width="200" height="46" rx="23" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)"/>
     <text x="100" y="28" fill="#FFFFFF">Android   ✅</text>
 
-    <rect x="240" y="0" width="200" height="46" rx="23" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.2)"/>
+    <rect x="240" y="0" width="200" height="46" rx="23" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)"/>
     <text x="340" y="28" fill="#FFFFFF">Desktop   ✅</text>
 
-    <rect x="480" y="0" width="200" height="46" rx="23" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.2)"/>
+    <rect x="480" y="0" width="200" height="46" rx="23" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)"/>
     <text x="580" y="28" fill="#FFFFFF">iOS   ✅</text>
 
-    <rect x="720" y="0" width="200" height="46" rx="23" fill="rgba(255,255,255,0.12)" stroke="rgba(255,255,255,0.2)"/>
+    <rect x="720" y="0" width="200" height="46" rx="23" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)"/>
     <text x="820" y="28" fill="#FFFFFF">Web   ✅</text>
   </g>
 </svg>

@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "com.github.anandkumarkparmar"
-version = "0.3.0"
+version = "0.4.0"
 
 detekt {
     config.setFrom(file("detekt.yml"))

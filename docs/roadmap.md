@@ -1,10 +1,10 @@
 # Roadmap
 
-> Last updated: March 2026
+> Last updated: April 2026
 
 ---
 
-## Current State (v0.3.0)
+## Current State (v0.4.0)
 
 ### Delivered
 
@@ -43,6 +43,18 @@
 - CI/CD change detection rules updated to `src/**` path structure
 - Sample app updated with three screens: Standard, Playground, and Behaviors
 
+#### v0.4.0
+- **Accessibility** — `progressBarRangeInfo` + `setProgress` semantics for TalkBack/VoiceOver slider support; `itemLabels` for per-item stateDescription
+- **`rememberSaveableRatingBarState()`** — survives configuration changes and back-stack restoration
+- **Reduced-motion support** — `RatingBarAnimations(reducedMotion = true)` forces snap transitions
+- **`RatingBarPlaceholder`** — shimmer loading skeleton composable
+- **Shape presets** — `Heart`, `HeartOutline`, `ThumbUp`, `ThumbUpOutline`, `Circle`, `CircleOutline` in `RatingBarIcons`
+- **Long-press to reset** — `RatingBarBehavior(enableLongPressReset = true)`
+- **Gradient fill** — `RatingBarColors(fillBrush = Brush.linearGradient(...))` via `BlendMode.SrcIn`
+- **Leading/trailing content slots** — composable slots on both overloads
+- **Interaction source callback** — `onInteraction: ((RatingInteractionSource) -> Unit)?`
+- **Aggressive parameter grouping** — star overload reduced from 22 to 13 params via `RatingBarConfig`, `RatingBarStyle`, `RatingBarAnimations`, `RatingBarBehavior`
+
 ### Platform Matrix
 
 | Feature | Android | Desktop | iOS | Web |
@@ -77,7 +89,7 @@ This is a comprehensive list of features, use cases, and improvements the librar
 | Feature | Description |
 |---|---|
 | ~~Hover / focus visual states~~ | ✅ Delivered in v0.2.0 |
-| Long-press to reset | Reset rating to 0 on long-press gesture |
+| ~~Long-press to reset~~ | ✅ Delivered in v0.4.0 (`behavior.enableLongPressReset`) |
 | Gesture sensitivity configuration | Tune drag sensitivity threshold for fine-grained control |
 | ~~Minimum value constraint~~ | ✅ Delivered in v0.2.0 (`minValue`) |
 | Clear / reset button support | Optional built-in clear button to zero out the rating |
@@ -92,9 +104,9 @@ This is a comprehensive list of features, use cases, and improvements the librar
 |---|---|
 | ~~Fill animation~~ | ✅ Delivered in v0.2.0 |
 | ~~Scale-on-select animation~~ | ✅ Delivered in v0.2.0 |
-| Shimmer / loading state | Display a shimmer placeholder while rating data loads |
-| Color gradient fills | Apply gradient colors across the fill (e.g., red-to-green) |
-| Shape presets | Built-in shapes: heart, circle, thumb-up, emoji, diamond |
+| ~~Shimmer / loading state~~ | ✅ Delivered in v0.4.0 (`RatingBarPlaceholder`) |
+| ~~Color gradient fills~~ | ✅ Delivered in v0.4.0 (`RatingBarColors.fillBrush`) |
+| ~~Shape presets~~ | ✅ Delivered in v0.4.0 (`RatingBarIcons`: Heart, ThumbUp, Circle) |
 | Custom icon packs | Easy integration of icon sets beyond the built-in stars |
 | Outlined vs filled style toggle | Switch between outline-only and filled visual styles |
 | Size animation on hover | Enlarge items on hover (Desktop/Web) |
@@ -108,12 +120,12 @@ This is a comprehensive list of features, use cases, and improvements the librar
 
 | Feature | Description |
 |---|---|
-| TalkBack / VoiceOver customization | Customize screen reader announcements per item |
-| Custom semantic descriptions | Per-item semantic text (e.g., "Poor", "Average", "Excellent") |
+| ~~TalkBack / VoiceOver customization~~ | ✅ Delivered in v0.4.0 (`progressBarRangeInfo` + `setProgress`) |
+| ~~Custom semantic descriptions~~ | ✅ Delivered in v0.4.0 (`itemLabels`) |
 | High-contrast mode support | Ensure visibility in high-contrast system themes |
-| Reduced-motion support | Disable animations when the system prefers reduced motion |
+| ~~Reduced-motion support~~ | ✅ Delivered in v0.4.0 (`RatingBarAnimations.reducedMotion`) |
 | Focus ring customization | Customize focus indicator appearance |
-| Accessibility actions | Support custom accessibility actions (e.g., "set to 3 stars") |
+| ~~Accessibility actions~~ | ✅ Delivered in v0.4.0 (`setProgress` semantic action) |
 
 ---
 
@@ -124,10 +136,10 @@ This is a comprehensive list of features, use cases, and improvements the librar
 | Vertical orientation | Render items vertically instead of horizontally |
 | Compact / inline mode | Single-line mode with label (e.g., "Rating: ★★★☆☆") |
 | Badge mode | Compact star + numeric value display (e.g., "★ 4.5") |
-| Label slot | Composable slot for a label (e.g., "4.5/5") alongside the bar |
+| ~~Label slot~~ | ✅ Delivered in v0.4.0 (`leadingContent` / `trailingContent`) |
 | Responsive sizing | Auto-adjust item size based on available width |
 | Grid layout | Multi-row layout for survey-style multi-question ratings |
-| Leading / trailing content slots | Slots before/after the rating bar for icons or labels |
+| ~~Leading / trailing content slots~~ | ✅ Delivered in v0.4.0 (`leadingContent` / `trailingContent`) |
 
 ---
 
@@ -139,7 +151,7 @@ This is a comprehensive list of features, use cases, and improvements the librar
 | Controlled vs uncontrolled mode | Support for uncontrolled usage with internal state |
 | Form integration helpers | Helpers for common form libraries and patterns |
 | Validation support | Required-field validation, min-value rules |
-| State restoration / `Saver` | Automatic state persistence across configuration changes |
+| ~~State restoration / `Saver`~~ | ✅ Delivered in v0.4.0 (`rememberSaveableRatingBarState()`) |
 | `onValueChangeFinished` improvements | Debounce support, distinct-until-changed filtering |
 
 ---
@@ -153,7 +165,7 @@ This is a comprehensive list of features, use cases, and improvements the librar
 | ~~Haptic feedback~~ | ✅ Delivered in v0.2.0 (Android) |
 | Sound feedback | Optional sound effect on interaction |
 | Lottie / animated icon support | Use Lottie animations as rating items |
-| Interaction source callback | Report whether the change came from touch, drag, keyboard, or programmatic API |
+| ~~Interaction source callback~~ | ✅ Delivered in v0.4.0 (`onInteraction: ((RatingInteractionSource) -> Unit)?`) |
 | Range rating | Support selecting a range (min-max) instead of a single value |
 | Multi-criteria rating | Multiple rating dimensions in a single component |
 
@@ -203,6 +215,6 @@ This is a comprehensive list of features, use cases, and improvements the librar
 ## Versioning Policy
 
 - Semantic Versioning (`MAJOR.MINOR.PATCH`)
-- `0.3.0` is the current release
+- `0.4.0` is the current release
 - Breaking API changes bump the minor version during `0.x` development
 - New features and improvements target the next minor release

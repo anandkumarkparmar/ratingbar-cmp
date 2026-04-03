@@ -64,7 +64,7 @@ Review the generated report at `.github/artifact-size-report.md` and the badge J
 
 | Artifact | Budget |
 |---|---|
-| Android AAR | 51,200 bytes |
+| Android AAR | 102,400 bytes |
 | Total published | 5,242,880 bytes |
 
 ## 5. Smoke-test iOS host integration (recommended)
@@ -79,7 +79,7 @@ Launch the simulator via Xcode and verify touch + keyboard accessibility.
 - Include regenerated GIFs or screenshots if visuals changed.
 - Request review; wait for CI to finish before tagging.
 
-## 7. Tag to trigger Release Prep
+## 7. Tag to trigger the release pipeline
 
 Create an annotated tag matching the format enforced in `release.yml`:
 
@@ -88,15 +88,24 @@ git tag -a v0.x.y -m "ratingbar-cmp v0.x.y"
 git push origin v0.x.y
 ```
 
-This kicks off the **Release Prep** workflow that repeats publication, build, and artifact-size validation on fresh runners.
+This kicks off three automated jobs in parallel after validation passes:
 
-## 8. Review workflow artifacts
+| Job | What it does |
+|---|---|
+| `release-prep` | Validates tag, runs `publishToMavenLocal`, `apiCheck`, `detekt`, builds all modules, enforces artifact size budgets, generates `release_notes.md` |
+| `publish-docs` | Builds Dokka HTML + web demo, deploys to GitHub Pages |
+| `create-github-release` | Creates a GitHub Release at `/releases` with release notes and size report attached — **no manual steps needed** |
 
-When **Release Prep** finishes:
+## 8. Verify the GitHub Release
 
-- Download `artifact-size-report-<tag>` and `release-notes-<tag>` artifacts.
-- Confirm the bytes in `.github/artifact-size-summary.env` match expectations.
-- Paste the generated `release_notes.md` contents into the GitHub Release draft.
+When the workflow finishes, confirm at `https://github.com/anandkumarkparmar/ratingbar-cmp/releases`:
+
+- The new release appears with the correct tag name.
+- The release body contains the size snapshot and dependency snippet.
+- The auto-generated "What's Changed" changelog is present (populated from merged PR titles).
+- `artifact-size-report.md` is listed as a downloadable file.
+
+To review the raw size numbers, download the `artifact-size-report-<tag>` workflow artifact and check `.github/artifact-size-summary.env`.
 
 ## 9. Verify JitPack availability
 

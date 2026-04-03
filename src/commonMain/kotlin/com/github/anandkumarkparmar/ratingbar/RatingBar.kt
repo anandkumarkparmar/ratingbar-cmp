@@ -1,6 +1,6 @@
 package com.github.anandkumarkparmar.ratingbar
 
-import androidx.compose.animation.core.AnimationSpec
+import kotlin.math.ceil
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.spring
@@ -9,19 +9,23 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.CompositingStrategy
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.key.*
+import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -29,9 +33,9 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
 import com.github.anandkumarkparmar.ratingbar.core.RatingBarConfig
 import com.github.anandkumarkparmar.ratingbar.core.RatingBarState
+import com.github.anandkumarkparmar.ratingbar.core.RatingInteractionSource
 import kotlinx.coroutines.delay
 
 
@@ -49,76 +53,56 @@ import kotlinx.coroutines.delay
  * - Keyboard: Arrow keys, +/-, Home (min), End (max), digit keys 1–9
  *
  * **Desktop / Web extras:**
- * - Hover preview via [showHoverPreview] — cursor position shows a live fill preview
- * - Mouse wheel scroll via [enableScrollInput] — increments/decrements by [step]
+ * - Hover preview via [behavior].showHoverPreview — cursor position shows a live fill preview
+ * - Mouse wheel scroll via [behavior].enableScrollInput — increments/decrements by step
  *
  * **Android extras:**
- * - Haptic pulse on value change via [hapticFeedback]
+ * - Haptic pulse on value change via [behavior].hapticFeedback
  *
- * @param value The current rating value. Clamped to `[0, max]` and rounded to the nearest [step].
+ * @param value The current rating value. Clamped to `[effectiveMin, max]` and snapped to step.
  * @param onValueChange Callback invoked when the rating value changes. Receives the stepped value.
+ * @param modifier Modifier applied to the outermost element (outer Row when slots are present,
+ *   inner bar Row otherwise).
  * @param onValueChangeFinished Optional callback invoked once when a tap or drag gesture ends.
- * @param modifier Modifier applied to the rating bar row.
- * @param max Maximum rating value (e.g., 5 for a 5-star bar). Must be greater than 0.
- * @param step Step increment for selectable values (e.g., `0.5f` for half-star). Must be > 0 and ≤ max.
- * @param readOnly If `true`, all interaction is disabled. Hover preview is also suppressed.
+ * @param readOnly If `true`, all interaction is disabled.
  * @param itemSpacing Spacing between adjacent items.
- * @param animateRating If `true`, fill fraction transitions are animated with [ratingAnimationSpec].
- *   Pass `false` for instant (snap) transitions, e.g., to respect system reduced-motion preferences.
- * @param ratingAnimationSpec Animation spec used for fill transitions when [animateRating] is `true`.
- *   Defaults to [RatingBarDefaults.RatingAnimationSpec] (200ms ease-out tween).
- * @param allowZero If `false`, the minimum selectable value is clamped to at least one [step].
- *   Drag-to-zero and keyboard Home will stop at [step] rather than 0.
- * @param minValue Explicit minimum selectable value. Ignored when [allowZero] is `false` and
- *   [step] is larger. Effective minimum = `if (!allowZero) maxOf(step, minValue) else minValue`.
- * @param showHoverPreview If `true` (default), hovering on Desktop/Web shows a live fill preview
- *   at the cursor position. No-op on Android/iOS where hover events don't fire.
- * @param enableScrollInput If `true` (default), mouse wheel scroll on Desktop adjusts the rating
- *   by one [step] per scroll tick. No-op on Android/iOS/Web.
- * @param hapticFeedback If `true` (default `false`), a haptic pulse fires on Android each time the
- *   value changes during tap or drag. Uses [HapticFeedbackType.LongPress] — the strongest
- *   standard feedback constant, ensuring the pulse is felt across devices. No-op on Desktop, iOS, and Web.
- *   Requires the device to have "Vibration & haptics" enabled in Android Settings.
- *   On Android 13+, haptics are suppressed by the OS in Silent mode.
- * @param onHoverValueChange Optional callback invoked whenever the hover preview value changes.
- *   Receives the current hover position as a raw (unstepped) float, or `null` when the cursor exits.
- *   Useful when the star overload or custom slot callers need to react to hover state.
- * @param itemContent Composable slot invoked for each item. Receives `(index, fillFraction)` where
- *   `index` is zero-based and `fillFraction` is in `[0f, 1f]`. When [showHoverPreview] is active,
- *   `fillFraction` reflects the hover position rather than the committed value.
+ * @param config Rating configuration: max, step, allowZero, minValue.
+ * @param animations Animation configuration: enabled, spec, animateScale, reducedMotion.
+ * @param behavior Platform and interaction flags: hover, scroll, haptic, long-press reset.
+ * @param itemLabels Optional per-item semantic labels (e.g., "Terrible", "Bad", "Okay", "Good",
+ *   "Excellent"). When provided, the bar's `stateDescription` includes the active label.
+ *   Must have at least [RatingBarConfig.max] entries to be used; shorter lists are ignored.
+ * @param onHoverValueChange Optional callback for hover preview position changes.
+ * @param leadingContent Optional composable rendered before the bar.
+ * @param trailingContent Optional composable rendered after the bar.
+ * @param onInteraction Optional callback fired on each interaction, indicating source type.
+ * @param itemContent Composable slot invoked for each item. Receives `(index, fillFraction)`
+ *   where `index` is zero-based and `fillFraction` is in `[0f, 1f]`.
  */
 @Composable
-public fun  RatingBar(
+public fun RatingBar(
     value: Float,
     onValueChange: (Float) -> Unit,
-    onValueChangeFinished: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
-    max: Int = 5,
-    step: Float = 1f,
+    onValueChangeFinished: (() -> Unit)? = null,
     readOnly: Boolean = false,
-    itemSpacing: Dp = 4.dp,
-    animateRating: Boolean = false,
-    ratingAnimationSpec: AnimationSpec<Float> = RatingBarDefaults.RatingAnimationSpec,
-    allowZero: Boolean = true,
-    minValue: Float = 0f,
-    showHoverPreview: Boolean = false,
-    enableScrollInput: Boolean = false,
-    hapticFeedback: Boolean = false,
+    itemSpacing: Dp = RatingBarDefaults.ItemSpacing,
+    config: RatingBarConfig = RatingBarConfig(),
+    animations: RatingBarAnimations = RatingBarDefaults.animations(),
+    behavior: RatingBarBehavior = RatingBarDefaults.behavior(),
+    itemLabels: List<String>? = null,
     onHoverValueChange: ((Float?) -> Unit)? = null,
-    itemContent: @Composable (index: Int, fillFraction: Float) -> Unit
+    leadingContent: (@Composable () -> Unit)? = null,
+    trailingContent: (@Composable () -> Unit)? = null,
+    onInteraction: ((RatingInteractionSource) -> Unit)? = null,
+    itemContent: @Composable (index: Int, fillFraction: Float) -> Unit,
 ) {
-    val config = remember(max, step) { RatingBarConfig(max = max, step = step) }
     val state = remember(value, config) { RatingBarState(value = value, config = config) }
-
-    val effectiveMin = remember(allowZero, minValue, step) {
-        if (!allowZero) maxOf(step, minValue) else minValue
-    }
-    // Clamp for immediate visual update when effectiveMin changes
-    val displayValue = state.steppedValue.coerceAtLeast(effectiveMin)
+    val displayValue = state.steppedValue.coerceAtLeast(config.effectiveMin)
 
     // Sync parent hoisted state when effectiveMin rises above the current value
-    LaunchedEffect(effectiveMin) {
-        if (value < effectiveMin) onValueChange(effectiveMin)
+    LaunchedEffect(config.effectiveMin) {
+        if (value < config.effectiveMin) onValueChange(config.effectiveMin)
     }
 
     var widthPx by remember { mutableStateOf(0f) }
@@ -130,15 +114,15 @@ public fun  RatingBar(
     LaunchedEffect(readOnly) { if (readOnly) hoverValue = null }
     LaunchedEffect(hoverValue) { onHoverValueChange?.invoke(hoverValue) }
 
-    val handleValueChange: (Float) -> Unit = { newValue ->
+    val handleValueChange: (Float, RatingInteractionSource) -> Unit = { newValue, source ->
         if (!readOnly) {
-            val clamped = newValue.coerceIn(effectiveMin, max.toFloat())
-            val newState = state.withValue(clamped)
-            val stepped = newState.steppedValue
-            if (stepped != displayValue && hapticFeedback) {
+            val clamped = newValue.coerceIn(config.effectiveMin, config.max.toFloat())
+            val stepped = state.withValue(clamped).steppedValue
+            if (stepped != displayValue && behavior.hapticFeedback) {
                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
             }
             onValueChange(stepped)
+            onInteraction?.invoke(source)
         }
     }
     // rememberUpdatedState ensures pointerInput coroutines always call the latest lambda
@@ -146,109 +130,175 @@ public fun  RatingBar(
     val latestHandleValueChange = rememberUpdatedState(handleValueChange)
     val latestOnValueChangeFinished = rememberUpdatedState(onValueChangeFinished)
 
-    Row(
-        modifier = modifier
-            .semantics(mergeDescendants = true) {
-                stateDescription = "$displayValue out of $max"
-                contentDescription = "Rating: $displayValue out of $max"
-            }
-            .focusRequester(focusRequester)
-            .onGloballyPositioned { coordinates ->
-                widthPx = coordinates.size.width.toFloat()
-            }
-            .then(
-                if (!readOnly) {
-                    Modifier
-                        .pointerInput(layoutDirection, widthPx, max) {
-                            detectTapGestures(
-                                onTap = { offset ->
-                                    if (widthPx > 0) {
-                                        val x = adjustForRtl(offset.x, widthPx, layoutDirection)
-                                        val newValue = (x / widthPx * max).coerceIn(0f, max.toFloat())
-                                        latestHandleValueChange.value(newValue)
-                                        latestOnValueChangeFinished.value?.invoke()
-                                    }
-                                }
-                            )
-                        }
-                        .pointerInput(layoutDirection, widthPx, max) {
-                            detectDragGestures(
-                                onDragStart = { hoverValue = null },
-                                onDragEnd = { latestOnValueChangeFinished.value?.invoke() },
-                                onDragCancel = { latestOnValueChangeFinished.value?.invoke() }
-                            ) { change, _ ->
-                                change.consume()
-                                if (widthPx > 0) {
-                                    val x = adjustForRtl(change.position.x, widthPx, layoutDirection)
-                                    val newValue = (x / widthPx * max).coerceIn(0f, max.toFloat())
-                                    latestHandleValueChange.value(newValue)
-                                }
-                            }
-                        }
-                        .onKeyEvent { event ->
-                            handleRatingKeyEvent(
-                                event = event,
-                                displayValue = displayValue,
-                                step = step,
-                                effectiveMin = effectiveMin,
-                                max = max,
-                                isRtl = layoutDirection == LayoutDirection.Rtl,
-                                onValue = handleValueChange,
-                            )
-                        }
-                        .pointerInput(
-                            showHoverPreview, enableScrollInput, widthPx,
-                            max, layoutDirection, step, effectiveMin
-                        ) {
-                            awaitPointerEventScope {
-                                while (true) {
-                                    val event = awaitPointerEvent()
-                                    when (event.type) {
-                                        PointerEventType.Move -> {
-                                            val noPress = !event.changes.any { it.pressed }
-                                            if (showHoverPreview && widthPx > 0 && noPress) {
-                                                event.changes.firstOrNull()?.position?.x?.let { x ->
-                                                    val adjustedX = adjustForRtl(x, widthPx, layoutDirection)
-                                                    hoverValue = (adjustedX / widthPx * max)
-                                                        .coerceIn(0f, max.toFloat())
-                                                }
-                                            }
-                                        }
-                                        PointerEventType.Exit -> {
-                                            hoverValue = null
-                                        }
-                                        PointerEventType.Scroll -> {
-                                            if (enableScrollInput) {
-                                                val delta = event.changes.firstOrNull()?.scrollDelta?.y ?: 0f
-                                                when {
-                                                    delta < 0f -> latestHandleValueChange.value(
-                                                        (displayValue + step).coerceAtMost(max.toFloat())
-                                                    )
-                                                    delta > 0f -> latestHandleValueChange.value(
-                                                        (displayValue - step).coerceAtLeast(effectiveMin)
-                                                    )
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                } else {
-                    Modifier
+    val stateDesc = if (itemLabels != null && itemLabels.size >= config.max && displayValue > 0f) {
+        val idx = (displayValue.toInt() - 1).coerceIn(0, itemLabels.size - 1)
+        "${itemLabels[idx]} ($displayValue out of ${config.max})"
+    } else {
+        "$displayValue out of ${config.max}"
+    }
+
+    val barModifier = Modifier
+        .semantics(mergeDescendants = true) {
+            role = Role.ValuePicker
+            stateDescription = stateDesc
+            contentDescription = "Rating: $displayValue out of ${config.max}"
+            progressBarRangeInfo = ProgressBarRangeInfo(
+                current = displayValue,
+                range = config.effectiveMin..config.max.toFloat(),
+                steps = ((config.max.toFloat() / config.step).toInt() - 1).coerceAtLeast(0)
+            )
+            if (!readOnly) {
+                setProgress { targetValue ->
+                    val clamped = targetValue.coerceIn(config.effectiveMin, config.max.toFloat())
+                    val stepped = RatingBarState(value = clamped, config = config).steppedValue
+                    onValueChange(stepped)
+                    true
                 }
-            ),
-        horizontalArrangement = Arrangement.spacedBy(itemSpacing)
-    ) {
-        repeat(max) { index ->
+            }
+        }
+        .focusRequester(focusRequester)
+        .onGloballyPositioned { coordinates ->
+            widthPx = coordinates.size.width.toFloat()
+        }
+        .then(
+            if (!readOnly) {
+                Modifier
+                    .pointerInput(layoutDirection, widthPx, config.max) {
+                        detectTapGestures(
+                            onTap = { offset ->
+                                if (widthPx > 0) {
+                                    val x = adjustForRtl(offset.x, widthPx, layoutDirection)
+                                    // ceil maps the tap to the star bin that was clicked:
+                                    // tapping anywhere inside star N selects value N*step,
+                                    // regardless of which side of the star was touched.
+                                    val raw = x / widthPx * config.max
+                                    val newValue = (ceil(raw / config.step) * config.step)
+                                        .coerceIn(0f, config.max.toFloat())
+                                    latestHandleValueChange.value(newValue, RatingInteractionSource.Tap)
+                                    latestOnValueChangeFinished.value?.invoke()
+                                }
+                            },
+                            onLongPress = {
+                                if (behavior.enableLongPressReset) {
+                                    latestHandleValueChange.value(
+                                        config.effectiveMin,
+                                        RatingInteractionSource.Tap,
+                                    )
+                                    latestOnValueChangeFinished.value?.invoke()
+                                }
+                            },
+                        )
+                    }
+                    .pointerInput(layoutDirection, widthPx, config.max) {
+                        detectDragGestures(
+                            onDragStart = { hoverValue = null },
+                            onDragEnd = { latestOnValueChangeFinished.value?.invoke() },
+                            onDragCancel = { latestOnValueChangeFinished.value?.invoke() },
+                        ) { change, _ ->
+                            change.consume()
+                            if (widthPx > 0) {
+                                val x = adjustForRtl(change.position.x, widthPx, layoutDirection)
+                                val newValue = (x / widthPx * config.max)
+                                    .coerceIn(0f, config.max.toFloat())
+                                latestHandleValueChange.value(newValue, RatingInteractionSource.Drag)
+                            }
+                        }
+                    }
+                    .onKeyEvent { event ->
+                        handleRatingKeyEvent(
+                            event = event,
+                            displayValue = displayValue,
+                            config = config,
+                            isRtl = layoutDirection == LayoutDirection.Rtl,
+                            onValue = { v ->
+                                handleValueChange(v, RatingInteractionSource.Keyboard)
+                            },
+                        )
+                    }
+                    .pointerInput(
+                        behavior.showHoverPreview, behavior.enableScrollInput,
+                        widthPx, config.max, layoutDirection,
+                        config.step, config.effectiveMin,
+                    ) {
+                        awaitPointerEventScope {
+                            while (true) {
+                                val event = awaitPointerEvent()
+                                when (event.type) {
+                                    PointerEventType.Move -> {
+                                        val noPress = !event.changes.any { it.pressed }
+                                        if (behavior.showHoverPreview && widthPx > 0 && noPress) {
+                                            event.changes.firstOrNull()?.position?.x?.let { x ->
+                                                val adjustedX = adjustForRtl(x, widthPx, layoutDirection)
+                                                hoverValue = (adjustedX / widthPx * config.max)
+                                                    .coerceIn(0f, config.max.toFloat())
+                                            }
+                                        }
+                                    }
+                                    PointerEventType.Exit -> {
+                                        hoverValue = null
+                                    }
+                                    PointerEventType.Scroll -> {
+                                        if (behavior.enableScrollInput) {
+                                            val delta =
+                                                event.changes.firstOrNull()?.scrollDelta?.y ?: 0f
+                                            when {
+                                                delta < 0f -> latestHandleValueChange.value(
+                                                    (displayValue + config.step)
+                                                        .coerceAtMost(config.max.toFloat()),
+                                                    RatingInteractionSource.Scroll,
+                                                )
+                                                delta > 0f -> latestHandleValueChange.value(
+                                                    (displayValue - config.step)
+                                                        .coerceAtLeast(config.effectiveMin),
+                                                    RatingInteractionSource.Scroll,
+                                                )
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+            } else {
+                Modifier
+            }
+        )
+
+    val barContent: @Composable RowScope.() -> Unit = {
+        repeat(config.max) { index ->
             val rawFill = RatingBarState.fillFraction(index, hoverValue ?: displayValue)
             val fillFraction by animateFloatAsState(
                 targetValue = rawFill,
-                animationSpec = if (animateRating && hoverValue == null) ratingAnimationSpec else snap(),
-                label = "ratingFill_$index"
+                animationSpec = if (animations.enabled && !animations.reducedMotion && hoverValue == null) {
+                    animations.spec
+                } else {
+                    snap()
+                },
+                label = "ratingFill_$index",
             )
             itemContent(index, fillFraction)
         }
+    }
+
+    if (leadingContent != null || trailingContent != null) {
+        Row(
+            modifier = modifier,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            leadingContent?.invoke()
+            Row(
+                modifier = barModifier,
+                horizontalArrangement = Arrangement.spacedBy(itemSpacing),
+                content = barContent,
+            )
+            trailingContent?.invoke()
+        }
+    } else {
+        Row(
+            modifier = modifier.then(barModifier),
+            horizontalArrangement = Arrangement.spacedBy(itemSpacing),
+            content = barContent,
+        )
     }
 }
 
@@ -265,47 +315,27 @@ public fun  RatingBar(
  * - Keyboard: Arrow keys, +/-, Home (min), End (max), digit keys 1–9
  *
  * **Desktop / Web extras:**
- * - Hover preview via [showHoverPreview] — cursor position shows a live fill preview tinted
- *   with [hoverColor]
- * - Mouse wheel scroll via [enableScrollInput] — increments/decrements by [step]
+ * - Hover preview via [behavior].showHoverPreview — cursor position shows a live fill preview
+ *   tinted with [RatingBarColors.hover]
+ * - Mouse wheel scroll via [behavior].enableScrollInput — increments/decrements by step
  *
  * **Android extras:**
- * - Haptic pulse on value change via [hapticFeedback]
+ * - Haptic pulse on value change via [behavior].hapticFeedback
  *
- * @param value The current rating value. Clamped to `[0, max]` and rounded to the nearest [step].
+ * @param value The current rating value. Clamped to `[effectiveMin, max]` and snapped to step.
  * @param onValueChange Callback invoked when the rating value changes. Receives the stepped value.
- * @param modifier Modifier applied to the rating bar row.
+ * @param modifier Modifier applied to the outermost element.
  * @param onValueChangeFinished Optional callback invoked once when a tap or drag gesture ends.
- * @param max Maximum rating value (e.g., 5 for a 5-star bar). Must be greater than 0.
- * @param step Step increment for selectable values (e.g., `0.5f` for half-star). Must be > 0 and ≤ max.
- * @param readOnly If `true`, all interaction is disabled. Hover preview is also suppressed.
- * @param itemSize Size of each rating item. Use [RatingBarDefaults] for presets.
- * @param itemSpacing Spacing between adjacent items.
- * @param filledPainter Painter for the filled (selected) state. Defaults to [RatingBarIcons.StarFilled].
- * @param unfilledPainter Painter for the unfilled (empty) state. Defaults to [RatingBarIcons.StarOutline].
- * @param filledColor Color applied to filled items. Defaults to `MaterialTheme.colorScheme.primary`.
- * @param unfilledColor Color applied to unfilled items. Defaults to `onSurface` at 30% alpha.
- * @param hoverColor Color applied to filled items while a hover preview is active on Desktop/Web.
- *   Defaults to [filledColor] at 60% alpha, giving a semi-transparent preview tint.
- * @param animateRating If `true`, fill fraction transitions are animated with [ratingAnimationSpec].
- *   Pass `false` for instant (snap) transitions, e.g., to respect system reduced-motion preferences.
- * @param ratingAnimationSpec Animation spec used for fill transitions when [animateRating] is `true`.
- *   Defaults to [RatingBarDefaults.RatingAnimationSpec] (200ms ease-out tween).
- * @param animateScale If `true`, the newly selected item briefly scales up (spring bounce) when
- *   a value change is committed via tap or drag. No-op in [readOnly] mode.
- * @param allowZero If `false`, the minimum selectable value is clamped to at least one [step].
- *   Drag-to-zero and keyboard Home will stop at [step] rather than 0.
- * @param minValue Explicit minimum selectable value. Effective minimum =
- *   `if (!allowZero) maxOf(step, minValue) else minValue`.
- * @param showHoverPreview If `true` (default), hovering on Desktop/Web shows a live fill preview
- *   tinted with [hoverColor]. No-op on Android/iOS.
- * @param enableScrollInput If `true` (default), mouse wheel scroll on Desktop adjusts the rating
- *   by one [step] per scroll tick. No-op on Android/iOS/Web.
- * @param hapticFeedback If `true` (default `false`), a haptic pulse fires on Android each time the
- *   value changes during tap or drag. Uses [HapticFeedbackType.LongPress] — the strongest
- *   standard feedback constant, ensuring the pulse is felt across devices. No-op on Desktop, iOS, and Web.
- *   Requires the device to have "Vibration & haptics" enabled in Android Settings.
- *   On Android 13+, haptics are suppressed by the OS in Silent mode.
+ * @param readOnly If `true`, all interaction is disabled.
+ * @param config Rating configuration: max, step, allowZero, minValue.
+ * @param style Visual style: itemSize, itemSpacing, painters, colors (including gradient brush).
+ * @param animations Animation configuration: enabled, spec, animateScale, reducedMotion.
+ * @param behavior Platform and interaction flags: hover, scroll, haptic, long-press reset.
+ * @param itemLabels Optional per-item semantic labels. Used in the bar's `stateDescription`
+ *   and as each star's `contentDescription`. Must have at least [RatingBarConfig.max] entries.
+ * @param leadingContent Optional composable rendered before the bar.
+ * @param trailingContent Optional composable rendered after the bar.
+ * @param onInteraction Optional callback fired on each interaction, indicating source type.
  */
 @Composable
 public fun RatingBar(
@@ -313,29 +343,20 @@ public fun RatingBar(
     onValueChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
     onValueChangeFinished: (() -> Unit)? = null,
-    max: Int = 5,
-    step: Float = 1f,
     readOnly: Boolean = false,
-    itemSize: Dp = RatingBarDefaults.SizeMedium,
-    itemSpacing: Dp = RatingBarDefaults.ItemSpacing,
-    filledPainter: Painter = rememberVectorPainter(RatingBarIcons.StarFilled),
-    unfilledPainter: Painter = rememberVectorPainter(RatingBarIcons.StarOutline),
-    filledColor: Color = MaterialTheme.colorScheme.primary,
-    unfilledColor: Color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f),
-    hoverColor: Color = filledColor.copy(alpha = 0.6f),
-    animateRating: Boolean = false,
-    ratingAnimationSpec: AnimationSpec<Float> = RatingBarDefaults.RatingAnimationSpec,
-    animateScale: Boolean = false,
-    allowZero: Boolean = true,
-    minValue: Float = 0f,
-    showHoverPreview: Boolean = false,
-    enableScrollInput: Boolean = false,
-    hapticFeedback: Boolean = false,
+    config: RatingBarConfig = RatingBarConfig(),
+    style: RatingBarStyle = RatingBarDefaults.style(),
+    animations: RatingBarAnimations = RatingBarDefaults.animations(),
+    behavior: RatingBarBehavior = RatingBarDefaults.behavior(),
+    itemLabels: List<String>? = null,
+    leadingContent: (@Composable () -> Unit)? = null,
+    trailingContent: (@Composable () -> Unit)? = null,
+    onInteraction: ((RatingInteractionSource) -> Unit)? = null,
 ) {
     var activeItemIndex by remember { mutableStateOf<Int?>(null) }
     var isHoverActive by remember { mutableStateOf(false) }
-    val committedSteppedValue = remember(value, max, step) {
-        RatingBarState(value = value, config = RatingBarConfig(max = max, step = step)).steppedValue
+    val committedSteppedValue = remember(value, config) {
+        RatingBarState(value = value, config = config).steppedValue
     }
 
     LaunchedEffect(activeItemIndex) {
@@ -347,10 +368,12 @@ public fun RatingBar(
 
     val wrappedOnValueChange: (Float) -> Unit = { newValue ->
         onValueChange(newValue)
-        if (animateScale && !readOnly) {
+        if (animations.animateScale && !readOnly) {
             activeItemIndex = if (newValue > 0f) {
-                (kotlin.math.ceil(newValue.toDouble()).toInt() - 1).coerceIn(0, max - 1)
-            } else null
+                (kotlin.math.ceil(newValue.toDouble()).toInt() - 1).coerceIn(0, config.max - 1)
+            } else {
+                null
+            }
         }
     }
 
@@ -359,36 +382,35 @@ public fun RatingBar(
         onValueChange = wrappedOnValueChange,
         onValueChangeFinished = onValueChangeFinished,
         modifier = modifier,
-        max = max,
-        step = step,
         readOnly = readOnly,
-        itemSpacing = itemSpacing,
-        animateRating = animateRating,
-        ratingAnimationSpec = ratingAnimationSpec,
-        allowZero = allowZero,
-        minValue = minValue,
-        showHoverPreview = showHoverPreview,
-        enableScrollInput = enableScrollInput,
-        hapticFeedback = hapticFeedback,
+        itemSpacing = style.itemSpacing,
+        config = config,
+        animations = animations,
+        behavior = behavior,
+        itemLabels = itemLabels,
         onHoverValueChange = { isHoverActive = it != null },
+        leadingContent = leadingContent,
+        trailingContent = trailingContent,
+        onInteraction = onInteraction,
         itemContent = { index, fillFraction ->
             val committedFill = RatingBarState.fillFraction(index, committedSteppedValue)
             RatingBarItem(
                 fillFraction = fillFraction,
                 committedFillFraction = committedFill,
                 isHoverActive = isHoverActive,
-                size = itemSize,
-                filledPainter = filledPainter,
-                unfilledPainter = unfilledPainter,
-                filledColor = filledColor,
-                unfilledColor = unfilledColor,
-                hoverColor = hoverColor,
-                isActive = animateScale && index == activeItemIndex,
+                size = style.itemSize,
+                filledPainter = style.filledPainter,
+                unfilledPainter = style.unfilledPainter,
+                filledColor = style.colors.filled,
+                unfilledColor = style.colors.unfilled,
+                hoverColor = style.colors.hover,
+                fillBrush = style.colors.fillBrush,
+                isActive = animations.animateScale && index == activeItemIndex,
+                contentDescription = itemLabels?.getOrNull(index),
             )
-        }
+        },
     )
 }
-
 
 @Composable
 private fun RatingBarItem(
@@ -401,15 +423,17 @@ private fun RatingBarItem(
     filledColor: Color,
     unfilledColor: Color,
     hoverColor: Color,
+    fillBrush: Brush? = null,
     isActive: Boolean = false,
+    contentDescription: String? = null,
 ) {
     val scale by animateFloatAsState(
         targetValue = if (isActive) 1.15f else 1f,
         animationSpec = spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMedium
+            stiffness = Spring.StiffnessMedium,
         ),
-        label = "ratingScale"
+        label = "ratingScale",
     )
 
     // When hovering, use the instant committed fill for the filled layer so animation
@@ -422,10 +446,10 @@ private fun RatingBarItem(
             painter = unfilledPainter,
             contentDescription = null,
             modifier = Modifier.fillMaxSize(),
-            tint = unfilledColor
+            tint = unfilledColor,
         )
 
-        // Layer 2 — hover preview extension (only for stars beyond the committed fill)
+        // Layer 2 — hover preview extension (only for items beyond the committed fill)
         if (isHoverActive && fillFraction > committedFillFraction) {
             Icon(
                 painter = filledPainter,
@@ -436,26 +460,45 @@ private fun RatingBarItem(
                         if (fillFraction < 1f) Modifier.clip(FractionalClipShape(fillFraction))
                         else Modifier
                     ),
-                tint = hoverColor
+                tint = hoverColor,
             )
         }
 
-        // Layer 3 — committed fill (on top, always preserves the confirmed rating colour)
+        // Layer 3 — committed fill (always preserves the confirmed rating colour / brush)
         if (committedDisplayFraction > 0f) {
-            Icon(
-                painter = filledPainter,
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .then(
-                        if (committedDisplayFraction < 1f) {
-                            Modifier.clip(FractionalClipShape(committedDisplayFraction))
-                        } else {
-                            Modifier
-                        }
-                    ),
-                tint = filledColor
-            )
+            val clipMod = if (committedDisplayFraction < 1f)
+                Modifier.clip(FractionalClipShape(committedDisplayFraction))
+            else
+                Modifier
+
+            if (fillBrush != null) {
+                // Render icon as a white shape mask, then overlay the brush via SrcIn blend mode.
+                // graphicsLayer offscreen compositing ensures the blend operates on isolated pixels.
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .then(clipMod)
+                        .graphicsLayer { compositingStrategy = CompositingStrategy.Offscreen }
+                        .drawWithContent {
+                            drawContent()
+                            drawRect(brush = fillBrush, blendMode = BlendMode.SrcIn)
+                        },
+                ) {
+                    Icon(
+                        painter = filledPainter,
+                        contentDescription = contentDescription,
+                        modifier = Modifier.fillMaxSize(),
+                        tint = Color.White,
+                    )
+                }
+            } else {
+                Icon(
+                    painter = filledPainter,
+                    contentDescription = contentDescription,
+                    modifier = Modifier.fillMaxSize().then(clipMod),
+                    tint = filledColor,
+                )
+            }
         }
     }
 }
@@ -466,29 +509,39 @@ private fun adjustForRtl(rawX: Float, widthPx: Float, layoutDirection: LayoutDir
 private fun handleRatingKeyEvent(
     event: KeyEvent,
     displayValue: Float,
-    step: Float,
-    effectiveMin: Float,
-    max: Int,
+    config: RatingBarConfig,
     isRtl: Boolean,
     onValue: (Float) -> Unit,
 ): Boolean {
     if (event.type != KeyEventType.KeyDown) return false
     return when (event.key) {
         Key.DirectionRight -> {
-            onValue((displayValue + if (isRtl) -step else step).coerceIn(effectiveMin, max.toFloat()))
+            onValue(
+                (displayValue + if (isRtl) -config.step else config.step)
+                    .coerceIn(config.effectiveMin, config.max.toFloat())
+            )
             true
         }
         Key.DirectionLeft -> {
-            onValue((displayValue + if (isRtl) step else -step).coerceIn(effectiveMin, max.toFloat()))
+            onValue(
+                (displayValue + if (isRtl) config.step else -config.step)
+                    .coerceIn(config.effectiveMin, config.max.toFloat())
+            )
             true
         }
-        Key.Plus -> { onValue((displayValue + step).coerceAtMost(max.toFloat())); true }
-        Key.Minus -> { onValue((displayValue - step).coerceAtLeast(effectiveMin)); true }
-        Key.Home -> { onValue(effectiveMin); true }
-        Key.MoveEnd -> { onValue(max.toFloat()); true }
+        Key.Plus -> {
+            onValue((displayValue + config.step).coerceAtMost(config.max.toFloat()))
+            true
+        }
+        Key.Minus -> {
+            onValue((displayValue - config.step).coerceAtLeast(config.effectiveMin))
+            true
+        }
+        Key.Home -> { onValue(config.effectiveMin); true }
+        Key.MoveEnd -> { onValue(config.max.toFloat()); true }
         else -> {
             val digit = event.key.keyCode - Key.One.keyCode + 1
-            if (digit in 1..9 && digit <= max) { onValue(digit.toFloat()); true } else false
+            if (digit in 1..9 && digit <= config.max) { onValue(digit.toFloat()); true } else false
         }
     }
 }
