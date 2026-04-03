@@ -26,11 +26,11 @@ A lightweight, accessible, Compose Multiplatform RatingBar component for Android
 <table align="center">
   <tr>
     <td align="center" width="100"><b>Android</b></td>
-    <td align="center" style="background-color: #5b59a1;"><img src="assets/demos/android-demo.gif" width="200"/></td>
+    <td align="center"><img src="assets/demos/demo-android.gif" width="200"/></td>
   </tr>
   <tr>
     <td align="center"><b>Desktop</b></td>
-    <td align="center" style="background-color: #5b59a1;"><img src="assets/demos/desktop-demo.gif" width="500"/></td>
+    <td align="center"><img src="assets/demos/demo-desktop.gif" width="500"/></td>
   </tr>
 </table>
 
