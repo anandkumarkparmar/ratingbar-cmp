@@ -43,6 +43,10 @@ A lightweight, accessible, Compose Multiplatform RatingBar component for Android
 - **Fully accessible** — keyboard navigation, RTL layout, screen reader semantics on all platforms
 - **Slot API** — supply any composable as a rating item (hearts, circles, custom icons)
 - **Platform-native feel** — hover preview on Desktop/Web, haptic feedback on Android, mouse wheel support
+- **Gradient fills** — apply a color gradient brush via `RatingBarColors.fillBrush`
+- **Shimmer placeholder** — `RatingBarPlaceholder` renders an animated skeleton while data loads
+- **Long-press to reset** — opt-in long-press resets to effective minimum via `RatingBarBehavior`
+- **Shape variety** — built-in Heart, ThumbUp, and Circle icon pairs alongside the default stars
 
 ---
 
@@ -55,7 +59,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.anandkumarkparmar.ratingbar-cmp:ratingbar-cmp:0.3.0")
+    implementation("com.github.anandkumarkparmar.ratingbar-cmp:ratingbar-cmp:0.4.0")
 }
 ```
 
@@ -65,22 +69,31 @@ dependencies {
 
 ```kotlin
 import androidx.compose.runtime.*
-import com.github.anandkumarkparmar.ratingbar.RatingBar
+import com.github.anandkumarkparmar.ratingbar.*
+import com.github.anandkumarkparmar.ratingbar.core.RatingBarConfig
 
 @Composable
 fun RatingExample() {
-    var rating by remember { mutableStateOf(3.5f) }
+    var rating by rememberRatingBarState(initialValue = 3f)
 
     RatingBar(
         value = rating,
         onValueChange = { rating = it },
-        max = 5,
-        step = 0.5f
+        config = RatingBarConfig(max = 5, step = 0.5f),
+        style = RatingBarDefaults.style(itemSize = RatingBarDefaults.SizeMedium),
+        animations = RatingBarDefaults.animations(enabled = true),
+        behavior = RatingBarDefaults.behavior(hapticFeedback = true),
     )
 }
 ```
 
 For all parameters, overloads, and advanced usage see the [API Reference](docs/api-reference.md) or browse the [live API docs](https://anandkumarkparmar.github.io/ratingbar-cmp/).
+
+> **Migrating from v0.3.0?** Individual parameters like `max`, `step`, `filledColor`, and
+> `animateRating` are now grouped into `config`, `style`, `animations`, and `behavior` objects.
+> Call sites using all defaults need no changes. See the
+> [migration guide](docs/api-reference.md#migrating-from-v030) and
+> [changelog](docs/changelog.md) for details.
 
 ---
 
@@ -101,6 +114,8 @@ For all parameters, overloads, and advanced usage see the [API Reference](docs/a
 | Hover preview | — | ✓ | — | ✓ |
 | Mouse wheel scroll | — | ✓ | — | — |
 | Haptic feedback | ✓ | — | — | — |
+| Long-press to reset | ✓ | ✓ | ✓ | ✓ |
+| Shimmer placeholder | ✓ | ✓ | ✓ | ✓ |
 
 \* Keyboard behavior on iOS depends on the runtime input context.<br>
 — Feature is a graceful no-op on this platform — no crash, no error.
@@ -114,13 +129,11 @@ A glimpse of what's planned for future releases. See the [full roadmap](docs/roa
 | Feature | Status |
 |---|---|
 | Gesture sensitivity configuration | Planned |
-| Shimmer / loading state | Planned |
-| Color gradient fills | Planned |
-| Shape presets — heart, circle, thumb, emoji | Planned |
-| Custom semantic descriptions per item | Planned |
 | Compact / inline mode | Planned |
 | Badge mode (★ 4.5) | Planned |
 | Kotlin/Wasm target | Planned |
+
+See the [full roadmap](docs/roadmap.md) for everything delivered and everything still planned.
 
 ---
 

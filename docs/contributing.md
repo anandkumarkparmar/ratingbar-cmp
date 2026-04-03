@@ -52,12 +52,19 @@ The library is a single `commonMain` module with no platform-specific source set
 
 ```
 com.github.anandkumarkparmar.ratingbar
-├── RatingBar.kt              # Main composables and interaction logic
-├── RatingBarDefaults.kt      # Size and spacing presets
-├── RatingBarIcons.kt         # Built-in star vector icons
-├── FractionalClipShape.kt    # Shape for partial fill (e.g., half-star)
+├── RatingBar.kt              # Public composables and gesture/interaction logic
+├── RatingBarDefaults.kt      # Size, spacing, animation, and shimmer presets
+├── RatingBarColors.kt        # RatingBarColors data class + RatingBarDefaults.colors() factory
+├── RatingBarStyle.kt         # RatingBarStyle class + RatingBarDefaults.style() factory
+├── RatingBarAnimations.kt    # RatingBarAnimations data class + RatingBarDefaults.animations() factory
+├── RatingBarBehavior.kt      # RatingBarBehavior data class + RatingBarDefaults.behavior() factory
+├── RatingBarIcons.kt         # Built-in vector icons: Star, Heart, ThumbUp, Circle (filled + outline)
+├── RatingBarPlaceholder.kt   # Shimmer loading skeleton composable
+├── RatingBarStateHelpers.kt  # rememberRatingBarState() and rememberSaveableRatingBarState()
+├── FractionalClipShape.kt    # Clip shape for partial star fills
 └── core/
-    └── RatingBarState.kt     # Config, state, stepping, fill fraction
+    ├── RatingBarState.kt     # RatingBarConfig and RatingBarState (value type, ViewModel-friendly)
+    └── RatingInteractionSource.kt  # Enum: Tap, Drag, Keyboard, Scroll
 ```
 
 ---
