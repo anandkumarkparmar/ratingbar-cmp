@@ -211,3 +211,36 @@ jobs:
         run: |
           echo "📖 API docs published to: ${{ steps.deploy.outputs.page_url }}" \
             >> "$GITHUB_STEP_SUMMARY"
+
+  # 🚀 Create GitHub Release — runs after release-prep succeeds.
+  # Downloads the generated release notes and publishes a real GitHub Release
+  # so it appears at https://github.com/anandkumarkparmar/ratingbar-cmp/releases.
+  create-github-release:
+    needs: release-prep
+    runs-on: ubuntu-latest
+    name: Create GitHub Release
+
+    permissions:
+      contents: write   # required to create a release and upload assets
+
+    steps:
+      - name: Download release notes
+        uses: actions/download-artifact@v4
+        with:
+          name: release-notes-${{ needs.release-prep.outputs.tag }}
+
+      - name: Download artifact size report
+        uses: actions/download-artifact@v4
+        with:
+          name: artifact-size-report-${{ needs.release-prep.outputs.tag }}
+          path: size-report
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.release-prep.outputs.tag }}
+          name: ${{ needs.release-prep.outputs.tag }}
+          body_path: release_notes.md
+          generate_release_notes: true   # appends auto-generated changelog from PR titles
+          files: |
+            size-report/artifact-size-report.md

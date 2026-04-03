@@ -171,7 +171,17 @@ web:       src/**, samples/web/**, samples/common/**
 
 Triggered by tags matching `0.*` or `v0.*`, or manual dispatch.
 
-Steps:
+### Job Flow
+
+```
+release-prep ──┬──► publish-docs          (GitHub Pages)
+               └──► create-github-release (GitHub Releases)
+```
+
+`publish-docs` and `create-github-release` run in parallel after `release-prep` succeeds.
+
+### `release-prep` steps
+
 1. Resolve and validate tag format (`0.x.y` or `v0.x.y`)
 2. `publishToMavenLocal`
 3. API compatibility check (`apiCheck`)
@@ -180,10 +190,21 @@ Steps:
 6. Run `report-artifact-sizes.sh --enforce` (enforces size budgets, generates badge JSONs)
 7. Build all modules (excluding iOS tests)
 8. Generate `release_notes.md` with size snapshot and dependency snippet
-9. Upload artifact-size report and release notes
+9. Upload artifact-size report and release notes as workflow artifacts
+
+### `publish-docs` steps
+
 10. Build web sample (`jsBrowserDistribution`)
 11. Stage combined GitHub Pages artifact: Dokka HTML at `/`, web demo at `/demo/`
 12. Deploy to GitHub Pages — Dokka at `https://anandkumarkparmar.github.io/ratingbar-cmp/`, live demo at `.../demo/`
+
+### `create-github-release` steps
+
+13. Download `release_notes.md` and `artifact-size-report.md` from `release-prep`
+14. Create a GitHub Release at `https://github.com/anandkumarkparmar/ratingbar-cmp/releases` using `softprops/action-gh-release`
+    - Release body is populated from `release_notes.md` (size snapshot + dependency snippet)
+    - GitHub's auto-generated changelog (from merged PR titles since last tag) is appended automatically
+    - `artifact-size-report.md` is attached as a downloadable file on the release page
 
 ---
 
