@@ -64,7 +64,7 @@ Review the generated report at `.github/artifact-size-report.md` and the badge J
 
 | Artifact | Budget |
 |---|---|
-| Android AAR | 51,200 bytes |
+| Android AAR | 102,400 bytes |
 | Total published | 5,242,880 bytes |
 
 ## 5. Smoke-test iOS host integration (recommended)
