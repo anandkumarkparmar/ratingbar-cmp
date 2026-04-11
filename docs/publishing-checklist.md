@@ -13,7 +13,7 @@ Use this checklist whenever you cut a new public release from `main`. Each step 
 
 - Bump the library version in [build.gradle.kts](../build.gradle.kts) (`version = "..."`). Keep the `0.x.y` semantic pattern.
 - Audit README and docs for accuracy. Update badges, feature lists, or usage snippets if the API changed.
-- Update [changelog.md](changelog.md) with the new version's changes.
+- Update [CHANGELOG.md](../CHANGELOG.md) with the new version's changes.
 - If the roadmap needs updating, refresh [roadmap.md](roadmap.md).
 
 ## 3. Validate locally before tagging

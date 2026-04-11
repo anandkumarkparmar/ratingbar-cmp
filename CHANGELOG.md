@@ -6,6 +6,31 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ---
 
+## [0.5.0] - 2026-04-11
+
+Internal restructure release in preparation for 1.0.0. The Maven coordinate is unchanged; consumers update one import line and bump the version.
+
+### Breaking
+
+- **Package flattened**: `com.github.anandkumarkparmar.ratingbar.core` is gone. Drop `.core` from imports of `RatingBarConfig`, `RatingBarState`, and `RatingInteractionSource`. No signature or behaviour changes.
+
+### Changed
+
+- Library code moved into `:ratingbar-cmp` subproject; samples flattened into `:samples:*` peer subprojects. Single `./gradlew build` from repo root now builds everything.
+- Detekt config consolidated at repo root and applied to library + all sample modules.
+- `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, and `CHANGELOG.md` moved from `docs/` to repo root.
+
+### Added
+
+- Unit tests for `RatingBarAnimations`, `RatingBarBehavior`, `RatingBarColors`, and `RatingBarStyle`.
+
+### Removed
+
+- `useLocalLibrary` Gradle property and the samples composite build.
+- Stale duplicate demo GIFs and a CI backup file (~21 MB).
+
+---
+
 ## [0.4.0] - 2026-04-02
 
 ### Added

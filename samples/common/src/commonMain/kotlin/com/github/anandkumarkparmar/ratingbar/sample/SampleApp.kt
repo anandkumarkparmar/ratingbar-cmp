@@ -57,8 +57,8 @@ import com.github.anandkumarkparmar.ratingbar.RatingBarPlaceholder
 import com.github.anandkumarkparmar.ratingbar.animations
 import com.github.anandkumarkparmar.ratingbar.behavior
 import com.github.anandkumarkparmar.ratingbar.colors
-import com.github.anandkumarkparmar.ratingbar.core.RatingBarConfig
-import com.github.anandkumarkparmar.ratingbar.core.RatingInteractionSource
+import com.github.anandkumarkparmar.ratingbar.RatingBarConfig
+import com.github.anandkumarkparmar.ratingbar.RatingInteractionSource
 import com.github.anandkumarkparmar.ratingbar.rememberRatingBarState
 import com.github.anandkumarkparmar.ratingbar.rememberSaveableRatingBarState
 import com.github.anandkumarkparmar.ratingbar.style

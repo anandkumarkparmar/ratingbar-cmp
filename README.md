@@ -59,7 +59,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.anandkumarkparmar.ratingbar-cmp:ratingbar-cmp:0.4.0")
+    implementation("com.github.anandkumarkparmar.ratingbar-cmp:ratingbar-cmp:0.5.0")
 }
 ```
 
@@ -70,7 +70,6 @@ dependencies {
 ```kotlin
 import androidx.compose.runtime.*
 import com.github.anandkumarkparmar.ratingbar.*
-import com.github.anandkumarkparmar.ratingbar.core.RatingBarConfig
 
 @Composable
 fun RatingExample() {
@@ -89,11 +88,12 @@ fun RatingExample() {
 
 For all parameters, overloads, and advanced usage see the [API Reference](docs/api-reference.md) or browse the [live API docs](https://anandkumarkparmar.github.io/ratingbar-cmp/).
 
-> **Migrating from v0.3.0?** Individual parameters like `max`, `step`, `filledColor`, and
-> `animateRating` are now grouped into `config`, `style`, `animations`, and `behavior` objects.
-> Call sites using all defaults need no changes. See the
-> [migration guide](docs/api-reference.md#migrating-from-v030) and
-> [changelog](docs/changelog.md) for details.
+> **Migrating from v0.4.0?** The `com.github.anandkumarkparmar.ratingbar.core` subpackage has been
+> flattened into `com.github.anandkumarkparmar.ratingbar` — drop `.core` from any imports
+> of `RatingBarConfig`, `RatingBarState`, or `RatingInteractionSource`. No signature changes,
+> no behavior changes; the Maven coordinate is unchanged. See the [CHANGELOG](CHANGELOG.md)
+> for the full 0.5.0 change list, and the [API Reference](docs/api-reference.md) for the
+> 0.3.0 → 0.4.0 migration notes (still valid for 0.x consumers).
 
 ---
 
@@ -141,12 +141,12 @@ See the [full roadmap](docs/roadmap.md) for everything delivered and everything 
 
 - [API Reference](docs/api-reference.md)
 - [Running Samples](docs/running-samples.md)
-- [Contributing](docs/contributing.md)
+- [Contributing](CONTRIBUTING.md)
 - [Roadmap](docs/roadmap.md)
-- [Changelog](docs/changelog.md)
+- [Changelog](CHANGELOG.md)
 - [Publishing Checklist](docs/publishing-checklist.md)
 - [CI/CD Guide](docs/ci-guide.md)
-- [Code of Conduct](docs/code-of-conduct.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
 
 ---
 

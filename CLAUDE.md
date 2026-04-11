@@ -63,8 +63,8 @@ All modules live in a **single Gradle build**. Samples are no longer a composite
 
 ### Library Source Structure (`ratingbar-cmp/src/commonMain/kotlin/com/github/anandkumarkparmar/ratingbar/`)
 - `RatingBar.kt` — Public composables and gesture/interaction logic
-- `core/RatingBarState.kt` — `RatingBarConfig` and `RatingBarState` (immutable value type, ViewModel-friendly)
-- `core/RatingInteractionSource.kt` — `RatingInteractionSource` enum (Tap, Drag, Keyboard, Scroll)
+- `RatingBarState.kt` — `RatingBarConfig` and `RatingBarState` (immutable value type, ViewModel-friendly)
+- `RatingInteractionSource.kt` — `RatingInteractionSource` enum (Tap, Drag, Keyboard, Scroll)
 - `RatingBarDefaults.kt` — Size/spacing/animation/shimmer presets
 - `RatingBarColors.kt` — `RatingBarColors` + `RatingBarDefaults.colors()` factory
 - `RatingBarStyle.kt` — `RatingBarStyle` + `RatingBarDefaults.style()` factory

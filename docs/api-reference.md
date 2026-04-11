@@ -194,7 +194,7 @@ RatingBar(value = rating, onValueChange = { rating = it })
 
 ## RatingBarConfig
 
-Configuration data class for rating constraints. Package: `com.github.anandkumarkparmar.ratingbar.core`.
+Configuration data class for rating constraints. Package: `com.github.anandkumarkparmar.ratingbar`.
 
 ```kotlin
 data class RatingBarConfig(
@@ -470,7 +470,7 @@ style = RatingBarDefaults.style(
 
 ## RatingInteractionSource
 
-Identifies the input method that triggered a rating value change. Package: `com.github.anandkumarkparmar.ratingbar.core`.
+Identifies the input method that triggered a rating value change. Package: `com.github.anandkumarkparmar.ratingbar`.
 
 ```kotlin
 enum class RatingInteractionSource {
@@ -714,4 +714,4 @@ RatingBar(
 | `enableScrollInput` | `behavior.enableScrollInput` |
 | `hapticFeedback` | `behavior.hapticFeedback` |
 
-See the [changelog](changelog.md) for the full v0.4.0 change log.
+See the [changelog](../CHANGELOG.md) for the full v0.4.0 change log.

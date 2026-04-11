@@ -1,8 +1,8 @@
 package com.github.anandkumarkparmar.ratingbar
 
-import com.github.anandkumarkparmar.ratingbar.core.RatingBarConfig
-import com.github.anandkumarkparmar.ratingbar.core.RatingBarState
-import com.github.anandkumarkparmar.ratingbar.core.RatingInteractionSource
+import com.github.anandkumarkparmar.ratingbar.RatingBarConfig
+import com.github.anandkumarkparmar.ratingbar.RatingBarState
+import com.github.anandkumarkparmar.ratingbar.RatingInteractionSource
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

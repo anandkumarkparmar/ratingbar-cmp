@@ -33,9 +33,9 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.LayoutDirection
-import com.github.anandkumarkparmar.ratingbar.core.RatingBarConfig
-import com.github.anandkumarkparmar.ratingbar.core.RatingBarState
-import com.github.anandkumarkparmar.ratingbar.core.RatingInteractionSource
+import com.github.anandkumarkparmar.ratingbar.RatingBarConfig
+import com.github.anandkumarkparmar.ratingbar.RatingBarState
+import com.github.anandkumarkparmar.ratingbar.RatingInteractionSource
 import kotlinx.coroutines.delay
 
 

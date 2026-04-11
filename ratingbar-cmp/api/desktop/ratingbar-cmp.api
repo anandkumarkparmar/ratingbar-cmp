@@ -77,6 +77,27 @@ public final class com/github/anandkumarkparmar/ratingbar/RatingBarColorsKt {
 	public static final fun colors-Jy8F4Js (Lcom/github/anandkumarkparmar/ratingbar/RatingBarDefaults;JJJLandroidx/compose/ui/graphics/Brush;Landroidx/compose/runtime/Composer;II)Lcom/github/anandkumarkparmar/ratingbar/RatingBarColors;
 }
 
+public final class com/github/anandkumarkparmar/ratingbar/RatingBarConfig {
+	public static final field $stable I
+	public fun <init> ()V
+	public fun <init> (IFZF)V
+	public synthetic fun <init> (IFZFILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()I
+	public final fun component2 ()F
+	public final fun component3 ()Z
+	public final fun component4 ()F
+	public final fun copy (IFZF)Lcom/github/anandkumarkparmar/ratingbar/RatingBarConfig;
+	public static synthetic fun copy$default (Lcom/github/anandkumarkparmar/ratingbar/RatingBarConfig;IFZFILjava/lang/Object;)Lcom/github/anandkumarkparmar/ratingbar/RatingBarConfig;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getAllowZero ()Z
+	public final fun getEffectiveMin ()F
+	public final fun getMax ()I
+	public final fun getMinValue ()F
+	public final fun getStep ()F
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
 public final class com/github/anandkumarkparmar/ratingbar/RatingBarDefaults {
 	public static final field $stable I
 	public static final field INSTANCE Lcom/github/anandkumarkparmar/ratingbar/RatingBarDefaults;
@@ -102,12 +123,36 @@ public final class com/github/anandkumarkparmar/ratingbar/RatingBarIcons {
 }
 
 public final class com/github/anandkumarkparmar/ratingbar/RatingBarKt {
-	public static final fun RatingBar (FLkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function0;ZLcom/github/anandkumarkparmar/ratingbar/core/RatingBarConfig;Lcom/github/anandkumarkparmar/ratingbar/RatingBarStyle;Lcom/github/anandkumarkparmar/ratingbar/RatingBarAnimations;Lcom/github/anandkumarkparmar/ratingbar/RatingBarBehavior;Ljava/util/List;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;III)V
-	public static final fun RatingBar--8jOkeI (FLkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function0;ZFLcom/github/anandkumarkparmar/ratingbar/core/RatingBarConfig;Lcom/github/anandkumarkparmar/ratingbar/RatingBarAnimations;Lcom/github/anandkumarkparmar/ratingbar/RatingBarBehavior;Ljava/util/List;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;III)V
+	public static final fun RatingBar (FLkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function0;ZLcom/github/anandkumarkparmar/ratingbar/RatingBarConfig;Lcom/github/anandkumarkparmar/ratingbar/RatingBarStyle;Lcom/github/anandkumarkparmar/ratingbar/RatingBarAnimations;Lcom/github/anandkumarkparmar/ratingbar/RatingBarBehavior;Ljava/util/List;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;Landroidx/compose/runtime/Composer;III)V
+	public static final fun RatingBar--8jOkeI (FLkotlin/jvm/functions/Function1;Landroidx/compose/ui/Modifier;Lkotlin/jvm/functions/Function0;ZFLcom/github/anandkumarkparmar/ratingbar/RatingBarConfig;Lcom/github/anandkumarkparmar/ratingbar/RatingBarAnimations;Lcom/github/anandkumarkparmar/ratingbar/RatingBarBehavior;Ljava/util/List;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function2;Lkotlin/jvm/functions/Function1;Lkotlin/jvm/functions/Function4;Landroidx/compose/runtime/Composer;III)V
 }
 
 public final class com/github/anandkumarkparmar/ratingbar/RatingBarPlaceholderKt {
 	public static final fun RatingBarPlaceholder-dYCTqSE (Landroidx/compose/ui/Modifier;IFFJJIZLandroidx/compose/ui/graphics/painter/Painter;Landroidx/compose/runtime/Composer;II)V
+}
+
+public final class com/github/anandkumarkparmar/ratingbar/RatingBarState {
+	public static final field $stable I
+	public static final field Companion Lcom/github/anandkumarkparmar/ratingbar/RatingBarState$Companion;
+	public fun <init> (FLcom/github/anandkumarkparmar/ratingbar/RatingBarConfig;)V
+	public synthetic fun <init> (FLcom/github/anandkumarkparmar/ratingbar/RatingBarConfig;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
+	public final fun component1 ()F
+	public final fun component2 ()Lcom/github/anandkumarkparmar/ratingbar/RatingBarConfig;
+	public final fun copy (FLcom/github/anandkumarkparmar/ratingbar/RatingBarConfig;)Lcom/github/anandkumarkparmar/ratingbar/RatingBarState;
+	public static synthetic fun copy$default (Lcom/github/anandkumarkparmar/ratingbar/RatingBarState;FLcom/github/anandkumarkparmar/ratingbar/RatingBarConfig;ILjava/lang/Object;)Lcom/github/anandkumarkparmar/ratingbar/RatingBarState;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getClampedValue ()F
+	public final fun getConfig ()Lcom/github/anandkumarkparmar/ratingbar/RatingBarConfig;
+	public final fun getSteppedValue ()F
+	public final fun getValue ()F
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+	public final fun withValue (F)Lcom/github/anandkumarkparmar/ratingbar/RatingBarState;
+}
+
+public final class com/github/anandkumarkparmar/ratingbar/RatingBarState$Companion {
+	public final fun fillFraction (IF)F
+	public final fun roundToStep (FF)F
 }
 
 public final class com/github/anandkumarkparmar/ratingbar/RatingBarStateHelpersKt {
@@ -131,58 +176,13 @@ public final class com/github/anandkumarkparmar/ratingbar/RatingBarStyleKt {
 	public static final fun style-ZUYZQmM (Lcom/github/anandkumarkparmar/ratingbar/RatingBarDefaults;FFLandroidx/compose/ui/graphics/painter/Painter;Landroidx/compose/ui/graphics/painter/Painter;Lcom/github/anandkumarkparmar/ratingbar/RatingBarColors;Landroidx/compose/runtime/Composer;II)Lcom/github/anandkumarkparmar/ratingbar/RatingBarStyle;
 }
 
-public final class com/github/anandkumarkparmar/ratingbar/core/RatingBarConfig {
-	public static final field $stable I
-	public fun <init> ()V
-	public fun <init> (IFZF)V
-	public synthetic fun <init> (IFZFILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()I
-	public final fun component2 ()F
-	public final fun component3 ()Z
-	public final fun component4 ()F
-	public final fun copy (IFZF)Lcom/github/anandkumarkparmar/ratingbar/core/RatingBarConfig;
-	public static synthetic fun copy$default (Lcom/github/anandkumarkparmar/ratingbar/core/RatingBarConfig;IFZFILjava/lang/Object;)Lcom/github/anandkumarkparmar/ratingbar/core/RatingBarConfig;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getAllowZero ()Z
-	public final fun getEffectiveMin ()F
-	public final fun getMax ()I
-	public final fun getMinValue ()F
-	public final fun getStep ()F
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-}
-
-public final class com/github/anandkumarkparmar/ratingbar/core/RatingBarState {
-	public static final field $stable I
-	public static final field Companion Lcom/github/anandkumarkparmar/ratingbar/core/RatingBarState$Companion;
-	public fun <init> (FLcom/github/anandkumarkparmar/ratingbar/core/RatingBarConfig;)V
-	public synthetic fun <init> (FLcom/github/anandkumarkparmar/ratingbar/core/RatingBarConfig;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
-	public final fun component1 ()F
-	public final fun component2 ()Lcom/github/anandkumarkparmar/ratingbar/core/RatingBarConfig;
-	public final fun copy (FLcom/github/anandkumarkparmar/ratingbar/core/RatingBarConfig;)Lcom/github/anandkumarkparmar/ratingbar/core/RatingBarState;
-	public static synthetic fun copy$default (Lcom/github/anandkumarkparmar/ratingbar/core/RatingBarState;FLcom/github/anandkumarkparmar/ratingbar/core/RatingBarConfig;ILjava/lang/Object;)Lcom/github/anandkumarkparmar/ratingbar/core/RatingBarState;
-	public fun equals (Ljava/lang/Object;)Z
-	public final fun getClampedValue ()F
-	public final fun getConfig ()Lcom/github/anandkumarkparmar/ratingbar/core/RatingBarConfig;
-	public final fun getSteppedValue ()F
-	public final fun getValue ()F
-	public fun hashCode ()I
-	public fun toString ()Ljava/lang/String;
-	public final fun withValue (F)Lcom/github/anandkumarkparmar/ratingbar/core/RatingBarState;
-}
-
-public final class com/github/anandkumarkparmar/ratingbar/core/RatingBarState$Companion {
-	public final fun fillFraction (IF)F
-	public final fun roundToStep (FF)F
-}
-
-public final class com/github/anandkumarkparmar/ratingbar/core/RatingInteractionSource : java/lang/Enum {
-	public static final field Drag Lcom/github/anandkumarkparmar/ratingbar/core/RatingInteractionSource;
-	public static final field Keyboard Lcom/github/anandkumarkparmar/ratingbar/core/RatingInteractionSource;
-	public static final field Scroll Lcom/github/anandkumarkparmar/ratingbar/core/RatingInteractionSource;
-	public static final field Tap Lcom/github/anandkumarkparmar/ratingbar/core/RatingInteractionSource;
+public final class com/github/anandkumarkparmar/ratingbar/RatingInteractionSource : java/lang/Enum {
+	public static final field Drag Lcom/github/anandkumarkparmar/ratingbar/RatingInteractionSource;
+	public static final field Keyboard Lcom/github/anandkumarkparmar/ratingbar/RatingInteractionSource;
+	public static final field Scroll Lcom/github/anandkumarkparmar/ratingbar/RatingInteractionSource;
+	public static final field Tap Lcom/github/anandkumarkparmar/ratingbar/RatingInteractionSource;
 	public static fun getEntries ()Lkotlin/enums/EnumEntries;
-	public static fun valueOf (Ljava/lang/String;)Lcom/github/anandkumarkparmar/ratingbar/core/RatingInteractionSource;
-	public static fun values ()[Lcom/github/anandkumarkparmar/ratingbar/core/RatingInteractionSource;
+	public static fun valueOf (Ljava/lang/String;)Lcom/github/anandkumarkparmar/ratingbar/RatingInteractionSource;
+	public static fun values ()[Lcom/github/anandkumarkparmar/ratingbar/RatingInteractionSource;
 }
 

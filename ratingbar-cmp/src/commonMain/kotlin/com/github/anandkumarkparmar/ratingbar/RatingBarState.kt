@@ -1,4 +1,4 @@
-package com.github.anandkumarkparmar.ratingbar.core
+package com.github.anandkumarkparmar.ratingbar
 
 import kotlin.math.roundToInt
 

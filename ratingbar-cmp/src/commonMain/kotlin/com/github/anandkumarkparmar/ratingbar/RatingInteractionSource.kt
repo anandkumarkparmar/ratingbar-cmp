@@ -1,4 +1,4 @@
-package com.github.anandkumarkparmar.ratingbar.core
+package com.github.anandkumarkparmar.ratingbar
 
 /**
  * Identifies the input method that triggered a rating value change.

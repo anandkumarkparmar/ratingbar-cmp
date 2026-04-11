@@ -196,8 +196,8 @@ If your PR changes user-facing behavior, include in the PR description:
 
 ## Related Documentation
 
-- [API Reference](api-reference.md)
-- [Running Samples](running-samples.md)
-- [CI Guide](ci-guide.md)
-- [Publishing Checklist](publishing-checklist.md)
-- [Code of Conduct](code-of-conduct.md)
+- [API Reference](docs/api-reference.md)
+- [Running Samples](docs/running-samples.md)
+- [CI Guide](docs/ci-guide.md)
+- [Publishing Checklist](docs/publishing-checklist.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
