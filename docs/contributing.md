@@ -21,7 +21,7 @@ Thanks for your interest in contributing to **ratingbar-cmp**. This guide covers
 ```bash
 git clone https://github.com/anandkumarkparmar/ratingbar-cmp.git
 cd ratingbar-cmp
-./gradlew build
+./gradlew :ratingbar-cmp:build
 ```
 
 ---
@@ -29,21 +29,28 @@ cd ratingbar-cmp
 ## Project Structure
 
 ```
-ratingbar-cmp/
-├── src/
-│   ├── commonMain/         # Shared Kotlin/Compose code (all platforms) — library source
-│   └── commonTest/         # Shared unit tests
-├── api/                    # Binary compatibility baseline
-├── samples/                # Standalone Gradle composite build (includeBuild(".."))
-│   ├── common/             # Shared sample UI (SampleApp)
-│   ├── android/            # Android launcher
-│   ├── desktop/            # Desktop launcher
-│   ├── ios/                # iOS Compose framework
-│   ├── ios-app-host/       # Xcode project for iOS app
-│   └── web/                # Web/JS launcher
-├── scripts/                # CI and release scripts
-├── docs/                   # Documentation
-└── .github/                # Workflows, templates, badges
+ratingbar-cmp/                 # repo root (Gradle root project: ratingbar-cmp-parent)
+├── ratingbar-cmp/             # :ratingbar-cmp — library subproject
+│   ├── src/
+│   │   ├── commonMain/        # Shared Kotlin/Compose code (all platforms)
+│   │   └── commonTest/        # Shared unit tests
+│   ├── api/                   # Binary compatibility baseline
+│   └── build.gradle.kts       # Library build + publishing metadata
+├── samples/                   # Flat sample subprojects (single Gradle build with root)
+│   ├── common/                # :samples:common — shared sample UI (SampleApp)
+│   ├── android/               # :samples:android — Android launcher
+│   ├── desktop/               # :samples:desktop — Desktop launcher
+│   ├── ios/                   # :samples:ios — iOS Compose framework
+│   ├── ios-app-host/          # Xcode project for iOS app (not a Gradle module)
+│   └── web/                   # :samples:web — Web/JS launcher
+├── scripts/                   # CI and release scripts
+├── docs/                      # Documentation
+├── gradle/                    # Version catalog (libs.versions.toml) + wrapper
+├── gradle.properties          # Shared across all modules
+├── detekt.yml                 # Shared detekt config for library + samples
+├── settings.gradle.kts        # Declares :ratingbar-cmp and :samples:* subprojects
+├── build.gradle.kts           # Root aggregator: shared plugin config
+└── .github/                   # Workflows, templates, badges
 ```
 
 ### Architecture
@@ -113,23 +120,23 @@ Using this library in your app? Open an issue titled **"Shoutout: \<Your App Nam
 ### All platforms (except iOS)
 
 ```bash
-./gradlew build -x iosX64Test -x iosArm64Test -x iosSimulatorArm64Test
+./gradlew :ratingbar-cmp:build -x :ratingbar-cmp:iosX64Test -x :ratingbar-cmp:iosArm64Test -x :ratingbar-cmp:iosSimulatorArm64Test
 ```
 
 ### Per platform
 
 ```bash
 # Desktop (includes commonTest)
-./gradlew desktopTest
+./gradlew :ratingbar-cmp:desktopTest
 
 # Android unit tests
-./gradlew assembleUnitTest
+./gradlew :ratingbar-cmp:assembleUnitTest
 
 # Web/JS
-./gradlew jsTest
+./gradlew :ratingbar-cmp:jsTest
 
 # iOS (requires macOS + Xcode)
-./gradlew iosSimulatorArm64Test
+./gradlew :ratingbar-cmp:iosSimulatorArm64Test
 ```
 
 ---
@@ -139,7 +146,7 @@ Using this library in your app? Open an issue titled **"Shoutout: \<Your App Nam
 Before opening a PR, run the full compile check:
 
 ```bash
-./gradlew build
+./gradlew :ratingbar-cmp:build
 ./gradlew -p samples :desktop:compileKotlinDesktop :android:assembleDebug :web:compileKotlinJs
 ```
 

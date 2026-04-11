@@ -50,9 +50,18 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
-import com.github.anandkumarkparmar.ratingbar.*
+import com.github.anandkumarkparmar.ratingbar.RatingBar
+import com.github.anandkumarkparmar.ratingbar.RatingBarDefaults
+import com.github.anandkumarkparmar.ratingbar.RatingBarIcons
+import com.github.anandkumarkparmar.ratingbar.RatingBarPlaceholder
+import com.github.anandkumarkparmar.ratingbar.animations
+import com.github.anandkumarkparmar.ratingbar.behavior
+import com.github.anandkumarkparmar.ratingbar.colors
 import com.github.anandkumarkparmar.ratingbar.core.RatingBarConfig
 import com.github.anandkumarkparmar.ratingbar.core.RatingInteractionSource
+import com.github.anandkumarkparmar.ratingbar.rememberRatingBarState
+import com.github.anandkumarkparmar.ratingbar.rememberSaveableRatingBarState
+import com.github.anandkumarkparmar.ratingbar.style
 
 private enum class SampleTab { Standard, Behaviour, Playground }
 private enum class Platform { All, Desktop, Android }
@@ -390,6 +399,11 @@ private fun HeroCard() {
 
 // ── Tab 2: Behaviour ──────────────────────────────────────────────────────────
 
+// Long, flat method is intentional: this is a demo screen with many independent
+// feature sections, each paired with its own state. Splitting into sub-composables
+// would obscure the 1:1 mapping between a feature and its demonstration, which is
+// the whole point of the behaviour tab.
+@Suppress("LongMethod")
 @Composable
 private fun BehaviourScreen() {
     // Animation

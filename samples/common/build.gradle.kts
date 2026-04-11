@@ -16,7 +16,7 @@ kotlin {
         }
     }
     jvm("desktop")
-    
+
     listOf(
         iosX64(),
         iosArm64(),
@@ -27,18 +27,16 @@ kotlin {
             isStatic = false
         }
     }
-    
+
     js(IR) {
         browser()
         binaries.executable()
     }
-    
-    val ratingbarVersion = project.findProperty("ratingbarVersion") as? String ?: "0.3.0"
 
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation("com.github.anandkumarkparmar.ratingbar-cmp:ratingbar-cmp:$ratingbarVersion")
+                implementation(project(":ratingbar-cmp"))
                 implementation(libs.compose.mpp.runtime)
                 implementation(libs.compose.mpp.foundation)
                 implementation(libs.compose.mpp.ui)

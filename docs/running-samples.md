@@ -2,7 +2,7 @@
 
 This guide explains how to build and run the sample apps for each platform.
 
-All platform launchers host the same shared `SampleApp()` implementation from `samples:common`.
+All platform launchers host the same shared `SampleApp()` implementation from `:samples:common`, which depends on the local `:ratingbar-cmp` library module via a direct `project()` dependency.
 
 ---
 
@@ -20,7 +20,7 @@ All platform launchers host the same shared `SampleApp()` implementation from `s
 ## Android
 
 ```bash
-./gradlew -p samples :android:installDebug
+./gradlew :samples:android:installDebug
 ```
 
 This builds and installs the debug APK on a connected device or running emulator. Ensure `adb` is available and a device is connected.
@@ -30,7 +30,7 @@ This builds and installs the debug APK on a connected device or running emulator
 ## Desktop (JVM)
 
 ```bash
-./gradlew -p samples :desktop:run
+./gradlew :samples:desktop:run
 ```
 
 Launches the desktop application window directly from Gradle.
@@ -45,7 +45,7 @@ iOS requires macOS with Xcode installed.
 
 1. Build the shared Compose framework:
    ```bash
-   ./gradlew -p samples :ios:linkDebugFrameworkIosSimulatorArm64
+   ./gradlew :samples:ios:linkDebugFrameworkIosSimulatorArm64
    ```
 2. Open the Xcode project:
    ```
@@ -59,7 +59,7 @@ iOS requires macOS with Xcode installed.
 If you only need to verify the Compose framework compiles without opening Xcode:
 
 ```bash
-./gradlew -p samples :ios:linkDebugFrameworkIosSimulatorArm64
+./gradlew :samples:ios:linkDebugFrameworkIosSimulatorArm64
 ```
 
 ---
@@ -67,7 +67,7 @@ If you only need to verify the Compose framework compiles without opening Xcode:
 ## Web
 
 ```bash
-./gradlew -p samples :web:jsBrowserDevelopmentRun
+./gradlew :samples:web:jsBrowserDevelopmentRun
 ```
 
 Starts a local development server. Open the printed URL in your browser (typically `http://localhost:8080`).
@@ -81,19 +81,6 @@ The sample app contains three tabs:
 - **Standard** — Default star rating patterns including half-step increments, a read-only display, RTL layout, and a custom slot example with dot items
 - **Playground** — Live interactive customization panel with real-time sliders and toggles for all key parameters
 - **Behaviors** — Individual feature toggle demos (hover preview, scroll input, haptic feedback, animations, constraints) with explanatory notes
-
----
-
-## Testing Against the Published JitPack Artifact
-
-By default, `samples/` resolve the library from the local source via composite build substitution. To instead resolve from JitPack (e.g., to verify the published artifact works correctly), pass `useLocalLibrary=false`:
-
-```bash
-./gradlew -p samples :desktop:compileKotlinDesktop -PuseLocalLibrary=false
-./gradlew -p samples :android:assembleDebug -PuseLocalLibrary=false
-```
-
-Or set it permanently for a session by adding `useLocalLibrary=false` to `samples/gradle.properties`.
 
 ---
 

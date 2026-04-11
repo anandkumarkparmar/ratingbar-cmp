@@ -1,4 +1,4 @@
-rootProject.name = "ratingbar-cmp"
+rootProject.name = "ratingbar-cmp-parent"
 
 pluginManagement {
     repositories {
@@ -16,3 +16,13 @@ dependencyResolutionManagement {
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
     }
 }
+
+// Library module
+include(":ratingbar-cmp")
+
+// Sample modules (flattened from former composite build)
+include(":samples:common")
+include(":samples:android")
+include(":samples:desktop")
+include(":samples:ios")
+include(":samples:web")

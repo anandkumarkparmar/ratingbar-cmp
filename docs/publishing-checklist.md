@@ -21,7 +21,7 @@ Use this checklist whenever you cut a new public release from `main`. Each step 
 Run the full build to catch regressions:
 
 ```bash
-./gradlew clean build --stacktrace
+./gradlew :ratingbar-cmp:clean :ratingbar-cmp:build --stacktrace
 ```
 
 Exercise the samples if your change affects a specific platform:
@@ -36,13 +36,13 @@ Exercise the samples if your change affects a specific platform:
 Run the JitPack publication dry-run:
 
 ```bash
-./gradlew publishToMavenLocal --stacktrace
+./gradlew :ratingbar-cmp:publishToMavenLocal --stacktrace
 ```
 
 Build the Android release artifact:
 
 ```bash
-./gradlew bundleAndroidMainAar --stacktrace
+./gradlew :ratingbar-cmp:bundleAndroidMainAar --stacktrace
 ```
 
 Alternatively, use the release-check script for a comprehensive pre-release validation:
