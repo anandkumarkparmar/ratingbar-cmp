@@ -288,6 +288,7 @@ private fun StandardScreen() {
         SampleCard("Custom Slot — Emoji") {
             var emojiRating by rememberRatingBarState(3f)
             val emojis = listOf("😞", "😕", "😐", "🙂", "😄")
+            val emojiFontFamily = rememberEmojiFontFamily()
             RatingBar(
                 value = emojiRating,
                 onValueChange = { emojiRating = it },
@@ -307,6 +308,7 @@ private fun StandardScreen() {
                         Text(
                             text = emojis[index],
                             style = MaterialTheme.typography.titleMedium,
+                            fontFamily = emojiFontFamily,
                         )
                     }
                 },
