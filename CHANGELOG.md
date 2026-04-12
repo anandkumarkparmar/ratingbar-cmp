@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ---
 
+## [1.0.0] - 2026-04-12
+
+First stable release. The public API is now considered stable — breaking changes will follow Semantic Versioning (major version bumps only). No functional changes from 0.5.0; this release promotes the library to stable status.
+
+### Changed
+
+- Updated release workflow tag validation to accept any semver tag (`x.y.z`), not just `0.x.y`.
+- Updated all documentation to reflect stable versioning conventions.
+
+---
+
 ## [0.5.0] - 2026-04-11
 
 Internal restructure release in preparation for 1.0.0. The Maven coordinate is unchanged — consumers update one import line and bump the version.
@@ -159,6 +170,7 @@ Initial release — a fractional, state-hoisted `RatingBar` composable with full
 
 ---
 
+[1.0.0]: https://github.com/anandkumarkparmar/ratingbar-cmp/compare/0.5.0...1.0.0
 [0.5.0]: https://github.com/anandkumarkparmar/ratingbar-cmp/compare/0.4.0...0.5.0
 [0.4.0]: https://github.com/anandkumarkparmar/ratingbar-cmp/compare/0.3.0...0.4.0
 [0.3.0]: https://github.com/anandkumarkparmar/ratingbar-cmp/compare/v0.2.0...0.3.0

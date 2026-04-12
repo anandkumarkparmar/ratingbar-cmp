@@ -181,7 +181,7 @@ Same scope as `ready-to-merge`. Use this if you need a full build without labeli
 
 ## Release Workflow
 
-The release workflow (`release.yml`) is triggered by pushing a tag matching `^0\.[0-9]+\.[0-9]+$` (no `v` prefix). See [PUBLISHING_CHECKLIST.md](PUBLISHING_CHECKLIST.md) for the full end-to-end process.
+The release workflow (`release.yml`) is triggered by pushing a tag matching `^[0-9]+\.[0-9]+\.[0-9]+$` (no `v` prefix). See [PUBLISHING_CHECKLIST.md](PUBLISHING_CHECKLIST.md) for the full end-to-end process.
 
 ### Summary
 

@@ -10,8 +10,8 @@ For what's already shipped, see [CHANGELOG.md](../CHANGELOG.md).
 
 ## Current State
 
-- Current release: **0.5.0** — see the [0.5.0 changelog entry](../CHANGELOG.md#050---2026-04-11) for what's in the latest version.
-- Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html). During the `0.x` series, breaking changes bump the minor version.
+- Current release: **1.0.0** — see the [1.0.0 changelog entry](../CHANGELOG.md#100---2026-04-12) for what's in the latest version.
+- Versioning: [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Breaking changes bump the major version.
 - The public API is tracked via the [Binary Compatibility Validator](https://github.com/Kotlin/binary-compatibility-validator) — any intentional API change requires regenerating the baseline.
 
 ---
