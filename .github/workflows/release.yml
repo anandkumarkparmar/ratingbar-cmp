@@ -112,28 +112,12 @@ jobs:
           {
             echo "# ratingbar-cmp ${VERSION}"
             echo
-            echo "Release prepared for JitPack."
-            echo
-            echo "## Lightweight Size Snapshot"
+            echo "## Size Snapshot"
             echo "- Android AAR: ${ANDROID_AAR_BYTES} bytes (${ANDROID_AAR_KB} KB)"
             echo "- Desktop published: ${DESKTOP_PUBLISHED_BYTES} bytes (${DESKTOP_PUBLISHED_KB} KB)"
             echo "- iOS published: ${IOS_PUBLISHED_BYTES} bytes (${IOS_PUBLISHED_KB} KB)"
             echo "- Web published: ${WEB_PUBLISHED_BYTES} bytes (${WEB_PUBLISHED_KB} KB)"
             echo "- Total published artifacts: ${TOTAL_PUBLISHED_BYTES} bytes (${TOTAL_PUBLISHED_KB} KB)"
-            echo
-            echo "## Dependency"
-            echo '```kotlin'
-            echo 'repositories {'
-            echo '    maven("https://jitpack.io")'
-            echo '}'
-            echo
-            echo 'dependencies {'
-            echo "    implementation(\"com.github.anandkumarkparmar:ratingbar-cmp:${VERSION}\")"
-            echo '}'
-            echo '```'
-            echo
-            echo "## Commit Range"
-            git log --oneline -n 20
           } > release_notes.md
 
       - name: Upload release notes
@@ -172,7 +156,7 @@ jobs:
         uses: gradle/actions/setup-gradle@v6
 
       - name: Generate Dokka HTML
-        run: ./gradlew :ratingbar-cmp:dokkaHtml --no-daemon --stacktrace
+        run: ./gradlew :ratingbar-cmp:dokkaGenerateHtml --no-daemon --stacktrace
         env:
           GRADLE_OPTS: "-Xmx4g -XX:MaxMetaspaceSize=512m"
 
