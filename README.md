@@ -86,14 +86,7 @@ fun RatingExample() {
 }
 ```
 
-For all parameters, overloads, and advanced usage see the [API Reference](docs/api-reference.md) or browse the [live API docs](https://anandkumarkparmar.github.io/ratingbar-cmp/).
-
-> **Migrating from v0.4.0?** The `com.github.anandkumarkparmar.ratingbar.core` subpackage has been
-> flattened into `com.github.anandkumarkparmar.ratingbar` — drop `.core` from any imports
-> of `RatingBarConfig`, `RatingBarState`, or `RatingInteractionSource`. No signature changes,
-> no behavior changes; the Maven coordinate is unchanged. See the [CHANGELOG](CHANGELOG.md)
-> for the full 0.5.0 change list, and the [API Reference](docs/api-reference.md) for the
-> 0.3.0 → 0.4.0 migration notes (still valid for 0.x consumers).
+For all parameters and type signatures, browse the [live API docs](https://anandkumarkparmar.github.io/ratingbar-cmp/) — they're auto-generated from KDoc on every release. For common usage patterns with code snippets, see [Usage Examples](docs/USAGE.md). To try the library interactively without installing anything, open the [live web demo](https://anandkumarkparmar.github.io/ratingbar-cmp/demo/).
 
 ---
 
@@ -124,7 +117,7 @@ For all parameters, overloads, and advanced usage see the [API Reference](docs/a
 
 ## What's Coming
 
-A glimpse of what's planned for future releases. See the [full roadmap](docs/roadmap.md) for details.
+A glimpse of what's planned for future releases. See the [full roadmap](docs/ROADMAP.md) for details.
 
 | Feature | Status |
 |---|---|
@@ -133,18 +126,18 @@ A glimpse of what's planned for future releases. See the [full roadmap](docs/roa
 | Badge mode (★ 4.5) | Planned |
 | Kotlin/Wasm target | Planned |
 
-See the [full roadmap](docs/roadmap.md) for everything delivered and everything still planned.
-
 ---
 
 ## Documentation
 
-- [API Reference](docs/api-reference.md)
-- [Running Samples](docs/running-samples.md)
+- [Setup Guide](SETUP.md) — install prerequisites, clone, run the samples
+- [Usage Examples](docs/USAGE.md) — common patterns with code snippets
+- [Live API Docs](https://anandkumarkparmar.github.io/ratingbar-cmp/) — auto-generated reference for every type
+- [Live Web Demo](https://anandkumarkparmar.github.io/ratingbar-cmp/demo/) — try it interactively in a browser
 - [Contributing](CONTRIBUTING.md)
-- [Roadmap](docs/roadmap.md)
+- [Roadmap](docs/ROADMAP.md)
 - [Changelog](CHANGELOG.md)
-- [Publishing Checklist](docs/publishing-checklist.md)
+- [Publishing Checklist](docs/PUBLISHING_CHECKLIST.md)
 - [CI/CD Guide](docs/ci-guide.md)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 

@@ -61,17 +61,24 @@ import kotlinx.coroutines.delay
  *
  * @param value The current rating value. Clamped to `[effectiveMin, max]` and snapped to step.
  * @param onValueChange Callback invoked when the rating value changes. Receives the stepped value.
+ *   Also invoked programmatically when [config]`.effectiveMin` rises above the current [value]
+ *   — callers should update their state in response. See the `effectiveMin` sync note below.
  * @param modifier Modifier applied to the outermost element (outer Row when slots are present,
  *   inner bar Row otherwise).
  * @param onValueChangeFinished Optional callback invoked once when a tap or drag gesture ends.
  * @param readOnly If `true`, all interaction is disabled.
  * @param itemSpacing Spacing between adjacent items.
- * @param config Rating configuration: max, step, allowZero, minValue.
+ * @param config Rating configuration: max, step, allowZero, minValue. **Note:** when
+ *   `config.effectiveMin` changes and the current [value] is below the new minimum, the bar
+ *   fires [onValueChange] with the new `effectiveMin` and renders the clamped value visually.
+ *   Callers that ignore this callback will see a divergence between their hoisted state and the
+ *   displayed rating until the next user interaction corrects it.
  * @param animations Animation configuration: enabled, spec, animateScale, reducedMotion.
  * @param behavior Platform and interaction flags: hover, scroll, haptic, long-press reset.
  * @param itemLabels Optional per-item semantic labels (e.g., "Terrible", "Bad", "Okay", "Good",
  *   "Excellent"). When provided, the bar's `stateDescription` includes the active label.
- *   Must have at least [RatingBarConfig.max] entries to be used; shorter lists are ignored.
+ *   Must have at least [RatingBarConfig.max] entries; throws [IllegalArgumentException] if
+ *   non-null and shorter.
  * @param onHoverValueChange Optional callback for hover preview position changes.
  * @param leadingContent Optional composable rendered before the bar.
  * @param trailingContent Optional composable rendered after the bar.
@@ -97,10 +104,17 @@ public fun RatingBar(
     onInteraction: ((RatingInteractionSource) -> Unit)? = null,
     itemContent: @Composable (index: Int, fillFraction: Float) -> Unit,
 ) {
+    require(itemLabels == null || itemLabels.size >= config.max) {
+        "itemLabels must have at least config.max (${config.max}) entries, got ${itemLabels?.size}"
+    }
+
     val state = remember(value, config) { RatingBarState(value = value, config = config) }
     val displayValue = state.steppedValue.coerceAtLeast(config.effectiveMin)
 
-    // Sync parent hoisted state when effectiveMin rises above the current value
+    // Sync parent hoisted state when effectiveMin rises above the current value.
+    // Contract: when effectiveMin exceeds the caller's value, we fire onValueChange with the
+    // new minimum. The caller is expected to update their hoisted state in response; if they
+    // don't, the bar renders the clamped value but the caller's state remains stale.
     LaunchedEffect(config.effectiveMin) {
         if (value < config.effectiveMin) onValueChange(config.effectiveMin)
     }
@@ -332,7 +346,8 @@ public fun RatingBar(
  * @param animations Animation configuration: enabled, spec, animateScale, reducedMotion.
  * @param behavior Platform and interaction flags: hover, scroll, haptic, long-press reset.
  * @param itemLabels Optional per-item semantic labels. Used in the bar's `stateDescription`
- *   and as each star's `contentDescription`. Must have at least [RatingBarConfig.max] entries.
+ *   and as each star's `contentDescription`. Must have at least [RatingBarConfig.max] entries;
+ *   throws [IllegalArgumentException] if non-null and shorter.
  * @param leadingContent Optional composable rendered before the bar.
  * @param trailingContent Optional composable rendered after the bar.
  * @param onInteraction Optional callback fired on each interaction, indicating source type.

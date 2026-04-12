@@ -13,7 +13,7 @@ plugins {
 // shared config at the repo root (`detekt.yml`). No per-module configuration here.
 
 group = "com.github.anandkumarkparmar"
-version = "0.5.0"
+version = property("libraryVersion") as String
 
 kotlin {
     explicitApi()
