@@ -1,115 +1,87 @@
-# CLAUDE.md
-
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
 ## Project Overview
 
-`ratingbar-cmp` is a Kotlin Multiplatform Compose library providing a `RatingBar` composable for Android, Desktop (JVM), iOS, and Web (JS/IR). All library logic lives in `commonMain` — there are no platform-specific source sets in the library module.
+`ratingbar-cmp` is a Kotlin Multiplatform Compose library providing a `RatingBar` composable for Android, Desktop (JVM), iOS, and Web (JS/IR). All library logic lives in `commonMain` — there are no platform-specific source sets in the library module. Platform behavior (hover, scroll, haptics) is gated via Compose APIs, not `expect`/`actual`.
 
 ## Build & Test Commands
 
 All library tasks are scoped to the `:ratingbar-cmp` subproject.
 
 ```bash
-# Full library build (all platforms)
-./gradlew :ratingbar-cmp:build
+# Compile + test all non-iOS targets (fastest cross-platform validation)
+./gradlew :ratingbar-cmp:compileAndroidMain :ratingbar-cmp:desktopTest :ratingbar-cmp:jsTest
 
-# Platform-specific compilation
-./gradlew :ratingbar-cmp:compileAndroidMain
-./gradlew :ratingbar-cmp:compileKotlinDesktop
-./gradlew :ratingbar-cmp:compileKotlinJs
+# Platform-specific
+./gradlew :ratingbar-cmp:desktopTest          # Runs all commonTest on desktop JVM
+./gradlew :ratingbar-cmp:jsTest               # JS tests
+./gradlew :ratingbar-cmp:assembleUnitTest     # Android compile check (no runtime tests — AGP 9.x)
+./gradlew :ratingbar-cmp:iosSimulatorArm64Test # iOS (requires macOS + Xcode)
 
-# Run tests (all shared tests run on desktop JVM)
-./gradlew :ratingbar-cmp:desktopTest
-./gradlew :ratingbar-cmp:jsTest
-./gradlew :ratingbar-cmp:assembleUnitTest   # Android compile check (no runtime tests)
-
-# Lint & API compatibility
-./gradlew :ratingbar-cmp:detekt
-./gradlew :ratingbar-cmp:apiCheck
-./gradlew :ratingbar-cmp:apiDump            # update .api golden after public API changes
+# Quality gates
+./gradlew :ratingbar-cmp:detekt               # Static analysis (maxIssues: 0)
+./gradlew :ratingbar-cmp:apiCheck             # Binary compatibility check
+./gradlew :ratingbar-cmp:apiDump              # Regenerate .api golden after public API changes
 
 # Build artifacts
 ./gradlew :ratingbar-cmp:bundleAndroidMainAar
 ./gradlew :ratingbar-cmp:desktopJar
 ./gradlew :ratingbar-cmp:publishToMavenLocal
 
-# Pre-release validation
+# Pre-release validation (comprehensive — wraps all the above)
 ./scripts/release-check.sh
-./scripts/release-check.sh --skip-ios        # On non-macOS machines
+./scripts/release-check.sh --skip-ios         # On non-macOS machines
 ./scripts/release-check.sh --skip-samples
 ```
+
+**Do NOT use** `./gradlew :ratingbar-cmp:build` — it includes iOS link tasks that fail on non-macOS and is slower than targeted commands.
 
 ## Running Sample Apps
 
 ```bash
-./gradlew :samples:desktop:run
-./gradlew :samples:android:installDebug
-./gradlew :samples:web:jsBrowserDevelopmentRun   # Dev server at http://localhost:8080
+./gradlew :samples:desktop:run                       # Desktop window
+./gradlew :samples:android:installDebug              # Android APK on connected device
+./gradlew :samples:web:jsBrowserDevelopmentRun       # Dev server at http://localhost:8080
 ```
 
-iOS sample requires Xcode — open `samples/ios-app-host/sample-ratingbar-cmp/sample-ratingbar-cmp.xcodeproj`.
+iOS: build the framework with `./gradlew :samples:ios:linkDebugFrameworkIosSimulatorArm64`, then open `samples/ios-app-host/sample-ratingbar-cmp/sample-ratingbar-cmp.xcodeproj` in Xcode and Run.
 
 ## Architecture
 
 ### Module Layout
-- **Root project** — `ratingbar-cmp-parent`, a pure aggregator hosting repo-level files (docs, scripts, workflows, LICENSE) and a minimal `build.gradle.kts` for shared quality plugins.
-- **`:ratingbar-cmp`** (folder `ratingbar-cmp/`) — the KMP library subproject. All library source, tests, API golden file, and publishing config live here. This is the module JitPack publishes under coordinate `com.github.anandkumarkparmar.ratingbar-cmp:ratingbar-cmp:<version>`.
-- **`:samples:common`** (folder `samples/common/`) — Shared sample UI composable used by all platform launchers. Declares `implementation(project(":ratingbar-cmp"))` directly.
-- **`:samples:{android,desktop,ios,web}`** — Thin platform launchers depending on `:samples:common` and `:ratingbar-cmp`.
-- **`samples/ios-app-host/`** — Xcode project wrapping the iOS Kotlin/Native framework (not a Gradle module).
 
-All modules live in a **single Gradle build**. Samples are no longer a composite build — they're flat subprojects alongside `:ratingbar-cmp`. There is one `gradlew` wrapper (at repo root), one `gradle.properties`, and one `gradle/libs.versions.toml` shared across all modules.
+- **Root project** (`ratingbar-cmp-parent`) — pure aggregator; hosts repo-level files and applies shared detekt config to all subprojects.
+- **`:ratingbar-cmp`** — the publishable KMP library. All source, tests, API golden file, and publishing config.
+- **`:samples:common`** — shared `SampleApp()` composable. Declares `implementation(project(":ratingbar-cmp"))` — this is the **only** module that depends on the library directly.
+- **`:samples:{android,desktop,ios,web}`** — thin platform launchers depending only on `:samples:common` (plus platform-specific runtime deps like `compose.desktop.currentOs` or `compose.mpp.html.core`).
+- **`samples/ios-app-host/`** — Xcode project wrapping the Kotlin/Native framework (not a Gradle module).
 
-### Library Source Structure (`ratingbar-cmp/src/commonMain/kotlin/com/github/anandkumarkparmar/ratingbar/`)
-- `RatingBar.kt` — Public composables and gesture/interaction logic
-- `RatingBarState.kt` — `RatingBarConfig` and `RatingBarState` (immutable value type, ViewModel-friendly)
-- `RatingInteractionSource.kt` — `RatingInteractionSource` enum (Tap, Drag, Keyboard, Scroll)
-- `RatingBarDefaults.kt` — Size/spacing/animation/shimmer presets
-- `RatingBarColors.kt` — `RatingBarColors` + `RatingBarDefaults.colors()` factory
-- `RatingBarStyle.kt` — `RatingBarStyle` + `RatingBarDefaults.style()` factory
-- `RatingBarAnimations.kt` — `RatingBarAnimations` + `RatingBarDefaults.animations()` factory
-- `RatingBarBehavior.kt` — `RatingBarBehavior` + `RatingBarDefaults.behavior()` factory
-- `RatingBarIcons.kt` — Built-in vector painters: Star, Heart, ThumbUp, Circle (filled + outline)
-- `RatingBarPlaceholder.kt` — Shimmer loading skeleton composable
-- `FractionalClipShape.kt` — Clip shape for partial star fills
-- `RatingBarStateHelpers.kt` — `rememberRatingBarState()` and `rememberSaveableRatingBarState()`
+Single Gradle build, one `gradlew` wrapper, one `gradle.properties`, one `gradle/libs.versions.toml`.
 
-### Tests (`ratingbar-cmp/src/commonTest/kotlin/com/github/anandkumarkparmar/ratingbar/`)
-- `RatingBarStateTest.kt`, `RatingBarInteractionTest.kt`, `FractionalClipShapeTest.kt`, `RatingBarPlaceholderTest.kt`
-- Run on desktop JVM via `:ratingbar-cmp:desktopTest`; no Compose UI tests (pure logic)
+### Library Source
 
-## AGP 9.x / Build System Notes
+All library code is in one flat package: `ratingbar-cmp/src/commonMain/kotlin/com/github/anandkumarkparmar/ratingbar/`. No subpackages. Tests are pure logic in `commonTest`, run on desktop JVM via `desktopTest`.
 
-- **AGP plugin**: `com.android.kotlin.multiplatform.library` — do NOT add `kotlin-android`
+## AGP 9.x Notes
+
+- **Plugin**: `com.android.kotlin.multiplatform.library` — do NOT add `kotlin-android`
 - **No `testDebugUnitTest`** — use `assembleUnitTest` (compile check) and `desktopTest` (runtime)
 - **Android compile task**: `compileAndroidMain` (not `compileDebugKotlinAndroid`)
 - **AAR task**: `bundleAndroidMainAar` (not `assembleRelease`)
-- **JVM target 17** — configured via `kotlin { compilerOptions { jvmTarget = JvmTarget.JVM_17 } }`
+- **JVM target 17**
 
 ## Key Configuration
 
-- `gradle/libs.versions.toml` — All dependency versions (repo root, shared with samples composite)
-- `gradle.properties` — `org.gradle.jvmargs=-Xmx8192m` and `workers.max=2` are required to prevent OOM during iOS Kotlin/Native linking
-- `ratingbar-cmp/detekt.yml` — Zero-tolerance linting (`maxIssues: 0`); Compose wildcard imports are excluded
-- `ratingbar-cmp/build.gradle.kts` — library build config, version, publishing metadata
+- `gradle.properties` — `libraryVersion=0.5.0` is the **single source of truth** for the published version. `build.gradle.kts` reads it via `property("libraryVersion")`. Also sets `-Xmx8192m` and `workers.max=2` (required for iOS Kotlin/Native linking).
+- `gradle/libs.versions.toml` — all dependency versions
+- `detekt.yml` (repo root) — zero-tolerance linting (`maxIssues: 0`); applied to all subprojects from root `build.gradle.kts`
 - `ratingbar-cmp/api/desktop/ratingbar-cmp.api` — binary-compatibility-validator golden file
-- `settings.gradle.kts` (repo root) — `rootProject.name = "ratingbar-cmp-parent"`, `include(":ratingbar-cmp")`
-- Binary Compatibility Validator is applied to `:ratingbar-cmp`; run `./gradlew :ratingbar-cmp:apiDump` to update the `.api` file after public API changes
-- Samples consume the library via direct `implementation(project(":ratingbar-cmp"))` — changes to library code are immediately visible to samples with no republishing step. The old `useLocalLibrary` property and composite-build substitution have been removed.
+- `settings.gradle.kts` — declares `:ratingbar-cmp` and all `:samples:*` subprojects
 
-## JitPack Coordinate Invariant
+## JitPack Coordinate
 
-The publishing coordinate `com.github.anandkumarkparmar.ratingbar-cmp:ratingbar-cmp:<version>` **must not change**. It depends on three things staying stable:
-1. GitHub repo name `ratingbar-cmp` (drives the group)
-2. Gradle subproject name `:ratingbar-cmp` (drives the artifact ID)
-3. `maven-publish` plugin applied to the `:ratingbar-cmp` subproject (not the root)
+`com.github.anandkumarkparmar.ratingbar-cmp:ratingbar-cmp:<version>` — depends on: GitHub repo name `ratingbar-cmp`, Gradle subproject name `:ratingbar-cmp`, `maven-publish` plugin on that subproject. Do not change any of these.
 
-The root project is named `ratingbar-cmp-parent` — this is internal Gradle naming only; JitPack never sees it.
+## Release Conventions
 
-## Platform-Specific Behavior (all implemented in `commonMain`)
-
-- Hover preview: Desktop/Web only
-- Scroll wheel input: Desktop only
-- Haptic feedback: Android only (conditional via `expect/actual`-free platform checks via Compose APIs)
-- Keyboard input (arrows, digits, Home/End): All platforms
+- **Tag format**: `0.x.y` (no `v` prefix). Enforced by `release.yml` regex `^0\.[0-9]+\.[0-9]+$`.
+- **Version bump**: edit `libraryVersion` in `gradle.properties`, update `README.md` install snippet and `CHANGELOG.md`.
+- **Full process**: see `docs/PUBLISHING_CHECKLIST.md`.

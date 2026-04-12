@@ -33,12 +33,6 @@ android {
 }
 
 dependencies {
-    implementation(project(":ratingbar-cmp"))
     implementation(project(":samples:common"))
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
-    implementation(libs.compose.ui)
-    implementation(libs.compose.ui.tooling.preview)
-    implementation(libs.compose.material3)
 }

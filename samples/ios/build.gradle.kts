@@ -20,12 +20,7 @@ kotlin {
         val iosMain by creating {
             dependsOn(commonMain.get())
             dependencies {
-                implementation(project(":ratingbar-cmp"))
                 implementation(project(":samples:common"))
-                implementation(libs.compose.mpp.runtime)
-                implementation(libs.compose.mpp.foundation)
-                implementation(libs.compose.mpp.material3)
-                implementation(libs.compose.mpp.ui)
             }
         }
 

@@ -17,11 +17,9 @@ kotlin {
     sourceSets {
         val jsMain by getting {
             dependencies {
-                implementation(project(":ratingbar-cmp"))
                 implementation(project(":samples:common"))
                 implementation(libs.compose.mpp.html.core)
-                implementation(libs.compose.mpp.runtime)
-                implementation(libs.compose.mpp.material3)
+                implementation(libs.compose.mpp.ui)
             }
         }
     }

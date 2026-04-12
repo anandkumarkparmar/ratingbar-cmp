@@ -10,10 +10,8 @@ kotlin {
     sourceSets {
         val desktopMain by getting {
             dependencies {
-                implementation(project(":ratingbar-cmp"))
                 implementation(project(":samples:common"))
                 implementation(compose.desktop.currentOs)
-                implementation(libs.compose.mpp.material3)
             }
         }
     }
