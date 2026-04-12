@@ -124,6 +124,6 @@ For what's already shipped, see [CHANGELOG.md](../CHANGELOG.md).
 Found something missing? Have a use case the library doesn't cover?
 
 - Open a [GitHub Discussion](https://github.com/anandkumarkparmar/ratingbar-cmp/discussions) to talk through the idea first — best for early-stage or exploratory proposals.
-- Or file a [Feature Request issue](https://github.com/anandkumarkparmar/ratingbar-cmp/issues/new?template=feature_request.md) if the shape of the feature is already clear.
+- Or file a [Feature Request issue](https://github.com/anandkumarkparmar/ratingbar-cmp/issues/new?template=FEATURE_REQUEST.md) if the shape of the feature is already clear.
 
 See [CONTRIBUTING.md](../CONTRIBUTING.md) for the full contribution workflow once you're ready to implement something.

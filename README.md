@@ -34,6 +34,8 @@ A lightweight, accessible, Compose Multiplatform RatingBar component for Android
   </tr>
 </table>
 
+iOS and Web are fully supported too — try the [live web demo](https://anandkumarkparmar.github.io/ratingbar-cmp/demo/) in your browser, or clone the repo and [run the samples locally](SETUP.md).
+
 ---
 
 ## Why ratingbar-cmp?
@@ -67,6 +69,17 @@ dependencies {
 
 ## Basic Usage
 
+Two lines — that's all you need for a working rating bar with default stars, integer steps, and Material-themed colors:
+
+```kotlin
+var rating by rememberRatingBarState(initialValue = 3f)
+RatingBar(value = rating, onValueChange = { rating = it })
+```
+
+### With options
+
+Half-star steps, large items, animations, and haptic feedback on Android:
+
 ```kotlin
 import androidx.compose.runtime.*
 import com.github.anandkumarkparmar.ratingbar.*
@@ -79,8 +92,8 @@ fun RatingExample() {
         value = rating,
         onValueChange = { rating = it },
         config = RatingBarConfig(max = 5, step = 0.5f),
-        style = RatingBarDefaults.style(itemSize = RatingBarDefaults.SizeMedium),
-        animations = RatingBarDefaults.animations(enabled = true),
+        style = RatingBarDefaults.style(itemSize = RatingBarDefaults.SizeLarge),
+        animations = RatingBarDefaults.animations(enabled = true, animateScale = true),
         behavior = RatingBarDefaults.behavior(hapticFeedback = true),
     )
 }
@@ -134,11 +147,12 @@ A glimpse of what's planned for future releases. See the [full roadmap](docs/ROA
 - [Usage Examples](docs/USAGE.md) — common patterns with code snippets
 - [Live API Docs](https://anandkumarkparmar.github.io/ratingbar-cmp/) — auto-generated reference for every type
 - [Live Web Demo](https://anandkumarkparmar.github.io/ratingbar-cmp/demo/) — try it interactively in a browser
-- [Contributing](CONTRIBUTING.md)
-- [Roadmap](docs/ROADMAP.md)
-- [Changelog](CHANGELOG.md)
-- [Publishing Checklist](docs/PUBLISHING_CHECKLIST.md)
-- [CI/CD Guide](docs/ci-guide.md)
+- [Discussions](https://github.com/anandkumarkparmar/ratingbar-cmp/discussions) — ask questions, share ideas, or show how you're using the library
+- [Contributing](CONTRIBUTING.md) — first-time contributor? start here
+- [Roadmap](docs/ROADMAP.md) — what might come next
+- [Changelog](CHANGELOG.md) — release history with migration notes
+- [Publishing Checklist](docs/PUBLISHING_CHECKLIST.md) — for maintainers cutting a release
+- [CI/CD Guide](docs/CI_GUIDE.md) — how the GitHub Actions pipeline works
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 
 ---

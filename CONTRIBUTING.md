@@ -363,5 +363,5 @@ These help other contributors see the library in the wild.
 - [Roadmap](docs/ROADMAP.md) — what might come next
 - [Changelog](CHANGELOG.md) — what's already shipped
 - [Publishing Checklist](docs/PUBLISHING_CHECKLIST.md) — release process
-- [CI Guide](docs/ci-guide.md) — CI/CD workflow details
+- [CI/CD Guide](docs/CI_GUIDE.md) — CI/CD workflow details
 - [Code of Conduct](CODE_OF_CONDUCT.md)

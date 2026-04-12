@@ -96,6 +96,16 @@ iOS requires macOS with Xcode installed. You have two options:
 
 Useful if you just want to confirm the framework compiles — no simulator launches.
 
+**How the iOS host project works:**
+
+The Gradle `:samples:ios` module builds a Kotlin/Native framework (`RatingBarSample.framework`), but it doesn't produce a runnable iOS app — that's what the Xcode project in `samples/ios-app-host/` provides. The wiring:
+
+- A SwiftUI `ContentView` renders the Compose UI via `MainKt.MainViewController()`.
+- An Xcode build phase runs Gradle automatically to produce and copy the framework into the app bundle.
+- Linker and search paths are pre-configured to find `RatingBarSample.framework`.
+
+You don't need to touch any of this to run the sample — just open the `.xcodeproj` and hit Build & Run. The Gradle step happens transparently.
+
 ---
 
 ## What's in the Sample App
