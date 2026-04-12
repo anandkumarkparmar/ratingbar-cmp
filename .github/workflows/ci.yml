@@ -145,7 +145,7 @@ jobs:
           GRADLE_OPTS: "-Xmx4g -XX:MaxMetaspaceSize=512m"
 
       - name: Upload AAR
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: library-android-aar
           path: ratingbar-cmp/build/outputs/aar/*.aar
@@ -153,7 +153,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: library-android-test-results
           path: ratingbar-cmp/build/test-results/
@@ -188,7 +188,7 @@ jobs:
           GRADLE_OPTS: "-Xmx4g -XX:MaxMetaspaceSize=512m"
 
       - name: Upload JAR
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: library-desktop-jar
           path: ratingbar-cmp/build/libs/*.jar
@@ -196,7 +196,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: library-desktop-test-results
           path: ratingbar-cmp/build/test-results/desktopTest/
@@ -232,7 +232,7 @@ jobs:
 
       - name: Upload test results
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: library-web-test-results
           path: ratingbar-cmp/build/test-results/jsTest/
@@ -308,7 +308,7 @@ jobs:
           GRADLE_OPTS: "-Xmx4g"
       
       - name: Upload APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: sample-android-debug-apk
           path: samples/android/build/outputs/apk/debug/*.apk
@@ -345,7 +345,7 @@ jobs:
           GRADLE_OPTS: "-Xmx4g"
       
       - name: Upload JAR
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: sample-desktop-jar
           path: samples/desktop/build/compose/jars/*.jar
@@ -382,7 +382,7 @@ jobs:
           GRADLE_OPTS: "-Xmx4g"
       
       - name: Upload Web Distribution
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: sample-web-dist
           path: samples/web/build/dist/js/productionExecutable/
@@ -509,7 +509,7 @@ jobs:
       
       - name: Upload artifact size report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: artifact-size-report
           path: |
