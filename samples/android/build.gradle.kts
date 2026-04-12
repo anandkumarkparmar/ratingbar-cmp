@@ -7,7 +7,7 @@ plugins {
 android {
     namespace = "com.github.anandkumarkparmar.ratingbar.sample.android"
     compileSdk = libs.versions.compileSdk.get().toInt()
-    
+
     defaultConfig {
         applicationId = "com.github.anandkumarkparmar.ratingbar.sample.android"
         minSdk = libs.versions.minSdk.get().toInt()
@@ -20,11 +20,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    
+
     buildFeatures {
         compose = true
     }
-    
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -32,15 +32,7 @@ android {
     }
 }
 
-val ratingbarVersion = project.findProperty("ratingbarVersion") as? String ?: "0.3.0"
-
 dependencies {
-    implementation("com.github.anandkumarkparmar.ratingbar-cmp:ratingbar-cmp:$ratingbarVersion")
-    implementation(project(":common"))
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(project(":samples:common"))
     implementation(libs.androidx.activity.compose)
-    implementation(libs.compose.ui)
-    implementation(libs.compose.ui.tooling.preview)
-    implementation(libs.compose.material3)
 }

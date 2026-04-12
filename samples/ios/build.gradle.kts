@@ -15,30 +15,23 @@ kotlin {
             isStatic = false
         }
     }
-    
-    val ratingbarVersion = project.findProperty("ratingbarVersion") as? String ?: "0.3.0"
 
     sourceSets {
         val iosMain by creating {
             dependsOn(commonMain.get())
             dependencies {
-                implementation("com.github.anandkumarkparmar.ratingbar-cmp:ratingbar-cmp:$ratingbarVersion")
-                implementation(project(":common"))
-                implementation(libs.compose.mpp.runtime)
-                implementation(libs.compose.mpp.foundation)
-                implementation(libs.compose.mpp.material3)
-                implementation(libs.compose.mpp.ui)
+                implementation(project(":samples:common"))
             }
         }
-        
+
         val iosX64Main by getting {
             dependsOn(iosMain)
         }
-        
+
         val iosArm64Main by getting {
             dependsOn(iosMain)
         }
-        
+
         val iosSimulatorArm64Main by getting {
             dependsOn(iosMain)
         }

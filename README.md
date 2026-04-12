@@ -34,6 +34,8 @@ A lightweight, accessible, Compose Multiplatform RatingBar component for Android
   </tr>
 </table>
 
+iOS and Web are fully supported too — try the [live web demo](https://anandkumarkparmar.github.io/ratingbar-cmp/demo/) in your browser, or clone the repo and [run the samples locally](SETUP.md).
+
 ---
 
 ## Why ratingbar-cmp?
@@ -59,7 +61,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.anandkumarkparmar.ratingbar-cmp:ratingbar-cmp:0.4.0")
+    implementation("com.github.anandkumarkparmar.ratingbar-cmp:ratingbar-cmp:0.5.0")
 }
 ```
 
@@ -67,10 +69,20 @@ dependencies {
 
 ## Basic Usage
 
+Two lines — that's all you need for a working rating bar with default stars, integer steps, and Material-themed colors:
+
+```kotlin
+var rating by rememberRatingBarState(initialValue = 3f)
+RatingBar(value = rating, onValueChange = { rating = it })
+```
+
+### With options
+
+Half-star steps, large items, animations, and haptic feedback on Android:
+
 ```kotlin
 import androidx.compose.runtime.*
 import com.github.anandkumarkparmar.ratingbar.*
-import com.github.anandkumarkparmar.ratingbar.core.RatingBarConfig
 
 @Composable
 fun RatingExample() {
@@ -80,20 +92,14 @@ fun RatingExample() {
         value = rating,
         onValueChange = { rating = it },
         config = RatingBarConfig(max = 5, step = 0.5f),
-        style = RatingBarDefaults.style(itemSize = RatingBarDefaults.SizeMedium),
-        animations = RatingBarDefaults.animations(enabled = true),
+        style = RatingBarDefaults.style(itemSize = RatingBarDefaults.SizeLarge),
+        animations = RatingBarDefaults.animations(enabled = true, animateScale = true),
         behavior = RatingBarDefaults.behavior(hapticFeedback = true),
     )
 }
 ```
 
-For all parameters, overloads, and advanced usage see the [API Reference](docs/api-reference.md) or browse the [live API docs](https://anandkumarkparmar.github.io/ratingbar-cmp/).
-
-> **Migrating from v0.3.0?** Individual parameters like `max`, `step`, `filledColor`, and
-> `animateRating` are now grouped into `config`, `style`, `animations`, and `behavior` objects.
-> Call sites using all defaults need no changes. See the
-> [migration guide](docs/api-reference.md#migrating-from-v030) and
-> [changelog](docs/changelog.md) for details.
+For all parameters and type signatures, browse the [live API docs](https://anandkumarkparmar.github.io/ratingbar-cmp/) — they're auto-generated from KDoc on every release. For common usage patterns with code snippets, see [Usage Examples](docs/USAGE.md). To try the library interactively without installing anything, open the [live web demo](https://anandkumarkparmar.github.io/ratingbar-cmp/demo/).
 
 ---
 
@@ -124,7 +130,7 @@ For all parameters, overloads, and advanced usage see the [API Reference](docs/a
 
 ## What's Coming
 
-A glimpse of what's planned for future releases. See the [full roadmap](docs/roadmap.md) for details.
+A glimpse of what's planned for future releases. See the [full roadmap](docs/ROADMAP.md) for details.
 
 | Feature | Status |
 |---|---|
@@ -133,20 +139,21 @@ A glimpse of what's planned for future releases. See the [full roadmap](docs/roa
 | Badge mode (★ 4.5) | Planned |
 | Kotlin/Wasm target | Planned |
 
-See the [full roadmap](docs/roadmap.md) for everything delivered and everything still planned.
-
 ---
 
 ## Documentation
 
-- [API Reference](docs/api-reference.md)
-- [Running Samples](docs/running-samples.md)
-- [Contributing](docs/contributing.md)
-- [Roadmap](docs/roadmap.md)
-- [Changelog](docs/changelog.md)
-- [Publishing Checklist](docs/publishing-checklist.md)
-- [CI/CD Guide](docs/ci-guide.md)
-- [Code of Conduct](docs/code-of-conduct.md)
+- [Setup Guide](SETUP.md) — install prerequisites, clone, run the samples
+- [Usage Examples](docs/USAGE.md) — common patterns with code snippets
+- [Live API Docs](https://anandkumarkparmar.github.io/ratingbar-cmp/) — auto-generated reference for every type
+- [Live Web Demo](https://anandkumarkparmar.github.io/ratingbar-cmp/demo/) — try it interactively in a browser
+- [Discussions](https://github.com/anandkumarkparmar/ratingbar-cmp/discussions) — ask questions, share ideas, or show how you're using the library
+- [Contributing](CONTRIBUTING.md) — first-time contributor? start here
+- [Roadmap](docs/ROADMAP.md) — what might come next
+- [Changelog](CHANGELOG.md) — release history with migration notes
+- [Publishing Checklist](docs/PUBLISHING_CHECKLIST.md) — for maintainers cutting a release
+- [CI/CD Guide](docs/CI_GUIDE.md) — how the GitHub Actions pipeline works
+- [Code of Conduct](CODE_OF_CONDUCT.md)
 
 ---
 

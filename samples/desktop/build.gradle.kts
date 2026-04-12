@@ -6,16 +6,12 @@ plugins {
 
 kotlin {
     jvm("desktop")
-    
-    val ratingbarVersion = project.findProperty("ratingbarVersion") as? String ?: "0.3.0"
 
     sourceSets {
         val desktopMain by getting {
             dependencies {
-                implementation("com.github.anandkumarkparmar.ratingbar-cmp:ratingbar-cmp:$ratingbarVersion")
-                implementation(project(":common"))
+                implementation(project(":samples:common"))
                 implementation(compose.desktop.currentOs)
-                implementation(libs.compose.mpp.material3)
             }
         }
     }
@@ -24,7 +20,7 @@ kotlin {
 compose.desktop {
     application {
         mainClass = "com.github.anandkumarkparmar.ratingbar.sample.desktop.MainKt"
-        
+
         nativeDistributions {
             targetFormats(
                 org.jetbrains.compose.desktop.application.dsl.TargetFormat.Dmg,

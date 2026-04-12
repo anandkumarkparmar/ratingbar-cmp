@@ -43,31 +43,31 @@ jobs:
         with:
           filters: |
             library:
-              - 'src/**'
-              - 'api/**'
-              - 'build.gradle.kts'
+              - 'ratingbar-cmp/src/**'
+              - 'ratingbar-cmp/api/**'
+              - 'ratingbar-cmp/build.gradle.kts'
+              - 'ratingbar-cmp/detekt.yml'
               - 'settings.gradle.kts'
               - 'gradle/**'
-              - 'detekt.yml'
               - 'jitpack.yml'
               - '.github/workflows/ci.yml'
             samples:
               - 'samples/**'
             android:
-              - 'src/**'
+              - 'ratingbar-cmp/src/**'
               - 'samples/android/**'
               - 'samples/common/**'
             ios:
-              - 'src/**'
+              - 'ratingbar-cmp/src/**'
               - 'samples/ios/**'
               - 'samples/ios-app-host/**'
               - 'samples/common/**'
             desktop:
-              - 'src/**'
+              - 'ratingbar-cmp/src/**'
               - 'samples/desktop/**'
               - 'samples/common/**'
             web:
-              - 'src/**'
+              - 'ratingbar-cmp/src/**'
               - 'samples/web/**'
               - 'samples/common/**'
 
@@ -96,22 +96,22 @@ jobs:
       
       - name: Quick compile check
         run: |
-          ./gradlew compileKotlinDesktop \
-                    compileAndroidMain \
+          ./gradlew :ratingbar-cmp:compileKotlinDesktop \
+                    :ratingbar-cmp:compileAndroidMain \
                     --no-daemon --stacktrace
         env:
           GRADLE_OPTS: "-Xmx4g -XX:MaxMetaspaceSize=512m"
 
       - name: API compatibility check
         run: |
-          ./gradlew apiCheck \
+          ./gradlew :ratingbar-cmp:apiCheck \
                     --no-daemon --stacktrace
         env:
           GRADLE_OPTS: "-Xmx4g -XX:MaxMetaspaceSize=512m"
 
       - name: Detekt static analysis
         run: |
-          ./gradlew detekt \
+          ./gradlew :ratingbar-cmp:detekt \
                     --no-daemon --stacktrace
         env:
           GRADLE_OPTS: "-Xmx4g -XX:MaxMetaspaceSize=512m"
@@ -138,25 +138,25 @@ jobs:
       
       - name: Build Android Library
         run: |
-          ./gradlew bundleAndroidMainAar \
-                    assembleUnitTest \
+          ./gradlew :ratingbar-cmp:bundleAndroidMainAar \
+                    :ratingbar-cmp:assembleUnitTest \
                     --no-daemon --stacktrace
         env:
           GRADLE_OPTS: "-Xmx4g -XX:MaxMetaspaceSize=512m"
-      
+
       - name: Upload AAR
         uses: actions/upload-artifact@v4
         with:
           name: library-android-aar
-          path: build/outputs/aar/*.aar
+          path: ratingbar-cmp/build/outputs/aar/*.aar
           retention-days: 7
-      
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: library-android-test-results
-          path: build/test-results/
+          path: ratingbar-cmp/build/test-results/
           retention-days: 7
 
   # 🖥️ Desktop Library Build
@@ -181,25 +181,25 @@ jobs:
       
       - name: Build Desktop Library
         run: |
-          ./gradlew desktopJar \
-                    desktopTest \
+          ./gradlew :ratingbar-cmp:desktopJar \
+                    :ratingbar-cmp:desktopTest \
                     --no-daemon --stacktrace
         env:
           GRADLE_OPTS: "-Xmx4g -XX:MaxMetaspaceSize=512m"
-      
+
       - name: Upload JAR
         uses: actions/upload-artifact@v4
         with:
           name: library-desktop-jar
-          path: build/libs/*.jar
+          path: ratingbar-cmp/build/libs/*.jar
           retention-days: 7
-      
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: library-desktop-test-results
-          path: build/test-results/desktopTest/
+          path: ratingbar-cmp/build/test-results/desktopTest/
           retention-days: 7
 
   # 🌐 Web Library Build
@@ -224,18 +224,18 @@ jobs:
       
       - name: Build Web Library
         run: |
-          ./gradlew jsJar \
-                    jsTest \
+          ./gradlew :ratingbar-cmp:jsJar \
+                    :ratingbar-cmp:jsTest \
                     --no-daemon --stacktrace
         env:
           GRADLE_OPTS: "-Xmx4g -XX:MaxMetaspaceSize=512m"
-      
+
       - name: Upload test results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: library-web-test-results
-          path: build/test-results/jsTest/
+          path: ratingbar-cmp/build/test-results/jsTest/
           retention-days: 7
 
   # 🍎 iOS Library Build (expensive - only when needed)
@@ -263,16 +263,16 @@ jobs:
       
       - name: Build iOS Frameworks
         run: |
-          ./gradlew linkDebugFrameworkIosArm64 \
-                    linkDebugFrameworkIosSimulatorArm64 \
-                    linkDebugFrameworkIosX64 \
+          ./gradlew :ratingbar-cmp:linkDebugFrameworkIosArm64 \
+                    :ratingbar-cmp:linkDebugFrameworkIosSimulatorArm64 \
+                    :ratingbar-cmp:linkDebugFrameworkIosX64 \
                     --no-daemon --stacktrace
         env:
           GRADLE_OPTS: "-Xmx6g -XX:MaxMetaspaceSize=1g"
-      
+
       - name: Run iOS tests
         run: |
-          ./gradlew iosSimulatorArm64Test \
+          ./gradlew :ratingbar-cmp:iosSimulatorArm64Test \
                     --no-daemon --stacktrace
         env:
           GRADLE_OPTS: "-Xmx6g"
@@ -302,7 +302,7 @@ jobs:
       
       - name: Build Android Sample App
         run: |
-          ./gradlew -p samples :android:assembleDebug \
+          ./gradlew :samples:android:assembleDebug \
                     --no-daemon --stacktrace
         env:
           GRADLE_OPTS: "-Xmx4g"
@@ -339,7 +339,7 @@ jobs:
       
       - name: Build Desktop Sample App
         run: |
-          ./gradlew -p samples :desktop:packageUberJarForCurrentOS \
+          ./gradlew :samples:desktop:packageUberJarForCurrentOS \
                     --no-daemon --stacktrace
         env:
           GRADLE_OPTS: "-Xmx4g"
@@ -376,7 +376,7 @@ jobs:
       
       - name: Build Web Sample App
         run: |
-          ./gradlew -p samples :web:jsBrowserDistribution \
+          ./gradlew :samples:web:jsBrowserDistribution \
                     --no-daemon --stacktrace
         env:
           GRADLE_OPTS: "-Xmx4g"
@@ -416,7 +416,7 @@ jobs:
       
       - name: Build iOS Sample Framework
         run: |
-          ./gradlew -p samples :ios:linkDebugFrameworkIosSimulatorArm64 \
+          ./gradlew :samples:ios:linkDebugFrameworkIosSimulatorArm64 \
                     --no-daemon --stacktrace
         env:
           GRADLE_OPTS: "-Xmx6g"
@@ -469,7 +469,7 @@ jobs:
       
       - name: Validate JitPack publication task
         run: |
-          ./gradlew clean publishToMavenLocal \
+          ./gradlew :ratingbar-cmp:clean :ratingbar-cmp:publishToMavenLocal \
                     --no-daemon --stacktrace
         env:
           GRADLE_OPTS: "-Xmx4g"
@@ -486,7 +486,7 @@ jobs:
       
       - name: Build Android release artifact
         run: |
-          ./gradlew bundleAndroidMainAar \
+          ./gradlew :ratingbar-cmp:bundleAndroidMainAar \
                     --no-daemon --stacktrace
         env:
           GRADLE_OPTS: "-Xmx4g"

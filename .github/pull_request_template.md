@@ -25,7 +25,7 @@
 
 <!-- Describe how you tested these changes. -->
 
-- [ ] Builds pass locally (`./gradlew build`)
+- [ ] Pre-PR validation passes — see [CONTRIBUTING.md § Pre-PR checklist](CONTRIBUTING.md#pre-pr-checklist)
 - [ ] Existing tests pass
 - [ ] New tests added (if applicable)
 
