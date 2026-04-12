@@ -36,7 +36,13 @@ kotlin {
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(project(":ratingbar-cmp"))
+                if (providers.gradleProperty("useRemote").isPresent) {
+                    val remoteVersion = providers.gradleProperty("remoteLibraryVersion")
+                        .orNull ?: error("Pass -PremoteLibraryVersion=<version> when using -PuseRemote")
+                    implementation("com.github.anandkumarkparmar.ratingbar-cmp:ratingbar-cmp:$remoteVersion")
+                } else {
+                    implementation(project(":ratingbar-cmp"))
+                }
                 implementation(libs.compose.mpp.runtime)
                 implementation(libs.compose.mpp.foundation)
                 implementation(libs.compose.mpp.ui)

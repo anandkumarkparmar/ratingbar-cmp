@@ -1,5 +1,10 @@
 rootProject.name = "ratingbar-cmp-parent"
 
+// Pass -PuseRemote -PremoteLibraryVersion=0.5.0 to resolve the library from
+// JitPack instead of the local project. Useful for smoke-testing a published
+// release end-to-end through the sample apps.
+val useRemote = providers.gradleProperty("useRemote").isPresent
+
 pluginManagement {
     repositories {
         google()
@@ -14,11 +19,16 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+        if (useRemote) {
+            maven("https://jitpack.io")
+        }
     }
 }
 
-// Library module
-include(":ratingbar-cmp")
+// Library module — excluded when testing against a remote (JitPack) artifact.
+if (!useRemote) {
+    include(":ratingbar-cmp")
+}
 
 // Sample modules (flattened from former composite build)
 include(":samples:common")
