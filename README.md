@@ -61,7 +61,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.github.anandkumarkparmar.ratingbar-cmp:ratingbar-cmp:0.5.0")
+    implementation("com.github.anandkumarkparmar.ratingbar-cmp:ratingbar-cmp:1.0.0")
 }
 ```
 

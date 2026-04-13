@@ -70,7 +70,7 @@ All library code is in one flat package: `ratingbar-cmp/src/commonMain/kotlin/co
 
 ## Key Configuration
 
-- `gradle.properties` — `libraryVersion=0.5.0` is the **single source of truth** for the published version. `build.gradle.kts` reads it via `property("libraryVersion")`. Also sets `-Xmx8192m` and `workers.max=2` (required for iOS Kotlin/Native linking).
+- `gradle.properties` — `libraryVersion=1.0.0` is the **single source of truth** for the published version. `build.gradle.kts` reads it via `property("libraryVersion")`. Also sets `-Xmx8192m` and `workers.max=2` (required for iOS Kotlin/Native linking).
 - `gradle/libs.versions.toml` — all dependency versions
 - `detekt.yml` (repo root) — zero-tolerance linting (`maxIssues: 0`); applied to all subprojects from root `build.gradle.kts`
 - `ratingbar-cmp/api/desktop/ratingbar-cmp.api` — binary-compatibility-validator golden file
@@ -82,6 +82,6 @@ All library code is in one flat package: `ratingbar-cmp/src/commonMain/kotlin/co
 
 ## Release Conventions
 
-- **Tag format**: `0.x.y` (no `v` prefix). Enforced by `release.yml` regex `^0\.[0-9]+\.[0-9]+$`.
+- **Tag format**: `x.y.z` (no `v` prefix). Enforced by `release.yml` regex `^[0-9]+\.[0-9]+\.[0-9]+$`.
 - **Version bump**: edit `libraryVersion` in `gradle.properties`, update `README.md` install snippet and `CHANGELOG.md`.
 - **Full process**: see `docs/PUBLISHING_CHECKLIST.md`.

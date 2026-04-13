@@ -13,12 +13,12 @@ The goal of this document is to be a **pre-flight checklist** — not a tutorial
 - Create a release branch for the version bump and final doc updates:
 
   ```bash
-  git checkout -b release/0.x.y
+  git checkout -b release/x.y.z
   ```
 
 ## 2. Update version and documentation
 
-- Bump the library version in [`gradle.properties`](../gradle.properties) (`libraryVersion=0.x.y`). This is the single source of truth — `ratingbar-cmp/build.gradle.kts` reads it via `property("libraryVersion")`. Keep the semantic `0.x.y` pattern — the release workflow validates it.
+- Bump the library version in [`gradle.properties`](../gradle.properties) (`libraryVersion=x.y.z`). This is the single source of truth — `ratingbar-cmp/build.gradle.kts` reads it via `property("libraryVersion")`. Keep the semantic `x.y.z` pattern — the release workflow validates it.
 - Update [`CHANGELOG.md`](../CHANGELOG.md) — add an entry for the new version using the standard `Added` / `Changed` / `Removed` / `Fixed` / `Deprecated` / `Security` categories.
 - Add a comparison reference link at the bottom of `CHANGELOG.md` so the version heading links to the GitHub compare view.
 - Audit [`README.md`](../README.md) for any version-specific content (installation snippet, feature lists, migration notes) and update it.
@@ -79,10 +79,10 @@ This is a manual smoke test — CI covers framework compilation but not end-to-e
 
   ```bash
   git add ratingbar-cmp/build.gradle.kts CHANGELOG.md README.md docs/ROADMAP.md
-  git commit -m "chore: release 0.x.y"
+  git commit -m "chore: release x.y.z"
   ```
 
-- Push and open a PR from `release/0.x.y` to `main` titled `chore: release 0.x.y`.
+- Push and open a PR from `release/x.y.z` to `main` titled `chore: release x.y.z`.
 - Wait for CI to pass. Request review if you want a second pair of eyes before tagging.
 
 ## 7. Tag to trigger the release pipeline
@@ -92,11 +92,11 @@ Once the release PR is merged, create an annotated tag from `main`:
 ```bash
 git checkout main
 git pull
-git tag -a 0.x.y -m "ratingbar-cmp 0.x.y"
-git push origin 0.x.y
+git tag -a x.y.z -m "ratingbar-cmp x.y.z"
+git push origin x.y.z
 ```
 
-**Tag format:** `release.yml` only accepts tags matching `^0\.[0-9]+\.[0-9]+$` — no `v` prefix. Earlier releases (`v0.1.0`, `v0.2.0`) used the prefix; from `0.3.0` onward the convention is no prefix. Tags with a `v` prefix will be rejected by the validation step.
+**Tag format:** `release.yml` only accepts tags matching `^[0-9]+\.[0-9]+\.[0-9]+$` — no `v` prefix. Earlier releases (`v0.1.0`, `v0.2.0`) used the prefix; from `0.3.0` onward the convention is no prefix. Tags with a `v` prefix will be rejected by the validation step.
 
 Pushing the tag triggers three automated jobs after `release-prep` validation passes:
 
@@ -121,11 +121,11 @@ Also verify that the Dokka site at `https://anandkumarkparmar.github.io/ratingba
 
 JitPack builds artifacts lazily on first request, so the new version won't be available until someone fetches it:
 
-- Visit `https://jitpack.io/#anandkumarkparmar/ratingbar-cmp/0.x.y` to trigger the first build. Wait for the status indicator to turn green.
+- Visit `https://jitpack.io/#anandkumarkparmar/ratingbar-cmp/x.y.z` to trigger the first build. Wait for the status indicator to turn green.
 - Verify the Gradle module metadata file is served — this is required for KMP variant selection:
 
   ```bash
-  curl -I "https://jitpack.io/com/github/anandkumarkparmar/ratingbar-cmp/ratingbar-cmp/0.x.y/ratingbar-cmp-0.x.y.module"
+  curl -I "https://jitpack.io/com/github/anandkumarkparmar/ratingbar-cmp/ratingbar-cmp/x.y.z/ratingbar-cmp-x.y.z.module"
   # Expect: HTTP 200
   ```
 
@@ -138,7 +138,7 @@ JitPack builds artifacts lazily on first request, so the new version won't be av
   }
 
   dependencies {
-      implementation("com.github.anandkumarkparmar.ratingbar-cmp:ratingbar-cmp:0.x.y")
+      implementation("com.github.anandkumarkparmar.ratingbar-cmp:ratingbar-cmp:x.y.z")
   }
   ```
 
@@ -146,11 +146,11 @@ If JitPack's build fails, check the build log linked from their status page — 
 
 ## 10. Post-release tidy-up
 
-- Delete the `release/0.x.y` branch locally and on the remote if it wasn't auto-deleted:
+- Delete the `release/x.y.z` branch locally and on the remote if it wasn't auto-deleted:
 
   ```bash
-  git branch -d release/0.x.y
-  git push origin --delete release/0.x.y
+  git branch -d release/x.y.z
+  git push origin --delete release/x.y.z
   ```
 
 - Update [`ROADMAP.md`](ROADMAP.md) if any additional items were delivered and you forgot in step 2.

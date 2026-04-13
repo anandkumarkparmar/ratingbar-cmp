@@ -1,6 +1,6 @@
 rootProject.name = "ratingbar-cmp-parent"
 
-// Pass -PuseRemote -PremoteLibraryVersion=0.5.0 to resolve the library from
+// Pass -PuseRemote -PremoteLibraryVersion=1.0.0 to resolve the library from
 // JitPack instead of the local project. Useful for smoke-testing a published
 // release end-to-end through the sample apps.
 val useRemote = providers.gradleProperty("useRemote").isPresent
