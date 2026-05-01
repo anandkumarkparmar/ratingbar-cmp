@@ -7,7 +7,7 @@ compose-mpp-material3 = "1.9.0"
 
 # Compose Dependencies
 compose-material3 = "1.4.0"
-compose-ui = "1.10.4"
+compose-ui = "1.11.0"
 activity-compose = "1.12.4"
 
 # AndroidX
