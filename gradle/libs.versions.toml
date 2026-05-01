@@ -11,7 +11,7 @@ compose-ui = "1.10.4"
 activity-compose = "1.12.4"
 
 # AndroidX
-androidx-core = "1.17.0"
+androidx-core = "1.18.0"
 androidx-lifecycle = "2.10.0"
 
 # SDK Versions
