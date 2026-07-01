@@ -36,7 +36,7 @@ jobs:
       desktop: ${{ steps.filter.outputs.desktop }}
       web: ${{ steps.filter.outputs.web }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       
       - uses: dorny/paths-filter@v4
         id: filter
@@ -76,7 +76,7 @@ jobs:
     needs: changes
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       
       - name: Set up JDK
         uses: actions/setup-java@v4
@@ -124,7 +124,7 @@ jobs:
       needs.changes.outputs.android == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       
       - name: Set up JDK
         uses: actions/setup-java@v4
@@ -167,7 +167,7 @@ jobs:
       needs.changes.outputs.desktop == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       
       - name: Set up JDK
         uses: actions/setup-java@v4
@@ -210,7 +210,7 @@ jobs:
       needs.changes.outputs.web == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       
       - name: Set up JDK
         uses: actions/setup-java@v4
@@ -249,7 +249,7 @@ jobs:
        contains(github.event.pull_request.labels.*.name, 'ready-to-merge'))
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       
       - name: Set up JDK
         uses: actions/setup-java@v4
@@ -288,7 +288,7 @@ jobs:
       (needs.library-android.result == 'success' || needs.library-android.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       
       - name: Set up JDK
         uses: actions/setup-java@v4
@@ -325,7 +325,7 @@ jobs:
       (needs.library-desktop.result == 'success' || needs.library-desktop.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       
       - name: Set up JDK
         uses: actions/setup-java@v4
@@ -362,7 +362,7 @@ jobs:
       (needs.library-web.result == 'success' || needs.library-web.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       
       - name: Set up JDK
         uses: actions/setup-java@v4
@@ -402,7 +402,7 @@ jobs:
       (needs.library-ios.result == 'success' || needs.library-ios.result == 'skipped')
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       
       - name: Set up JDK
         uses: actions/setup-java@v4
@@ -455,7 +455,7 @@ jobs:
       (needs.library-web.result == 'success' || needs.library-web.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       
       - name: Set up JDK
         uses: actions/setup-java@v4
